@@ -82,7 +82,7 @@ namespace Client
             }));
 
 
-            return "OK";
+            return "Received";
         }
 
 
@@ -134,7 +134,7 @@ namespace Client
                 {
                      string msg= ClientManager.Sync.SendMsgToUser(userinfo.UserName,this.textBox1.Text);
 
-                    MessageBox.Show(msg);
+                    this.richTextBox1.AppendText(userinfo.UserName+":"+ msg + "\r\n");
                 }
             }
         }
