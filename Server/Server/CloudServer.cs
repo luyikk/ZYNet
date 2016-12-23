@@ -138,23 +138,22 @@ namespace ZYNet.CloudSystem.Server
         }
 
 
-        private bool ConnectionFilter(SocketAsyncEventArgs socketNetCloudSystem)
+        private bool ConnectionFilter(SocketAsyncEventArgs socketAsync)
         {
 
-            LogAction.Log(socketNetCloudSystem.AcceptSocket.RemoteEndPoint.ToString() + " Connect");
+            LogAction.Log(socketAsync.AcceptSocket.RemoteEndPoint.ToString() + " Connect");
 
             if (IsCanConn != null)
             {
-                if (IsCanConn((IPEndPoint)socketNetCloudSystem.AcceptSocket.RemoteEndPoint))
-                {
-                    socketNetCloudSystem.UserToken = NewASyncToken(socketNetCloudSystem);
+                if (IsCanConn((IPEndPoint)socketAsync.AcceptSocket.RemoteEndPoint))
+                {                    
                     return true;
                 }
                 else
                     return false;
             }
 
-            socketNetCloudSystem.UserToken = NewASyncToken(socketNetCloudSystem);
+         
 
             return true;
         }
@@ -176,10 +175,26 @@ namespace ZYNet.CloudSystem.Server
 
         private void BinaryInputOffsetHandler(byte[] data, int offset, int count, SocketAsyncEventArgs socketAsync)
         {
+            
             ASyncToken tmp = socketAsync.UserToken as ASyncToken;
 
             if (tmp != null)
                 tmp.Write(data, offset, count);
+            else if(count >= 8&&data[0]==0xFF&&data[1]==0xFE&&data[5]==0xCE&&data[7]==0xED)
+            {
+                var token = NewASyncToken(socketAsync);
+                socketAsync.UserToken = token;
+
+                if (count > 8)
+                {
+                    byte[] bakdata = new byte[count - 8];
+                    Buffer.BlockCopy(data, offset+8, bakdata, 0, bakdata.Length);
+
+                    token.Write(bakdata, 0, bakdata.Length);
+                }
+
+                
+            }
 
         }
 

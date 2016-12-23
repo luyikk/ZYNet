@@ -82,6 +82,11 @@ namespace ZYNet.CloudSystem.Client
                 Client.BinaryInput += Client_BinaryInput;
                 Client.Disconnect += Client_Disconnect;
 
+                byte[] data = { 0xFF, 0xFE, 0x00, 0x00, 0x00, 0xCE, 0x00, 0xED };
+
+                SendData(data);
+
+
                 return true;
             }
             else
