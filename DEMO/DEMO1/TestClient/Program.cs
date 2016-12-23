@@ -14,9 +14,8 @@ namespace TestClient
     {
         static void Main(string[] args)
         {
-            LogAction.LogOut += LogAction_LogOut;
-            SocketClient socket = new SocketClient();
-            CloudClient client = new CloudClient(socket, 500000, 1024 * 1024); //最大数据包能够接收 1M
+            LogAction.LogOut += LogAction_LogOut;          
+            CloudClient client = new CloudClient(new SocketClient(), 500000, 1024 * 1024); //最大数据包能够接收 1M
             PackHander tmp = new PackHander();
             client.Install(tmp);
             client.Disconnect += Client_Disconnect;           
@@ -44,6 +43,15 @@ namespace TestClient
                         var x = Sync.CR(2001, "http://www.qq.com");
 
                         Console.WriteLine("QQHtml:" + x.First.Value<string>().Length);
+
+                        System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch();
+                        stop.Start();
+                        var rec = Sync.CR(2500, 10000)?.First?.Value<int>();
+                        stop.Stop();
+                        if (rec != null)
+                        {
+                            Console.WriteLine("Rec:{0} time:{1} MS",rec.Value,stop.ElapsedMilliseconds);
+                        }
                     }
                 }
 

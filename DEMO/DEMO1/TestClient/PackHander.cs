@@ -32,5 +32,22 @@ namespace TestClient
             
             Console.WriteLine(msg);
         }
+
+        [MethodRun(2500)]
+        public  async Task<ReturnResult> TestRec(AsyncCalls async, int count)
+        {
+            count--;
+            if (count > 1)
+            {
+                var x = (await async.CR(2500, count))?[0]?.Value<int>();
+
+                if (x != null && x.HasValue)
+                {
+                    count = x.Value;
+                }
+            }
+
+            return async.RET(count);
+        }
     }
 }
