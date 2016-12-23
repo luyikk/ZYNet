@@ -52,8 +52,6 @@ namespace TestServer
             {               
                 string html = Encoding.UTF8.GetString(htmldata);
 
-                
-
                 return async.RET(html);
 
             }

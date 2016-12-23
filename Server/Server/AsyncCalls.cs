@@ -37,7 +37,11 @@ namespace ZYNet.CloudSystem.Server
 
         public int Cmd { get; private set; }
 
-        public object Token => AsyncUser?.UserToken;
+        public object Token
+        {
+            get { return AsyncUser?.UserToken; }
+            set { if (AsyncUser != null) AsyncUser.UserToken = value; }
+        }
 
         public CloudServer CurrentServer => AsyncUser?.CurrentServer;
 

@@ -137,10 +137,16 @@ namespace ZYNet.CloudSystem.Client
                 var value = wait.Result;
                 wait.Dispose();
 
-                if (value.Arguments == null)
-                    return null;
+                if (value != null)
+                {
+
+                    if (value.Arguments == null)
+                        return null;
+                    else
+                        return value;
+                }
                 else
-                    return value;
+                    return null;
             }
         }
         

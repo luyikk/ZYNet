@@ -19,19 +19,17 @@ namespace TestClient
         public async Task<ReturnResult> DownHtml(AsyncCalls async,string url)
         {
             WebClient client = new WebClient();
-            byte[] html=  await client.DownloadDataTaskAsync(url);
-
-         
+            byte[] html=  await client.DownloadDataTaskAsync(url);        
 
             return async.RET(html);
         }
 
         [MethodRun(3001)]
         public void Message(CloudClient client,string msg)
-        {
-            
+        {            
             Console.WriteLine(msg);
         }
+
 
         [MethodRun(2500)]
         public  async Task<ReturnResult> TestRec(AsyncCalls async, int count)

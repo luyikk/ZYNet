@@ -54,6 +54,13 @@ namespace ZYNet.CloudSystem.Server
             Init();
         }
 
+        public CloudServer(int maxPackSize)
+        {
+            Server = new ZYSocketSuper();
+            MaxBuffsize = maxPackSize;
+            Init();
+        }
+
         public CloudServer(string host, int port, int maxconnectcout, int maxbuffersize, int maxPackSize)
         {
             Server = new ZYSocketSuper(host, port, maxconnectcout, maxbuffersize);
@@ -180,7 +187,7 @@ namespace ZYNet.CloudSystem.Server
 
             if (tmp != null)
                 tmp.Write(data, offset, count);
-            else if(count >= 8&&data[0]==0xFF&&data[1]==0xFE&&data[5]==0xCE&&data[7]==0xED)
+            else if(count >= 8&&data[offset] ==0xFF&&data[offset+1] ==0xFE&&data[offset+5] ==0xCE&&data[offset+7] ==0xED)
             {
                 var token = NewASyncToken(socketAsync);
                 socketAsync.UserToken = token;

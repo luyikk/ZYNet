@@ -47,8 +47,16 @@ namespace ZYNet.CloudSystem.Client
 
                                 if (method.GetParameters().Length > 0 && method.GetParameters()[0].ParameterType == typeof(AsyncCalls))
                                 {
-                                    AsyncMethodDef tmp = new AsyncMethodDef(method, o);
-                                    ModuleDiy.Add(attrcmdtype.CmdType, tmp);
+                                    if (!ModuleDiy.ContainsKey(attrcmdtype.CmdType))
+                                    {
+                                        AsyncMethodDef tmp = new AsyncMethodDef(method, o);
+                                        ModuleDiy.Add(attrcmdtype.CmdType, tmp);
+                                    }
+                                    else
+                                    {
+                                        AsyncMethodDef tmp = new AsyncMethodDef(method, o);
+                                        ModuleDiy[attrcmdtype.CmdType] = tmp;
+                                    }
                                 }
 
                             }
@@ -56,8 +64,16 @@ namespace ZYNet.CloudSystem.Client
                             {
                                 if (method.GetParameters().Length > 0 &&  method.GetParameters()[0].ParameterType == typeof(CloudClient))
                                 {
-                                    AsyncMethodDef tmp = new AsyncMethodDef(method, o);
-                                    ModuleDiy.Add(attrcmdtype.CmdType, tmp);
+                                    if (!ModuleDiy.ContainsKey(attrcmdtype.CmdType))
+                                    {
+                                        AsyncMethodDef tmp = new AsyncMethodDef(method, o);
+                                        ModuleDiy.Add(attrcmdtype.CmdType, tmp);
+                                    }
+                                    else
+                                    {
+                                        AsyncMethodDef tmp = new AsyncMethodDef(method, o);
+                                        ModuleDiy[attrcmdtype.CmdType] = tmp;
+                                    }
                                 }
                             }
 
