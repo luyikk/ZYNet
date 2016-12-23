@@ -30,7 +30,7 @@ namespace Client
 
         private void button1_Click(object sender, EventArgs e)
         {
-            var res = ClientManager.Sync.CR(1000, this.textBox1.Text);
+            var res = ClientManager.Sync.LogOn(this.textBox1.Text);
 
             var isOK = res?.First?.Value<bool>();
 

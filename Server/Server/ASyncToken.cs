@@ -214,6 +214,14 @@ namespace ZYNet.CloudSystem.Server
         }
 
 
+        public AsyncCalls MakeAsync(AsyncCalls async)
+        {
+            AsyncCalls tmp = new AsyncCalls(this, async.fiber);
+            tmp.CallSend += SendData;
+            return tmp;
+        }
+
+
 
         private  void CallPackRun(CallPack pack)
         {

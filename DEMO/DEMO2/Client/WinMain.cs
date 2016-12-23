@@ -60,6 +60,32 @@ namespace Client
         }
 
 
+        [MethodRun(2001)]
+        public void MessageTo(CloudClient client, string username, string msg)
+        {
+
+            this.BeginInvoke(new EventHandler(delegate
+            {
+                this.richTextBox1.AppendText(username + ":" + msg + "\r\n");
+            }));
+          
+        }
+
+
+        [MethodRun(2002)]
+        public string MessageToMe(CloudClient client, string username,string msg)
+        {
+           
+            this.BeginInvoke(new EventHandler(delegate
+            {
+                this.richTextBox1.AppendText(username + "->" + msg+"\r\n");
+            }));
+
+
+            return "OK";
+        }
+
+
         private void WinMain_Load(object sender, EventArgs e)
         {
             LogAction.LogOut += LogAction_LogOut;
@@ -83,8 +109,34 @@ namespace Client
             this.BeginInvoke(new EventHandler(delegate
             {
                 this.richTextBox1.AppendText("["+type+"]:"+msg + "\r\n");
-
+                
             }));
+        }
+
+        private void comboBox1_DropDown(object sender, EventArgs e)
+        {
+            this.comboBox1.Items.Clear();
+            this.comboBox1.Items.Add("所有人");
+            this.comboBox1.Items.AddRange(this.AllUser.ToArray());
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if(this.comboBox1.SelectedIndex==0)
+            {
+                ClientManager.Sync.SendMessageToAllUser(this.textBox1.Text);
+            }
+            else
+            {
+                var userinfo= this.comboBox1.SelectedItem as UserInfo;
+
+                if(userinfo!=null)
+                {
+                     string msg= ClientManager.Sync.SendMsgToUser(userinfo.UserName,this.textBox1.Text);
+
+                    MessageBox.Show(msg);
+                }
+            }
         }
     }
 }

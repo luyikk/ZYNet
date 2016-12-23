@@ -28,13 +28,13 @@ namespace Server
 
                 async.Token = user;
 
-                user.Nick = (await async.CR(1001))?.First?.Value<string>();
+                user.Nick = await async.GetNick();
 
-                async.CV(1003, UserList);
+                async.SetUserList(UserList);
 
                 foreach (var item in UserList)
                 {
-                    item.token.CV(1002, user);
+                    item.token.AddUser(user);
                 }
 
                 async.AsyncUser.UserDisconnect += AsyncUser_UserDisconnect;
@@ -49,7 +49,7 @@ namespace Server
 
 
         [MethodRun(2001)]
-        private static void SendMessage(ASyncToken token,string msg)
+        public static void SendMessage(ASyncToken token,string msg)
         {
             var userinfo = token.UserToken as UserInfo;
 
@@ -57,15 +57,15 @@ namespace Server
             {
                 foreach (var item in UserList)
                 {
-                    item.token.CV(2001, userinfo.UserName,msg);
+                    item.token.MessageTo(userinfo.UserName, msg);
                 }
             }
         }
 
         [MethodRun(2002)]
-        private static void ToMessage(ASyncToken token,string account,string msg)
+        public static async Task<ReturnResult> ToMessage(AsyncCalls async,string account,string msg)
         {
-            var userinfo = token.UserToken as UserInfo;
+            var userinfo = async.Token as UserInfo;
 
             if (userinfo != null)
             {
@@ -73,10 +73,16 @@ namespace Server
 
                 if(touser!=null)
                 {
-                    touser.token.CV(2002, userinfo.UserName, msg);
+                    var ret = await touser.token.MakeAsync(async).MsgToUser(userinfo.UserName, msg);
+
+                    if(ret!=null)
+                    {
+                        return async.RET(ret);
+                    }
                 }
             }
 
+            return async.RET();           
         }
 
 
@@ -94,7 +100,7 @@ namespace Server
 
                     foreach (var item in UserList)
                     {
-                        item.token.CV(1004, userinfo.UserName);
+                        item.token.RemoveUser(userinfo);
                     }
                 }
             }

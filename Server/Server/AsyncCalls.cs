@@ -45,6 +45,15 @@ namespace ZYNet.CloudSystem.Server
 
         public CloudServer CurrentServer => AsyncUser?.CurrentServer;
 
+
+        public AsyncCalls(ASyncToken token,Fiber fiber)
+        {
+            this.AsyncUser = token;
+            this.fiber = fiber;
+        }
+
+
+
         public AsyncCalls(long id,int cmd,ASyncToken token,MethodInfo method,object[] args,bool ishavereturn)
         {
             IsHaveReturn = ishavereturn;

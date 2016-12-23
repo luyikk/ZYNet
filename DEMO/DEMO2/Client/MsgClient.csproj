@@ -56,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClientManager.cs" />
+    <Compile Include="ExtendMethods.cs" />
     <Compile Include="NickWin.cs">
       <SubType>Form</SubType>
     </Compile>
