@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A778C234-4742-4264-AE5A-A46D1F494324}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1AD9B9C5-D0BC-4C87-95AE-8BF12D4CAE7C}"
+	ProjectSection(SolutionItems) = preProject
+		global.json = global.json
+	EndProjectSection
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "ZYNetFrame", "src\ZYNetFrame\ZYNetFrame.xproj", "{8CD9A945-FFFB-4FC9-BCA8-B70476FAC7A9}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "ZYNetServer", "src\ZYNetServer\ZYNetServer.xproj", "{3A49C88B-B049-413F-9A48-8E617F461CAA}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "ZYNetClient", "src\ZYNetClient\ZYNetClient.xproj", "{D9F1E1DD-2CE9-464A-894C-2C240EF0BE32}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8CD9A945-FFFB-4FC9-BCA8-B70476FAC7A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CD9A945-FFFB-4FC9-BCA8-B70476FAC7A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CD9A945-FFFB-4FC9-BCA8-B70476FAC7A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8CD9A945-FFFB-4FC9-BCA8-B70476FAC7A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A49C88B-B049-413F-9A48-8E617F461CAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A49C88B-B049-413F-9A48-8E617F461CAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A49C88B-B049-413F-9A48-8E617F461CAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A49C88B-B049-413F-9A48-8E617F461CAA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D9F1E1DD-2CE9-464A-894C-2C240EF0BE32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9F1E1DD-2CE9-464A-894C-2C240EF0BE32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9F1E1DD-2CE9-464A-894C-2C240EF0BE32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9F1E1DD-2CE9-464A-894C-2C240EF0BE32}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8CD9A945-FFFB-4FC9-BCA8-B70476FAC7A9} = {A778C234-4742-4264-AE5A-A46D1F494324}
+		{3A49C88B-B049-413F-9A48-8E617F461CAA} = {A778C234-4742-4264-AE5A-A46D1F494324}
+		{D9F1E1DD-2CE9-464A-894C-2C240EF0BE32} = {A778C234-4742-4264-AE5A-A46D1F494324}
+	EndGlobalSection
+EndGlobal
