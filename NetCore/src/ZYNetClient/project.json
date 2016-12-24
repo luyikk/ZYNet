@@ -1,9 +1,10 @@
-﻿{
+{
   "title": "ZYNetClient",
   "copyright": "luyikk",
   "version": "1.0.0-alpha-5",
 
   "dependencies": {
+    "System.Net.NameResolution": "4.0.0",
     "ZYNetFrame": "1.0.0-alpha-5"
   },
 
