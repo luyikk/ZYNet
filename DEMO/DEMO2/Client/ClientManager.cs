@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using ZYNet.CloudSystem;
 using ZYNet.CloudSystem.Client;
 using ZYNet.CloudSystem.Frame;
-using ZYNet.CloudSystem.SockClient;
+using ZYNet.CloudSystem.SocketClient;
 
 namespace Client
 {
