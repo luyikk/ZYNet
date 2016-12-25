@@ -11,8 +11,8 @@
     },
     "ZYSOCKET-protobuf-net": "4.3.2",
     "ZYSocketShare-dnx": "4.3.7.2",
-    "ZYNetServer-dnx": "1.0.2",
-    "ZYSocketFrame-dnx": "4.3.7.1"
+    "ZYNetServer-dnx": "1.0.3",
+    "ZYSocketFrame-dnx": "4.3.7.2"
   },
 
   "frameworks": {
