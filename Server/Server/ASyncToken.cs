@@ -9,6 +9,7 @@ using ZYNet.CloudSystem.Frame;
 using ZYSocket.share;
 using ZYSocket.ZYCoroutinesin;
 using System.IO;
+using ZYSocket.AsyncSend;
 
 namespace ZYNet.CloudSystem.Server
 {
@@ -24,7 +25,7 @@ namespace ZYNet.CloudSystem.Server
 
         public event Action<ASyncToken,string> UserDisconnect;
 
-
+        public AsyncSend sendobj { get; private set; }
 
         public object UserToken { get; set; }
 
@@ -35,6 +36,7 @@ namespace ZYNet.CloudSystem.Server
             Stream = new ZYNetRingBufferPool(MaxBuffsize);
             CurrentServer = server;
             this.dataExtra = server.EcodeingHandler;
+            sendobj = new AsyncSend(asynca.AcceptSocket);
         }
 
         internal void RemoveAsyncCall(long id)
@@ -152,7 +154,7 @@ namespace ZYNet.CloudSystem.Server
 
         protected override void SendData(byte[] data)
         {
-            CurrentServer.Send(Asyn.AcceptSocket, data);
+            CurrentServer.Send(sendobj, data);
         }
 
         protected override ReturnResult SendDataAsWait(long Id, byte[] Data)

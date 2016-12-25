@@ -2,15 +2,17 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>ZYNetServer-dnx</id>
-        <version>1.0.0</version>
+        <version>1.0.2</version>
         <title>ZYNetServer dnx</title>
         <authors>luyikk</authors>
         <owners>luyikk</owners>
         <licenseUrl>https://github.com/luyikk/ZYNet</licenseUrl>
         <projectUrl>https://github.com/luyikk/ZYNet</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <description>ZYNetServer For NETCORE</description>
-        <summary>ZYNetServer For NETCORE</summary>
+        <description>ZYNetServer For NETCORE
+Fiber Socket</description>
+        <summary>ZYNetServer For NETCORE
+Fiber Socket</summary>
         <copyright>luyikk</copyright>
         <language>en-US</language>
         <tags>ZYNET</tags>

@@ -223,9 +223,9 @@ namespace ZYNet.CloudSystem.Server
         }
 
 
-        internal void Send(Socket sock, byte[] data)
+        internal void Send(ISend sock, byte[] data)
         {
-            Server.SendData(sock, data);
+            Server.Send(sock, data);
         }
        
 
