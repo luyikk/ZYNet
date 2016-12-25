@@ -7,8 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using ZYNet.CloudSystem.Frame;
 using ZYSocket.share;
-using ZYSocket.ZYCoroutinesin;
 using System.IO;
+using ZYSocket.AsyncSend;
 
 namespace ZYNet.CloudSystem.Server
 {
@@ -24,7 +24,7 @@ namespace ZYNet.CloudSystem.Server
 
         public event Action<ASyncToken,string> UserDisconnect;
 
-
+        private AsyncSend _send;
 
         public object UserToken { get; set; }
 
@@ -32,6 +32,7 @@ namespace ZYNet.CloudSystem.Server
         public ASyncToken(SocketAsyncEventArgs asynca, CloudServer server, int MaxBuffsize)
         {
             this.Asyn = asynca;
+            _send = new AsyncSend(asynca.AcceptSocket);
             Stream = new ZYNetRingBufferPool(MaxBuffsize);
             CurrentServer = server;
             this.dataExtra = server.EcodeingHandler;
@@ -152,7 +153,7 @@ namespace ZYNet.CloudSystem.Server
 
         protected override void SendData(byte[] data)
         {
-            CurrentServer.Send(Asyn.AcceptSocket, data);
+            CurrentServer.Send(_send, data);
         }
 
         protected override ReturnResult SendDataAsWait(long Id, byte[] Data)
@@ -269,11 +270,12 @@ namespace ZYNet.CloudSystem.Server
                         AsyncCalls _calls_ = new AsyncCalls(pack.Id, pack.CmdTag, this, method.methodInfo, args, false);
                         args[0] = _calls_;
                         _calls_.CallSend += SendData;
+                        AsyncCallDiy.AddOrUpdate(pack.Id, _calls_, (a, b) => _calls_);
                         _calls_.Run();
 
                      
 
-                        AsyncCallDiy.AddOrUpdate(pack.Id, _calls_, (a, b) => _calls_);
+                      
 
                     }
                     else
@@ -283,11 +285,12 @@ namespace ZYNet.CloudSystem.Server
                         args[0] = _calls_;
                         _calls_.CallSend += SendData;
                         _calls_.Complete += RetrunResultData;
+                        AsyncCallDiy.AddOrUpdate(pack.Id, _calls_, (a, b) => _calls_);
                         _calls_.Run();
 
                       
 
-                        AsyncCallDiy.AddOrUpdate(pack.Id, _calls_, (a, b) => _calls_);
+                       
                     }
                 }
                 else //SYNC

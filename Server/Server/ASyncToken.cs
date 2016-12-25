@@ -43,13 +43,12 @@ namespace ZYNet.CloudSystem.Server
         {
             AsyncCalls call;
 
-            AsyncCallDiy.TryRemove(id, out call);
+            if(!AsyncCallDiy.TryRemove(id, out call))
+            {
+                Console.WriteLine();
+            }
 
-            //foreach (var item in CallBackDiy.Where(p => p.Value == call))
-            //{
-            //    AsyncCalls x;
-            //    CallBackDiy.TryRemove(item.Key, out x);
-            //}
+         
         }
 
 
@@ -268,12 +267,9 @@ namespace ZYNet.CloudSystem.Server
 
                         AsyncCalls _calls_ = new AsyncCalls(pack.Id, pack.CmdTag, this, method.methodInfo, args, false);
                         args[0] = _calls_;
-                        _calls_.CallSend += SendData;
-                        _calls_.Run();
-
-                     
-
+                        _calls_.CallSend += SendData;                   
                         AsyncCallDiy.AddOrUpdate(pack.Id, _calls_, (a, b) => _calls_);
+                        _calls_.Run();
 
                     }
                     else
@@ -282,12 +278,9 @@ namespace ZYNet.CloudSystem.Server
                         AsyncCalls _calls_ = new AsyncCalls(pack.Id, pack.CmdTag, this, method.methodInfo, args, true);
                         args[0] = _calls_;
                         _calls_.CallSend += SendData;
-                        _calls_.Complete += RetrunResultData;
-                        _calls_.Run();
-
-                      
-
+                        _calls_.Complete += RetrunResultData;  
                         AsyncCallDiy.AddOrUpdate(pack.Id, _calls_, (a, b) => _calls_);
+                        _calls_.Run();
                     }
                 }
                 else //SYNC

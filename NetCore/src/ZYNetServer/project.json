@@ -17,9 +17,9 @@
         "NETStandard.Library": "1.6.0",
         "ZYSocketShare-dnx": "4.3.7.2",
         "ZYSOCKET-protobuf-net": "4.3.2",
-        "ZYSocketFrame-dnx": "4.3.7",
         "System.Reflection": "4.1.0",
-        "System.Reflection.TypeExtensions": "4.1.0"
+        "System.Reflection.TypeExtensions": "4.1.0",
+        "ZYSocketFrame-dnx": "4.3.7.2"
       }
     },
     "netstandard1.5": {
@@ -31,9 +31,9 @@
         "NETStandard.Library": "1.6.0",
         "ZYSocketShare-dnx": "4.3.7.2",
         "ZYSOCKET-protobuf-net": "4.3.2",
-        "ZYSocketFrame-dnx": "4.3.7",
         "System.Reflection": "4.1.0",
-        "System.Reflection.TypeExtensions": "4.1.0"
+        "System.Reflection.TypeExtensions": "4.1.0",
+        "ZYSocketFrame-dnx": "4.3.7.2"
       }
     },
     "netstandard1.6": {
@@ -45,9 +45,9 @@
         "NETStandard.Library": "1.6.0",
         "ZYSocketShare-dnx": "4.3.7.2",
         "ZYSOCKET-protobuf-net": "4.3.2",
-        "ZYSocketFrame-dnx": "4.3.7",
         "System.Reflection": "4.1.0",
-        "System.Reflection.TypeExtensions": "4.1.0"
+        "System.Reflection.TypeExtensions": "4.1.0",
+        "ZYSocketFrame-dnx": "4.3.7.2"
       }
     }
   }
