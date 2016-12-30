@@ -59,6 +59,8 @@
   <ItemGroup>
     <Compile Include="Frame\CallPack.cs" />
     <Compile Include="Frame\Common.cs" />
+    <Compile Include="Frame\DispatchProxy.cs" />
+    <Compile Include="Frame\DispatchProxyGenerator.cs" />
     <Compile Include="Frame\LogAction.cs" />
     <Compile Include="Frame\MethodRun.cs" />
     <Compile Include="Frame\ReturnEventWaitHandle.cs" />
