@@ -115,22 +115,15 @@ namespace ZYNet.CloudSystem.Server
                             }
 
                         }
-#if !COREFX
-                        else if (method.ReturnType == null || method.ReturnType == typeof(void) || method.ReturnType != tasktype || method.ReturnType.BaseType != tasktype)
-#else
-                        else if (method.ReturnType == null || method.ReturnType == typeof(void) || method.ReturnType != tasktype || method.ReturnType.GetTypeInfo().BaseType != tasktype)
-#endif
+                        else if (method.GetParameters().Length > 0 && method.GetParameters()[0].ParameterType == typeof(ASyncToken))
                         {
-
-                            if (method.GetParameters().Length > 0 && method.GetParameters()[0].ParameterType == typeof(ASyncToken))
+                            if (!CallsMethods.ContainsKey(attrcmdtype.CmdType))
                             {
-                                if (!CallsMethods.ContainsKey(attrcmdtype.CmdType))
-                                {
-                                    AsyncStaticMethodDef tmp = new AsyncStaticMethodDef(method);
-                                    CallsMethods.Add(attrcmdtype.CmdType, tmp);
-                                }
+                                AsyncStaticMethodDef tmp = new AsyncStaticMethodDef(method);
+                                CallsMethods.Add(attrcmdtype.CmdType, tmp);
                             }
                         }
+                        
                         break;
                     }
 

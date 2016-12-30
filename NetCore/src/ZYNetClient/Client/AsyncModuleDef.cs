@@ -62,26 +62,21 @@ namespace ZYNet.CloudSystem.Client
                             }
 
                         }
-#if !COREFX
-                        if ((method.ReturnType == tasktype || (method.ReturnType.BaseType == tasktype && method.ReturnType.IsConstructedGenericType && method.ReturnType.GenericTypeArguments[0] == typeof(ReturnResult))))
-#else
-                        if ((method.ReturnType == tasktype || (method.ReturnType.GetTypeInfo().BaseType == tasktype && method.ReturnType.IsConstructedGenericType && method.ReturnType.GenericTypeArguments[0] == typeof(ReturnResult))))
-#endif
+
+                        else if (method.GetParameters().Length > 0 && method.GetParameters()[0].ParameterType == typeof(CloudClient))
                         {
-                            if (method.GetParameters().Length > 0 && method.GetParameters()[0].ParameterType == typeof(CloudClient))
+                            if (!ModuleDiy.ContainsKey(attrcmdtype.CmdType))
                             {
-                                if (!ModuleDiy.ContainsKey(attrcmdtype.CmdType))
-                                {
-                                    AsyncMethodDef tmp = new AsyncMethodDef(method, o);
-                                    ModuleDiy.Add(attrcmdtype.CmdType, tmp);
-                                }
-                                else
-                                {
-                                    AsyncMethodDef tmp = new AsyncMethodDef(method, o);
-                                    ModuleDiy[attrcmdtype.CmdType] = tmp;
-                                }
+                                AsyncMethodDef tmp = new AsyncMethodDef(method, o);
+                                ModuleDiy.Add(attrcmdtype.CmdType, tmp);
+                            }
+                            else
+                            {
+                                AsyncMethodDef tmp = new AsyncMethodDef(method, o);
+                                ModuleDiy[attrcmdtype.CmdType] = tmp;
                             }
                         }
+                        
 
                         break;
                     }
