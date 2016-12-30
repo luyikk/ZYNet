@@ -65,6 +65,7 @@
     <Compile Include="Frame\MethodRun.cs" />
     <Compile Include="Frame\ReturnEventWaitHandle.cs" />
     <Compile Include="Frame\Serialization.cs" />
+    <Compile Include="Frame\SyncProxy.cs" />
     <Compile Include="Frame\ZYSync.cs" />
     <Compile Include="Frame\ZYSyncBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -9,7 +9,7 @@ namespace ZYNet.CloudSystem
    
 
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-    public class MethodRun : Attribute
+    public sealed class MethodRun : Attribute
     {
         public int CmdType { get; set; }
 

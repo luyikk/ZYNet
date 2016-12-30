@@ -40,12 +40,12 @@ namespace ZYNet.CloudSystem.Server
             else
                 IsOut = true;
 
-
 #if !COREFX
             if (methodInfo.ReturnType == tasktype || methodInfo.ReturnType.BaseType==tasktype)
 #else
             if (methodInfo.ReturnType == tasktype || methodInfo.ReturnType.GetTypeInfo().BaseType == tasktype)
 #endif
+
             {
                 IsAsync = true;
             }

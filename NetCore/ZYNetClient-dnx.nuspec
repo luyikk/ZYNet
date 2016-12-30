@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>ZYNetClient-dnx</id>
-        <version>1.0.2</version>
+        <version>1.0.3</version>
         <title>ZYNetClient dnx</title>
         <authors>luyikk</authors>
         <owners>luyikk</owners>
@@ -15,6 +15,17 @@
         <language>en-US</language>
     </metadata>
     <files>
+        <file src="..\Client\bin\Release\MsgPack.dll" target="lib\net45\MsgPack.dll" />
+        <file src="..\Client\bin\Release\MsgPack.pdb" target="lib\net45\MsgPack.pdb" />
+        <file src="..\Client\bin\Release\protobuf-net.dll" target="lib\net45\protobuf-net.dll" />
+        <file src="..\Client\bin\Release\protobuf-net.pdb" target="lib\net45\protobuf-net.pdb" />
+        <file src="..\Client\bin\Release\protobuf-net.xml" target="lib\net45\protobuf-net.xml" />
+        <file src="..\Client\bin\Release\ZYAsyncClient.dll" target="lib\net45\ZYAsyncClient.dll" />
+        <file src="..\Client\bin\Release\ZYAsyncClient.pdb" target="lib\net45\ZYAsyncClient.pdb" />
+        <file src="..\Client\bin\Release\ZYAsyncFrame.dll" target="lib\net45\ZYAsyncFrame.dll" />
+        <file src="..\Client\bin\Release\ZYAsyncFrame.pdb" target="lib\net45\ZYAsyncFrame.pdb" />
+        <file src="..\Client\bin\Release\ZYSocketShare.dll" target="lib\net45\ZYSocketShare.dll" />
+        <file src="..\Client\bin\Release\ZYSocketShare.pdb" target="lib\net45\ZYSocketShare.pdb" />
         <file src="src\ZYNetClient\bin\Release\netstandard1.3\ZYNetClient.deps.json" target="lib\netstandard1.3\ZYNetClient.deps.json" />
         <file src="src\ZYNetClient\bin\Release\netstandard1.3\ZYNetClient.dll" target="lib\netstandard1.3\ZYNetClient.dll" />
         <file src="src\ZYNetClient\bin\Release\netstandard1.3\ZYNetClient.pdb" target="lib\netstandard1.3\ZYNetClient.pdb" />

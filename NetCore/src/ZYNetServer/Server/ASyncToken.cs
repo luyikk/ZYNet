@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ZYNet.CloudSystem.Frame;
 using ZYSocket.share;
+using ZYSocket.ZYCoroutinesin;
 using System.IO;
 using ZYSocket.AsyncSend;
 
@@ -24,7 +25,7 @@ namespace ZYNet.CloudSystem.Server
 
         public event Action<ASyncToken,string> UserDisconnect;
 
-        private AsyncSend _send;
+        public AsyncSend sendobj { get; private set; }
 
         public object UserToken { get; set; }
 
@@ -32,23 +33,22 @@ namespace ZYNet.CloudSystem.Server
         public ASyncToken(SocketAsyncEventArgs asynca, CloudServer server, int MaxBuffsize)
         {
             this.Asyn = asynca;
-            _send = new AsyncSend(asynca.AcceptSocket);
             Stream = new ZYNetRingBufferPool(MaxBuffsize);
             CurrentServer = server;
             this.dataExtra = server.EcodeingHandler;
+            sendobj = new AsyncSend(asynca.AcceptSocket);
         }
 
         internal void RemoveAsyncCall(long id)
         {
             AsyncCalls call;
 
-            AsyncCallDiy.TryRemove(id, out call);
+            if(!AsyncCallDiy.TryRemove(id, out call))
+            {
+                Console.WriteLine();
+            }
 
-            //foreach (var item in CallBackDiy.Where(p => p.Value == call))
-            //{
-            //    AsyncCalls x;
-            //    CallBackDiy.TryRemove(item.Key, out x);
-            //}
+         
         }
 
 
@@ -153,7 +153,7 @@ namespace ZYNet.CloudSystem.Server
 
         protected override void SendData(byte[] data)
         {
-            CurrentServer.Send(_send, data);
+            CurrentServer.Send(sendobj, data);
         }
 
         protected override ReturnResult SendDataAsWait(long Id, byte[] Data)
@@ -269,13 +269,9 @@ namespace ZYNet.CloudSystem.Server
 
                         AsyncCalls _calls_ = new AsyncCalls(pack.Id, pack.CmdTag, this, method.methodInfo, args, false);
                         args[0] = _calls_;
-                        _calls_.CallSend += SendData;
+                        _calls_.CallSend += SendData;                   
                         AsyncCallDiy.AddOrUpdate(pack.Id, _calls_, (a, b) => _calls_);
                         _calls_.Run();
-
-                     
-
-                      
 
                     }
                     else
@@ -284,13 +280,9 @@ namespace ZYNet.CloudSystem.Server
                         AsyncCalls _calls_ = new AsyncCalls(pack.Id, pack.CmdTag, this, method.methodInfo, args, true);
                         args[0] = _calls_;
                         _calls_.CallSend += SendData;
-                        _calls_.Complete += RetrunResultData;
+                        _calls_.Complete += RetrunResultData;  
                         AsyncCallDiy.AddOrUpdate(pack.Id, _calls_, (a, b) => _calls_);
                         _calls_.Run();
-
-                      
-
-                       
                     }
                 }
                 else //SYNC

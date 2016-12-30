@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 
 namespace ZYNet.CloudSystem.Frame
@@ -51,7 +52,12 @@ namespace ZYNet.CloudSystem.Frame
             {
                 return data;
             }
+#if !COREFX
             else if (type.BaseType == typeof(Array))
+#else
+            else if (type.GetTypeInfo().BaseType == typeof(Array))
+#endif
+
             {
                 List<byte[]> list = (List<byte[]>)ProtoUnpackSingleObject(typeof(List<byte[]>), data);
 
@@ -84,7 +90,11 @@ namespace ZYNet.CloudSystem.Frame
             {
                 return (byte[])obj;
             }
+#if !COREFX
             else if (type.BaseType == typeof(Array))
+#else
+            else if (type.GetTypeInfo().BaseType == typeof(Array))
+#endif
             {
                 Array array = (Array)obj;
 
@@ -104,7 +114,7 @@ namespace ZYNet.CloudSystem.Frame
         }
 
 
-        #region return 整数
+#region return 整数
         /// <summary>
         /// 读取内存流中的头2位并转换成整型
         /// </summary>
@@ -195,9 +205,9 @@ namespace ZYNet.CloudSystem.Frame
 
         }
 
-        #endregion
+#endregion
 
-        #region return 布尔值
+#region return 布尔值
         /// <summary>
         /// 读取内存流中的头1位并转换成布尔值
         /// </summary>
@@ -211,9 +221,9 @@ namespace ZYNet.CloudSystem.Frame
 
         }
 
-        #endregion
+#endregion
 
-        #region return 浮点数
+#region return 浮点数
 
 
         /// <summary>
@@ -242,9 +252,9 @@ namespace ZYNet.CloudSystem.Frame
         }
 
 
-        #endregion
+#endregion
 
-        #region  return 字符串
+#region  return 字符串
         /// <summary>
         /// 读取内存流中一段字符串
         /// </summary>
@@ -258,6 +268,6 @@ namespace ZYNet.CloudSystem.Frame
             return values;
 
         }
-        #endregion
+#endregion
     }
 }

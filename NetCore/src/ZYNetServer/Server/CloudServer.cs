@@ -79,10 +79,10 @@ namespace ZYNet.CloudSystem.Server
             ReadOutTime = 2000;
         }
 
-
+        
         public void Install(Type packHandlerType)
         {
-
+          
 
             var methods = packHandlerType.GetMethods(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
 
@@ -91,10 +91,8 @@ namespace ZYNet.CloudSystem.Server
             foreach (var method in methods)
             {
                 var attr = method.GetCustomAttributes(typeof(MethodRun), true);
-#if !COREFX
-                if (attr.Length > 0)
-                {
-#endif
+
+
                 foreach (var att in attr)
                 {
                     MethodRun attrcmdtype = att as MethodRun;
@@ -137,9 +135,7 @@ namespace ZYNet.CloudSystem.Server
                     }
 
                 }
-#if !COREFX
-                }
-#endif
+
             }
         }
        
@@ -214,8 +210,6 @@ namespace ZYNet.CloudSystem.Server
 
                 
             }
-          
-
 
         }
 
@@ -239,10 +233,9 @@ namespace ZYNet.CloudSystem.Server
         }
 
 
-        internal void Send(ISend player, byte[] data)
+        internal void Send(ISend sock, byte[] data)
         {
-            
-            Server.Send(player, data);
+            Server.Send(sock, data);
         }
        
 

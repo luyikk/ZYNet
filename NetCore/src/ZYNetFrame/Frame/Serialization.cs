@@ -57,6 +57,7 @@ namespace ZYNet.CloudSystem.Frame
 #else
             else if (type.GetTypeInfo().BaseType == typeof(Array))
 #endif
+
             {
                 List<byte[]> list = (List<byte[]>)ProtoUnpackSingleObject(typeof(List<byte[]>), data);
 
@@ -92,9 +93,8 @@ namespace ZYNet.CloudSystem.Frame
 #if !COREFX
             else if (type.BaseType == typeof(Array))
 #else
-            else if(type.GetTypeInfo().BaseType== typeof(Array))
+            else if (type.GetTypeInfo().BaseType == typeof(Array))
 #endif
-
             {
                 Array array = (Array)obj;
 

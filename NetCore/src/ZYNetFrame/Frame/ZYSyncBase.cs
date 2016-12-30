@@ -71,7 +71,7 @@ namespace ZYNet.CloudSystem.Frame
 
 
                 byte[] pdata = stream.ToArray();
-#if !COREFX
+ #if !COREFX
                 stream.Close();
 #endif
                 stream.Dispose();

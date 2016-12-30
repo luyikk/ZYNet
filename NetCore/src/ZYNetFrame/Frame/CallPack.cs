@@ -39,6 +39,11 @@ namespace ZYNet.CloudSystem.Frame
         {
             return (T)Serialization.UnpackSingleObject(typeof(T), Data);
         }
+
+        public object Value(Type type)
+        {
+            return Serialization.UnpackSingleObject(type, Data);
+        }
     }
 
 

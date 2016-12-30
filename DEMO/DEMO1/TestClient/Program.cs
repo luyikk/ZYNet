@@ -28,6 +28,7 @@ namespace TestClient
 
                 if(res!=null&&res==true)
                 {
+                    
 
                     var html= Sync.CR(2001, "http://www.baidu.com")?[0]?.Value<string>();
                     if (html != null)

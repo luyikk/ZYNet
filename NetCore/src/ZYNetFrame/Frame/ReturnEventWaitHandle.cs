@@ -47,7 +47,7 @@ namespace ZYNet.CloudSystem.Frame
 
         public void Dispose()
         {
-#if!COREFX
+#if !COREFX
             WaitHandle.Close();
 #endif
             WaitHandle.Dispose();

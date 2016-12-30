@@ -46,7 +46,7 @@ namespace ZYNet.CloudSystem.Server
 
         public RDataExtraHandle EcodeingHandler { get; set; }
 
-
+ #if !COREFX
         public CloudServer()
         {
             Server = new ZYSocketSuper();
@@ -60,6 +60,7 @@ namespace ZYNet.CloudSystem.Server
             MaxBuffsize = maxPackSize;
             Init();
         }
+#endif
 
         public CloudServer(string host, int port, int maxconnectcout, int maxbuffersize, int maxPackSize)
         {
@@ -91,43 +92,50 @@ namespace ZYNet.CloudSystem.Server
             {
                 var attr = method.GetCustomAttributes(typeof(MethodRun), true);
 
-                if (attr.Length > 0)
+
+                foreach (var att in attr)
                 {
-                    foreach (var att in attr)
+                    MethodRun attrcmdtype = att as MethodRun;
+
+                    if (attrcmdtype != null)
                     {
-                        MethodRun attrcmdtype = att as MethodRun;
-
-                        if (attrcmdtype != null)
+#if !COREFX
+                        if ((method.ReturnType == tasktype || (method.ReturnType.BaseType == tasktype && method.ReturnType.IsConstructedGenericType && method.ReturnType.GenericTypeArguments[0] == typeof(ReturnResult))))
+#else
+                        if ((method.ReturnType == tasktype || (method.ReturnType.GetTypeInfo().BaseType == tasktype && method.ReturnType.IsConstructedGenericType && method.ReturnType.GenericTypeArguments[0] == typeof(ReturnResult))))
+#endif
                         {
-                            if ((method.ReturnType == tasktype || (method.ReturnType.BaseType == tasktype && method.ReturnType.IsConstructedGenericType && method.ReturnType.GenericTypeArguments[0] == typeof(ReturnResult))))
+                            if (method.GetParameters().Length > 0 && method.GetParameters()[0].ParameterType == typeof(AsyncCalls))
                             {
-                                if (method.GetParameters().Length > 0 && method.GetParameters()[0].ParameterType == typeof(AsyncCalls))
+                                if (!CallsMethods.ContainsKey(attrcmdtype.CmdType))
                                 {
-                                    if (!CallsMethods.ContainsKey(attrcmdtype.CmdType))
-                                    {
-                                        AsyncStaticMethodDef tmp = new AsyncStaticMethodDef(method);
-                                        CallsMethods.Add(attrcmdtype.CmdType, tmp);
-                                    }
-                                }
-
-                            }
-                            else if (method.ReturnType == null || method.ReturnType == typeof(void) || method.ReturnType != tasktype || method.ReturnType.BaseType != tasktype)
-                            {
-
-                                if (method.GetParameters().Length > 0 && method.GetParameters()[0].ParameterType == typeof(ASyncToken))
-                                {
-                                    if (!CallsMethods.ContainsKey(attrcmdtype.CmdType))
-                                    {
-                                        AsyncStaticMethodDef tmp = new AsyncStaticMethodDef(method);
-                                        CallsMethods.Add(attrcmdtype.CmdType, tmp);
-                                    }
+                                    AsyncStaticMethodDef tmp = new AsyncStaticMethodDef(method);
+                                    CallsMethods.Add(attrcmdtype.CmdType, tmp);
                                 }
                             }
-                            break;
+
                         }
+#if !COREFX
+                        else if (method.ReturnType == null || method.ReturnType == typeof(void) || method.ReturnType != tasktype || method.ReturnType.BaseType != tasktype)
+#else
+                        else if (method.ReturnType == null || method.ReturnType == typeof(void) || method.ReturnType != tasktype || method.ReturnType.GetTypeInfo().BaseType != tasktype)
+#endif
+                        {
 
+                            if (method.GetParameters().Length > 0 && method.GetParameters()[0].ParameterType == typeof(ASyncToken))
+                            {
+                                if (!CallsMethods.ContainsKey(attrcmdtype.CmdType))
+                                {
+                                    AsyncStaticMethodDef tmp = new AsyncStaticMethodDef(method);
+                                    CallsMethods.Add(attrcmdtype.CmdType, tmp);
+                                }
+                            }
+                        }
+                        break;
                     }
+
                 }
+
             }
         }
        
@@ -217,7 +225,9 @@ namespace ZYNet.CloudSystem.Server
             }
 
             socketAsync.UserToken = null;
+#if !COREFX
             socketAsync.AcceptSocket.Close();
+#endif
             socketAsync.AcceptSocket.Dispose();
             LogAction.Log(message);
         }

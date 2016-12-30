@@ -116,6 +116,61 @@ namespace ZYNet.CloudSystem.Server
 
 
 
+        public T Get<T>()
+        {
+            var tmp = DispatchProxy.Create<T, SyncProxy>();
+            var proxy = tmp as SyncProxy;
+            proxy.Call = Call;
+            return tmp;
+        }
+
+
+        protected virtual object Call(MethodInfo method, object[] args)
+        {
+
+            var attr = method.GetCustomAttribute(typeof(MethodRun), true);
+
+            if (attr == null)
+            {
+                throw new FormatException(method.Name + " Is Not MethodRun Attribute");
+            }
+
+
+            MethodRun run = attr as MethodRun;
+
+            if (run != null)
+            {
+                int cmd = run.CmdType;
+
+                if (method.ReturnType != typeof(void))
+                {
+
+#if !COREFX
+                    if (method.ReturnType.BaseType != typeof(FiberThreadAwaiterBase))
+#else
+                    if (method.ReturnType.GetTypeInfo().BaseType != typeof(FiberThreadAwaiterBase))
+#endif
+
+                    {
+                        throw new Exception(string.Format("Async Call Not Use Sync Mehhod"));
+                    }
+                    else
+                    {
+                        return CR(cmd, args);
+                    }
+                }
+                else
+                {
+                    CV(cmd, args);
+
+                    return null;
+                }
+
+            }
+            else
+                return null;
+        }
+
         public void CV(int cmdTag, params object[] args)
         {
             AsyncUser.CV(cmdTag, args);

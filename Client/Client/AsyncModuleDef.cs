@@ -33,55 +33,61 @@ namespace ZYNet.CloudSystem.Client
 
                 var attr = method.GetCustomAttributes(typeof(MethodRun), true);
 
-                if (attr.Length >0)
+                foreach (var att in attr)
                 {
-                    foreach (var att in attr)
+
+                    MethodRun attrcmdtype = att as MethodRun;
+
+                    if (attrcmdtype != null)
                     {
-
-                        MethodRun attrcmdtype = att as MethodRun;
-
-                        if (attrcmdtype != null)
+#if !COREFX
+                        if ((method.ReturnType == tasktype || (method.ReturnType.BaseType == tasktype && method.ReturnType.IsConstructedGenericType && method.ReturnType.GenericTypeArguments[0] == typeof(ReturnResult))))
+#else
+                        if ((method.ReturnType == tasktype || (method.ReturnType.GetTypeInfo().BaseType == tasktype && method.ReturnType.IsConstructedGenericType && method.ReturnType.GenericTypeArguments[0] == typeof(ReturnResult))))
+#endif
                         {
-                            if ((method.ReturnType == tasktype || (method.ReturnType.BaseType == tasktype && method.ReturnType.IsConstructedGenericType && method.ReturnType.GenericTypeArguments[0] == typeof(ReturnResult))))
-                            {
 
-                                if (method.GetParameters().Length > 0 && method.GetParameters()[0].ParameterType == typeof(AsyncCalls))
+                            if (method.GetParameters().Length > 0 && method.GetParameters()[0].ParameterType == typeof(AsyncCalls))
+                            {
+                                if (!ModuleDiy.ContainsKey(attrcmdtype.CmdType))
                                 {
-                                    if (!ModuleDiy.ContainsKey(attrcmdtype.CmdType))
-                                    {
-                                        AsyncMethodDef tmp = new AsyncMethodDef(method, o);
-                                        ModuleDiy.Add(attrcmdtype.CmdType, tmp);
-                                    }
-                                    else
-                                    {
-                                        AsyncMethodDef tmp = new AsyncMethodDef(method, o);
-                                        ModuleDiy[attrcmdtype.CmdType] = tmp;
-                                    }
+                                    AsyncMethodDef tmp = new AsyncMethodDef(method, o);
+                                    ModuleDiy.Add(attrcmdtype.CmdType, tmp);
                                 }
-
-                            }
-                            else if (method.ReturnType == null || method.ReturnType == typeof(void) || method.ReturnType != tasktype || method.ReturnType.BaseType != tasktype)
-                            {
-                                if (method.GetParameters().Length > 0 &&  method.GetParameters()[0].ParameterType == typeof(CloudClient))
+                                else
                                 {
-                                    if (!ModuleDiy.ContainsKey(attrcmdtype.CmdType))
-                                    {
-                                        AsyncMethodDef tmp = new AsyncMethodDef(method, o);
-                                        ModuleDiy.Add(attrcmdtype.CmdType, tmp);
-                                    }
-                                    else
-                                    {
-                                        AsyncMethodDef tmp = new AsyncMethodDef(method, o);
-                                        ModuleDiy[attrcmdtype.CmdType] = tmp;
-                                    }
+                                    AsyncMethodDef tmp = new AsyncMethodDef(method, o);
+                                    ModuleDiy[attrcmdtype.CmdType] = tmp;
                                 }
                             }
 
-                            break;
                         }
+#if !COREFX
+                        if ((method.ReturnType == tasktype || (method.ReturnType.BaseType == tasktype && method.ReturnType.IsConstructedGenericType && method.ReturnType.GenericTypeArguments[0] == typeof(ReturnResult))))
+#else
+                        if ((method.ReturnType == tasktype || (method.ReturnType.GetTypeInfo().BaseType == tasktype && method.ReturnType.IsConstructedGenericType && method.ReturnType.GenericTypeArguments[0] == typeof(ReturnResult))))
+#endif
+                        {
+                            if (method.GetParameters().Length > 0 && method.GetParameters()[0].ParameterType == typeof(CloudClient))
+                            {
+                                if (!ModuleDiy.ContainsKey(attrcmdtype.CmdType))
+                                {
+                                    AsyncMethodDef tmp = new AsyncMethodDef(method, o);
+                                    ModuleDiy.Add(attrcmdtype.CmdType, tmp);
+                                }
+                                else
+                                {
+                                    AsyncMethodDef tmp = new AsyncMethodDef(method, o);
+                                    ModuleDiy[attrcmdtype.CmdType] = tmp;
+                                }
+                            }
+                        }
+
+                        break;
                     }
                 }
             }
+
         }
 
     }
@@ -122,8 +128,12 @@ namespace ZYNet.CloudSystem.Client
             else
                 IsOut = true;
 
-
+#if !COREFX
             if (methodInfo.ReturnType == tasktype || methodInfo.ReturnType.BaseType == tasktype)
+#else
+            if (methodInfo.ReturnType == tasktype || methodInfo.ReturnType.GetTypeInfo().BaseType == tasktype)
+#endif
+
             {
                 IsAsync = true;
             }
