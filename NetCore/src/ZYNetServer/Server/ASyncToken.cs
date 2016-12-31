@@ -29,6 +29,17 @@ namespace ZYNet.CloudSystem.Server
 
         public object UserToken { get; set; }
 
+        public bool IsValidate { get; set; }
+
+        public T Token<T>()
+        {
+            if (UserToken == null)
+                return default(T);
+            else
+                return (T)UserToken;
+        }
+
+
 
         public ASyncToken(SocketAsyncEventArgs asynca, CloudServer server, int MaxBuffsize)
         {

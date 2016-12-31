@@ -37,11 +37,23 @@ namespace ZYNet.CloudSystem.Server
 
         public int Cmd { get; private set; }
 
-        public object Token
+        public object UserToken
         {
             get { return AsyncUser?.UserToken; }
             set { if (AsyncUser != null) AsyncUser.UserToken = value; }
         }
+
+        public bool IsValidate
+        {
+            get { return AsyncUser.IsValidate; }
+            set { if (AsyncUser != null) AsyncUser.IsValidate = value; }
+        }
+
+        public T Token<T>()
+        {
+            return AsyncUser.Token<T>();
+        }
+
 
         public CloudServer CurrentServer => AsyncUser?.CurrentServer;
 
@@ -114,7 +126,7 @@ namespace ZYNet.CloudSystem.Server
 
         }
 
-
+        #if !Xamarin
 
         public T Get<T>()
         {
@@ -170,6 +182,8 @@ namespace ZYNet.CloudSystem.Server
             else
                 return null;
         }
+
+#endif
 
         public void CV(int cmdTag, params object[] args)
         {

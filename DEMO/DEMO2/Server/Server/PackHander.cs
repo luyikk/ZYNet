@@ -26,7 +26,8 @@ namespace Server
                     token = async.AsyncUser
                 };
 
-                async.Token = user;
+                async.UserToken = user;
+                async.IsValidate = true;
 
                 user.Nick = await async.GetNick();
 
@@ -53,7 +54,7 @@ namespace Server
         {
             var userinfo = token.UserToken as UserInfo;
 
-            if (userinfo != null)
+            if (userinfo != null && token.IsValidate == true)
             {
                 foreach (var item in UserList)
                 {
@@ -65,9 +66,9 @@ namespace Server
         [MethodRun(2002)]
         public static async Task<ReturnResult> ToMessage(AsyncCalls async,string account,string msg)
         {
-            var userinfo = async.Token as UserInfo;
+            var userinfo = async.Token<UserInfo>();
 
-            if (userinfo != null)
+            if (userinfo != null && async.IsValidate == true)
             {
                 var touser = UserList.Find(p => p.UserName == account);
 
@@ -89,9 +90,9 @@ namespace Server
 
         private static void AsyncUser_UserDisconnect(ASyncToken arg1, string arg2)
         {
-            var userinfo = arg1.UserToken as UserInfo;
+            var userinfo = arg1.Token<UserInfo>();
 
-            if (userinfo != null)
+            if (userinfo != null )
             {
                 lock (UserList)
                 {
