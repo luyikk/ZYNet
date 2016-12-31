@@ -42,9 +42,9 @@ namespace ZYNet.CloudSystem.Server
 
 
 
-        public RDataExtraHandle DecodeingHandler { get; set; }
+        public Func<byte[],byte[]> DecodeingHandler { get; set; }
 
-        public RDataExtraHandle EcodeingHandler { get; set; }
+        public Func<byte[], byte[]> EcodeingHandler { get; set; }
 
  #if !COREFX
         public CloudServer()
@@ -115,6 +115,7 @@ namespace ZYNet.CloudSystem.Server
                             }
 
                         }
+
                         else if (method.GetParameters().Length > 0 && method.GetParameters()[0].ParameterType == typeof(ASyncToken))
                         {
                             if (!CallsMethods.ContainsKey(attrcmdtype.CmdType))

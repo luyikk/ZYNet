@@ -62,7 +62,6 @@ namespace ZYNet.CloudSystem.Client
                             }
 
                         }
-
                         else if (method.GetParameters().Length > 0 && method.GetParameters()[0].ParameterType == typeof(CloudClient))
                         {
                             if (!ModuleDiy.ContainsKey(attrcmdtype.CmdType))

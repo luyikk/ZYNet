@@ -42,9 +42,9 @@ namespace ZYNet.CloudSystem.Server
 
 
 
-        public RDataExtraHandle DecodeingHandler { get; set; }
+        public Func<byte[],byte[]> DecodeingHandler { get; set; }
 
-        public RDataExtraHandle EcodeingHandler { get; set; }
+        public Func<byte[], byte[]> EcodeingHandler { get; set; }
 
  #if !COREFX
         public CloudServer()

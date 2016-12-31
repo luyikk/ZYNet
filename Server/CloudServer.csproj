@@ -31,26 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="protobuf-net, Version=2.0.0.668, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\ZYSOCKET\protobuf-net.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Core" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
-    <Reference Include="ZYSocketFrame, Version=0.4.2.3, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\ZYSOCKET\ZYSocketFrame.dll</HintPath>
-    </Reference>
-    <Reference Include="ZYSocketShare, Version=0.4.2.2, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\ZYSOCKET\ZYSocketShare.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -58,6 +41,12 @@
     <Compile Include="Server\AsyncStaticMethodDef.cs" />
     <Compile Include="Server\ASyncToken.cs" />
     <Compile Include="Server\CloudServer.cs" />
+    <Compile Include="SocketServer\AsyncSend.cs" />
+    <Compile Include="SocketServer\BufferManager.cs" />
+    <Compile Include="SocketServer\IEnsureSend.cs" />
+    <Compile Include="SocketServer\RConfig.cs" />
+    <Compile Include="SocketServer\SocketAsyncEventArgsPool.cs" />
+    <Compile Include="SocketServer\ZYSocketSuper.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Frame\CloudFrame.csproj">
@@ -65,6 +54,7 @@
       <Name>CloudFrame</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

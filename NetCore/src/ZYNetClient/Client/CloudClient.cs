@@ -32,11 +32,11 @@ namespace ZYNet.CloudSystem.Client
         public ModuleDictionary Module { get; private set; }
 
 
-        public RDataExtraHandle DecodingHandler { get; set; }
+        public Func<byte[],byte[]> DecodingHandler { get; set; }
 
-        private RDataExtraHandle encodingHandler;
+        private Func<byte[], byte[]> encodingHandler;
 
-        public RDataExtraHandle EncodingHandler { get
+        public Func<byte[], byte[]> EncodingHandler { get
             {
                 return encodingHandler;
             }

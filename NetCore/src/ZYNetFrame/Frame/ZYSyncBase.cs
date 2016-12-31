@@ -11,7 +11,7 @@ namespace ZYNet.CloudSystem.Frame
     public abstract class ZYSyncBase
     {
 
-        public RDataExtraHandle dataExtra { get; set; }
+        public Func<byte[],byte[]> dataExtra { get; set; }
 
         public void CV(int cmdTag, params object[] args )
         {
