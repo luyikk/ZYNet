@@ -21,6 +21,7 @@ namespace ZYNet.CloudSystem.Frame
           
         }
 
+#if !Xamarin
         public T Get<T>()
         {
             var tmp = DispatchProxy.Create<T, SyncProxy>();
@@ -88,9 +89,7 @@ namespace ZYNet.CloudSystem.Frame
                 return null;
         }
 
-
-
-
+#endif
 
 
         protected override void SendData(byte[] Data)

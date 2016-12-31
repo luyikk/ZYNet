@@ -105,7 +105,7 @@ namespace ZYNet.CloudSystem.Client
         }
 
 
-
+        #if !Xamarin
         public T Get<T>()
         {
             var tmp = DispatchProxy.Create<T, SyncProxy>();
@@ -159,7 +159,7 @@ namespace ZYNet.CloudSystem.Client
                 return null;
         }
 
-
+#endif
 
         public void CV(int cmdTag, params object[] args)
         {

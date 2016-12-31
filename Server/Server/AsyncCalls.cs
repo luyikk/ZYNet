@@ -114,7 +114,7 @@ namespace ZYNet.CloudSystem.Server
 
         }
 
-
+        #if !Xamarin
 
         public T Get<T>()
         {
@@ -170,6 +170,8 @@ namespace ZYNet.CloudSystem.Server
             else
                 return null;
         }
+
+#endif
 
         public void CV(int cmdTag, params object[] args)
         {
