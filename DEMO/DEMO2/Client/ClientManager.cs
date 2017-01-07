@@ -43,7 +43,7 @@ namespace Client
 
         public static void Init()
         {           
-            Client = new CloudClient(new SocketClient(), 5000, 1024 * 1024);
+            Client = new CloudClient(new SocketClient(), 1000*60*5, 1024 * 1024);          
             Client.Disconnect += Client_Disconnect;           
         }
 
