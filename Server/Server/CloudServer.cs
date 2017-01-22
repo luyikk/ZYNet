@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using ZYNet.CloudSystem.Frame;
 using ZYSocket.Server;
-using ZYSocket.share;
 
 namespace ZYNet.CloudSystem.Server
 {
@@ -72,9 +68,9 @@ namespace ZYNet.CloudSystem.Server
         private void Init()
         {
             CallsMethods = new Dictionary<int, AsyncStaticMethodDef>();
-            Server.BinaryOffsetInput = new BinaryInputOffsetHandler(BinaryInputOffsetHandler);
-            Server.Connetions = new ConnectionFilter(ConnectionFilter);
-            Server.MessageInput = new MessageInputHandler(MessageInputHandler);
+            Server.BinaryOffsetInput = BinaryInputOffsetHandler;
+            Server.Connetions = ConnectionFilter;
+            Server.MessageInput = MessageInputHandler;
             Server.IsOffsetInput = true;
             ReadOutTime = 2000;
         }
@@ -150,21 +146,9 @@ namespace ZYNet.CloudSystem.Server
         private bool ConnectionFilter(SocketAsyncEventArgs socketAsync)
         {
 
-            LogAction.Log(socketAsync.AcceptSocket.RemoteEndPoint.ToString() + " Connect");
+            LogAction.Log(socketAsync.AcceptSocket.RemoteEndPoint + " Connect");
 
-            if (IsCanConn != null)
-            {
-                if (IsCanConn((IPEndPoint)socketAsync.AcceptSocket.RemoteEndPoint))
-                {                    
-                    return true;
-                }
-                else
-                    return false;
-            }
-
-         
-
-            return true;
+            return IsCanConn == null || IsCanConn((IPEndPoint)socketAsync.AcceptSocket.RemoteEndPoint);
         }
 
 
@@ -184,25 +168,30 @@ namespace ZYNet.CloudSystem.Server
 
         private void BinaryInputOffsetHandler(byte[] data, int offset, int count, SocketAsyncEventArgs socketAsync)
         {
-            
-            ASyncToken tmp = socketAsync.UserToken as ASyncToken;
-
-            if (tmp != null)
-                tmp.Write(data, offset, count);
-            else if(count >= 8&&data[offset] ==0xFF&&data[offset+1] ==0xFE&&data[offset+5] ==0xCE&&data[offset+7] ==0xED)
+            try
             {
-                var token = NewASyncToken(socketAsync);
-                socketAsync.UserToken = token;
+                ASyncToken tmp = socketAsync.UserToken as ASyncToken;
 
-                if (count > 8)
+                if (tmp != null)
+                    tmp.Write(data, offset, count);
+                else if (count >= 8 && data[offset] == 0xFF && data[offset + 1] == 0xFE && data[offset + 5] == 0xCE &&
+                         data[offset + 7] == 0xED)
                 {
-                    byte[] bakdata = new byte[count - 8];
-                    Buffer.BlockCopy(data, offset+8, bakdata, 0, bakdata.Length);
+                    var token = NewASyncToken(socketAsync);
+                    socketAsync.UserToken = token;
 
-                    token.Write(bakdata, 0, bakdata.Length);
+                    if (count > 8)
+                    {
+                        byte[] bakdata = new byte[count - 8];
+                        Buffer.BlockCopy(data, offset + 8, bakdata, 0, bakdata.Length);
+
+                        token.Write(bakdata, 0, bakdata.Length);
+                    }
                 }
-
-                
+            }
+            catch (Exception er)
+            {
+                LogAction.Log(LogType.Err, er.ToString(), er);
             }
 
         }

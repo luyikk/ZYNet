@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Concurrent;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Concurrent;
 using ZYSocket.Server;
 using System.Net.Sockets;
 
@@ -16,14 +12,14 @@ namespace ZYSocket.AsyncSend
 
         private ConcurrentQueue<byte[]> BufferQueue { get; set; }
 
-        private Socket sock { get; set; }
+        private Socket Sock { get; set; }
 
         protected int BufferLenght { get; set; } = -1;
 
 
         public AsyncSend(Socket sock)
         {
-            this.sock = sock;
+            Sock = sock;
             SendIng = false;
             BufferQueue = new ConcurrentQueue<byte[]>();
             _send = new SocketAsyncEventArgs();
@@ -65,19 +61,19 @@ namespace ZYSocket.AsyncSend
                         length = e.Buffer.Length - offset;
 
                     e.SetBuffer(offset, length);
-                    sock.SendAsync(_send);
+                    Sock.SendAsync(_send);
                 }
                 else
                 {
                     e.SetBuffer(offset, e.Count - e.Offset - e.BytesTransferred);
-                    sock.SendAsync(_send);
+                    Sock.SendAsync(_send);
                 }
             }
             else
             {
                 if (InitData())
                 {
-                    sock.SendAsync(_send);
+                    Sock.SendAsync(_send);
                 }
                 else
                 {
@@ -135,7 +131,7 @@ namespace ZYSocket.AsyncSend
                 if (InitData())
                 {
                     SendIng = true;
-                    sock.SendAsync(_send);
+                    Sock.SendAsync(_send);
                     return true;
                 }               
                    

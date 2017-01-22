@@ -141,7 +141,7 @@ namespace ZYSocket.Server
         public MessageInputHandler MessageInput { get; set; }
 
 
-        private System.Threading.AutoResetEvent[] reset;
+        private readonly System.Threading.AutoResetEvent[] reset;
 
         /// <summary>
         /// 是否关闭SOCKET Delay算法
@@ -377,7 +377,7 @@ namespace ZYSocket.Server
 
 
  #if !COREFX
-            if (Environment.OSVersion.Platform.ToString().IndexOf("NT") >= 0) //WINDOWS NT平台
+            if (Environment.OSVersion.Platform.ToString().IndexOf("NT", StringComparison.Ordinal) >= 0) //WINDOWS NT平台
             {
 
 
