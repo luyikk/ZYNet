@@ -47,17 +47,27 @@ namespace ZYNETClientForNetCore
 
                         System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch();
                         stop.Start();
-                        var rec = ServerPack.TestRec2(10000);
+                        var rec = ServerPack.TestRec2(1000);
                         stop.Stop();
 
                         Console.WriteLine("Rec:{0} time:{1} MS", rec, stop.ElapsedMilliseconds);
-
+                        TestRun(client);
                     }
                 }
-
+                Console.WriteLine("Close");
                 Console.ReadLine();
             }
 
+        }
+
+        public static async void TestRun(CloudClient client)
+        {
+            System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch();
+            stop.Start();
+            var rec = await client.NewAsync().Get<IPacker>().TestRecAsync(1000);
+            stop.Stop();
+
+            Console.WriteLine("Async Rec:{0} time:{1} MS", rec.First.Value<int>(), stop.ElapsedMilliseconds);
         }
 
         private static void LogAction_LogOut(string msg, LogType type)

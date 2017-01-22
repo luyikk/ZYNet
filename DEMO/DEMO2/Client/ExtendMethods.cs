@@ -28,6 +28,11 @@ namespace Client
             return sync.CR((int)Cmdtype.LogOn, username);
         }
 
+        public static FiberThreadAwaiter<ReturnResult> LogOn(this AsyncRun async, string username)
+        {
+            return async.CR((int)Cmdtype.LogOn, username);
+        }
+
         public static void SendMessageToAllUser(this ZYSync sync,string msg)
         {
             sync.CV((int)Cmdtype.SendAll, msg);

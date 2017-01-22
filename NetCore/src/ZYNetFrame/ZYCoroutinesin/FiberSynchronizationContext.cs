@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ZYSocket.ZYCoroutinesin
+namespace ZYNet.CloudSystem.Frame
 {
     public class FiberSynchronizationContext : SynchronizationContext
     {

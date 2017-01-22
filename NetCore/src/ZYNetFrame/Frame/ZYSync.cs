@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using ZYNet.CloudSystem.Frame;
-using ZYSocket.ZYCoroutinesin;
 
 namespace ZYNet.CloudSystem.Frame
 {
@@ -21,6 +20,7 @@ namespace ZYNet.CloudSystem.Frame
           
         }
 
+#if !Xamarin
         public T Get<T>()
         {
             var tmp = DispatchProxy.Create<T, SyncProxy>();
@@ -88,9 +88,7 @@ namespace ZYNet.CloudSystem.Frame
                 return null;
         }
 
-
-
-
+#endif
 
 
         protected override void SendData(byte[] Data)

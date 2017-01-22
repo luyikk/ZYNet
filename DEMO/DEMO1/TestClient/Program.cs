@@ -45,6 +45,8 @@ namespace TestClient
 
                         Console.WriteLine("QQHtml:" + x.First.Value<string>().Length);
 
+                        var recx = Sync.CR(2500, 100)?.First?.Value<int>();
+
                         System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch();
                         stop.Start();
                         var rec = Sync.CR(2500, 10000)?.First?.Value<int>();
@@ -53,12 +55,29 @@ namespace TestClient
                         {
                             Console.WriteLine("Rec:{0} time:{1} MS",rec.Value,stop.ElapsedMilliseconds);
                         }
+
+                        RunTest(client);
                     }
                 }
+
+                Console.WriteLine("Close");
 
                 Console.ReadLine();
             }
 
+        }
+
+        public static async void RunTest(CloudClient client)
+        {
+
+            System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch();
+            stop.Start();
+            var rec = (await client.NewAsync().CR(2500, 10000))?.First?.Value<int>();
+            stop.Stop();
+            if (rec != null)
+            {
+                Console.WriteLine("ASYNC Rec:{0} time:{1} MS", rec.Value, stop.ElapsedMilliseconds);
+            }
         }
 
         private static void LogAction_LogOut(string msg, LogType type)

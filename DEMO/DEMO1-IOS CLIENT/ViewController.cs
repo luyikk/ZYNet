@@ -33,8 +33,12 @@ namespace IOSTest
             client.Install(tmp);
             client.Disconnect += Client_Disconnect;
 
+            var ServerIP = "SERVER IP";
 
-            if (client.Connect("192.168.2.118", 2285))
+            if (ServerIP == "SERVER IP")
+                throw new Exception("Please edit ServerIP");
+
+            if (client.Connect(ServerIP, 2285))
             {
 
                 var ServerPacker = client.Sync;

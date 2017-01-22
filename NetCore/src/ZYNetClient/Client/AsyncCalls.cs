@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ZYNet.CloudSystem.Frame;
 using ZYSocket.share;
-using ZYSocket.ZYCoroutinesin;
+
 
 namespace ZYNet.CloudSystem.Client
 {
@@ -53,6 +53,8 @@ namespace ZYNet.CloudSystem.Client
             Id = id;
             Cmd = cmd;
         }
+
+
 
         public void Run()
         {
@@ -105,7 +107,7 @@ namespace ZYNet.CloudSystem.Client
         }
 
 
-
+ #if !Xamarin
         public T Get<T>()
         {
             var tmp = DispatchProxy.Create<T, SyncProxy>();
@@ -159,7 +161,7 @@ namespace ZYNet.CloudSystem.Client
                 return null;
         }
 
-
+#endif
 
         public void CV(int cmdTag, params object[] args)
         {

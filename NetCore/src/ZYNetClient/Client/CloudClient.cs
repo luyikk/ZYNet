@@ -29,6 +29,8 @@ namespace ZYNet.CloudSystem.Client
 
         public ConcurrentDictionary<long, AsyncCalls> CallBackDiy { get; private set; }
 
+        public ConcurrentDictionary<long, AsyncRun> AsyncRunDiy { get; private set; }
+
         public ModuleDictionary Module { get; private set; }
 
 
@@ -60,6 +62,7 @@ namespace ZYNet.CloudSystem.Client
             SyncWaitDic = new ConcurrentDictionary<long, ReturnEventWaitHandle>(10,10000);
             AsyncCallDiy = new ConcurrentDictionary<long, AsyncCalls>();
             CallBackDiy = new ConcurrentDictionary<long, AsyncCalls>();
+            AsyncRunDiy = new ConcurrentDictionary<long, AsyncRun>();
             Client = client;
             MillisecondsTimeout = millisecondsTimeout;
             RingBuffer = new ZYNetRingBufferPool(maxBufferLength);
@@ -108,11 +111,23 @@ namespace ZYNet.CloudSystem.Client
         }
 
 
+        internal void AddAsyncRunBack(AsyncRun asyncalls, long id)
+        {
+            AsyncRunDiy.AddOrUpdate(id, asyncalls, (a, b) => asyncalls);
+        }
+
         internal void AddAsyncCallBack(AsyncCalls asyncalls,long id)
         {
             CallBackDiy.AddOrUpdate(id, asyncalls, (a, b) => asyncalls);
         }
 
+
+        public AsyncRun NewAsync()
+        {
+            var tmp= new AsyncRun(this);
+            tmp.CallSend += SendData;
+            return tmp;
+        }
 
 
         private void SendData(byte[] data)
@@ -244,6 +259,22 @@ namespace ZYNet.CloudSystem.Client
                     }
                 }
             }
+            else if (AsyncRunDiy.ContainsKey(idx))
+            {
+                AsyncRun call;
+
+                if (AsyncRunDiy.TryRemove(result.Id, out call))
+                {
+                    try
+                    {
+                        call.SetRet(result);
+                    }
+                    catch (Exception er)
+                    {
+                        LogAction.Log(LogType.Err, "AsynRun ID:" + result.Id + " ERROR:\r\n" + er.Message);
+                    }
+                }
+            }
             else if (SyncWaitDic.ContainsKey(idx))
             {
                 ReturnEventWaitHandle wait;
@@ -252,7 +283,7 @@ namespace ZYNet.CloudSystem.Client
                 {
                     wait.Set(result);
                 }
-            }
+            }           
             else
             {
                 throw new InvalidOperationException("not call the Id");
@@ -301,7 +332,7 @@ namespace ZYNet.CloudSystem.Client
                         args[0] = _calls_;
                         _calls_.CallSend += SendData;
                         _calls_.Run();
-                      
+                        
                         AsyncCallDiy.AddOrUpdate(pack.Id, _calls_, (a, b) => _calls_);
 
                     }

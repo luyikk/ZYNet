@@ -151,8 +151,8 @@ namespace ZYNet.CloudSystem.SocketClient
             switch (e.LastOperation)
             {
                 case SocketAsyncOperation.Connect:
-                   
-                    if (e.SocketError == SocketError.Success )
+
+                    if (e.SocketError == SocketError.Success)
                     {
 
                         IsConn = true;
@@ -163,9 +163,17 @@ namespace ZYNet.CloudSystem.SocketClient
 
                         byte[] data = new byte[4096];
                         e.SetBuffer(data, 0, data.Length);  //设置数据包
-                     
-                        if (!sock.ReceiveAsync(e)) //开始读取数据包
-                            eCompleted(e);
+
+                        try
+                        {
+                            if (!sock.ReceiveAsync(e)) //开始读取数据包
+                                eCompleted(e);
+                        }
+                        catch (ObjectDisposedException)
+                        {
+                            if (Disconnect != null)
+                                Disconnect("与服务器断开连接");
+                        }
 
                     }
                     else
@@ -190,8 +198,16 @@ namespace ZYNet.CloudSystem.SocketClient
                         if (BinaryInput != null)
                             BinaryInput(data);
 
-                        if (!sock.ReceiveAsync(e))
-                            eCompleted(e);
+                        try
+                        {
+                            if (!sock.ReceiveAsync(e))
+                                eCompleted(e);
+                        }
+                        catch (ObjectDisposedException)
+                        {
+                            if (Disconnect != null)
+                                Disconnect("与服务器断开连接");
+                        }
 
                     }
                     else

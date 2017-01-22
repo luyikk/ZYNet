@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+#if !Xamarin
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,3 +22,4 @@ namespace ZYNet.CloudSystem.Frame
         }
     }
 }
+#endif

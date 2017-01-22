@@ -54,6 +54,7 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Frame\AsyncRun.cs" />
     <Compile Include="Frame\CallPack.cs" />
     <Compile Include="Frame\Common.cs" />
     <Compile Include="Frame\DispatchProxy.cs" />

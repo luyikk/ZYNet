@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ZYSocket.ZYCoroutinesin
+namespace ZYNet.CloudSystem.Frame
 {
 
 
@@ -40,8 +40,19 @@ namespace ZYSocket.ZYCoroutinesin
         public static FiberThreadAwaiter<T> New(Fiber _fiber)
         {
             return new FiberThreadAwaiter<T>(_fiber);
-
         }
+
+        public static FiberThreadAwaiter<T> New()
+        {
+            return new FiberThreadAwaiter<T>();
+        }
+
+        public FiberThreadAwaiter()
+        {
+            fiber = null;
+            IsCompleted = false;
+        }
+
 
         public FiberThreadAwaiter(Fiber GhostThread)
         {
@@ -64,18 +75,24 @@ namespace ZYSocket.ZYCoroutinesin
             Continuation = continuation;
         }
 
+        public void SetResult(T value)
+        {
+            Result = value;
+        }
 
         public T GetResult()
         {
             
-            fiber.CancellationToken.ThrowIfCancellationRequested();
+            if(fiber!=null)
+                fiber.CancellationToken.ThrowIfCancellationRequested();
 
-            var result = Result;           
-
-            return result;
+            return Result;
+           
         }
 
       
     }
+
+
 }
 #endif

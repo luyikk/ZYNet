@@ -7,6 +7,7 @@ using ZYNet.CloudSystem.Client;
 using ZYNet.CloudSystem.Frame;
 using ZYNet.CloudSystem;
 
+
 namespace Client
 {
     public enum Cmdtype
@@ -21,13 +22,13 @@ namespace Client
     public interface ServerMethods
     {
         [MethodRun((int)Cmdtype.LogOn)]
-        ReturnResult LogOn(string username);
+        FiberThreadAwaiter<ReturnResult> LogOn(string username);
 
         [MethodRun((int)Cmdtype.SendAll)]
         void SendMessageToAllUser(string msg);
 
         [MethodRun((int)Cmdtype.SendTo)]
-        string SendMsgToUser(string account, string msg);
+        FiberThreadAwaiter<ReturnResult> SendMsgToUser(string account, string msg);
 
     }
 }

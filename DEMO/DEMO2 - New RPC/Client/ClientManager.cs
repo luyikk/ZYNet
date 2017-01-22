@@ -24,6 +24,10 @@ namespace Client
 
         public static bool IsConnect { get; set; } = false;
 
+        public static AsyncRun NewAsync()
+        {
+            return Client?.NewAsync();
+        }
 
         public static bool Connect(string host,int port)
         {

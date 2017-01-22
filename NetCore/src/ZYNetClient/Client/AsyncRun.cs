@@ -8,106 +8,22 @@ using System.Threading.Tasks;
 using ZYNet.CloudSystem.Frame;
 using ZYSocket.share;
 
-
 namespace ZYNet.CloudSystem.Client
 {
-    public class AsyncCalls
+    public class AsyncRun : AsyncRunBase
     {
-        public ReturnResult Result { get; private set; }
-
         public CloudClient CCloudClient { get; private set; }
-
-        public bool IsOver { get; private set; }
-        public bool IsError { get; private set; }
-        public Exception Error { get; private set; }
-
-        internal event Action<ReturnResult> Complete;
 
         internal event Action<byte[]> CallSend;
 
-        public Fiber fiber { get; private set; }
-
-        public bool IsHaveReturn { get; private set; }
-
-        public object Obj { get; set; }
-
-
-        public MethodInfo Method { get; private set; }
-
-        public object[] Args { get; private set; }
-
-        public int Cmd { get; private set; }
-
-        public long Id { get; private set; }
-
-        public ZYSync Sync => CCloudClient?.Sync;
-
-
-        public AsyncCalls(long id,int cmd, CloudClient client,Object obj, MethodInfo method,object[] args,bool ishavereturn)
+        public AsyncRun(CloudClient client)
         {
-            IsHaveReturn = ishavereturn;
-            Obj = obj;
-            Method = method;
-            Args = args;
             CCloudClient = client;
-            Id = id;
-            Cmd = cmd;
+            this.Id = Id;
         }
 
 
-
-        public void Run()
-        {
-
-            Func<Task> wrappedGhostThreadFunction = async () =>
-            {
-                try
-                {
-                    if (IsHaveReturn)
-                    {
-                        Result = await (Task<ReturnResult>)Method.Invoke(Obj, Args);
-
-                        if (Complete != null)
-                            Complete(Result);                       
-                    }
-                    else
-                    {
-                        await (Task)Method.Invoke(Obj, Args);                      
-                    }
-                }
-                catch (Exception er)
-                {
-
-                    IsError = true;
-                    Error = er;
-
-                    if (IsHaveReturn)
-                    {
-                        var nullx = new ReturnResult();
-                        nullx.Id = this.Id;
-
-                        if (Complete != null)
-                            Complete(nullx);
-                    }
-
-                    LogAction.Log(LogType.Err, "Cmd:" + Cmd + " Error:\r\n" + Error.ToString());
-                }
-                finally
-                {
-                    IsOver = true;
-                    CCloudClient.RemoveAsyncCall(Id);
-                }
-            };
-
-
-            fiber = new Fiber();
-            fiber.SetAction(wrappedGhostThreadFunction);
-            fiber.Start();
-
-        }
-
-
- #if !Xamarin
+#if !Xamarin
         public T Get<T>()
         {
             var tmp = DispatchProxy.Create<T, SyncProxy>();
@@ -163,12 +79,8 @@ namespace ZYNet.CloudSystem.Client
 
 #endif
 
-        public void CV(int cmdTag, params object[] args)
-        {
-            Sync.CV(cmdTag, args);
-        }
 
-        public FiberThreadAwaiter<ReturnResult> CR(int cmdTag, params object[] args)
+        public override FiberThreadAwaiter<ReturnResult> CR(int cmdTag, params object[] args)
         {
             CallPack buffer = new CallPack()
             {
@@ -176,6 +88,8 @@ namespace ZYNet.CloudSystem.Client
                 CmdTag = cmdTag,
                 Arguments = new List<byte[]>(args.Length)
             };
+
+            this.Id = buffer.Id;
 
             foreach (var item in args)
             {
@@ -231,25 +145,21 @@ namespace ZYNet.CloudSystem.Client
 #endif
                 stream.Dispose();
 
-                CCloudClient.AddAsyncCallBack(this, buffer.Id);
+                CCloudClient.AddAsyncRunBack(this, buffer.Id);
 
                 if (CallSend != null)
                     CallSend(pdata);
             }
 
-            return fiber.Read<ReturnResult>();
+            if (awaiter == null)
+                awaiter = new FiberThreadAwaiter<ReturnResult>();
+
+            return base.awaiter;
         }
 
-        public void SetRet(ReturnResult result)
+        public override void CV(int cmdTag, params object[] args)
         {
-            fiber.Set<ReturnResult>(result);
-        }
-
-        public ReturnResult RET(params object[] args)
-        {
-            ReturnResult tmp = new ReturnResult(args);
-            tmp.Id = this.Id;
-            return tmp;
+            CCloudClient.Sync.CV(cmdTag, args);
         }
     }
 }

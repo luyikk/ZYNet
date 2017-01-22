@@ -120,7 +120,7 @@ namespace Client
             this.comboBox1.Items.AddRange(this.AllUser.ToArray());
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private async void button1_Click(object sender, EventArgs e)
         {
             if(this.comboBox1.SelectedIndex==0)
             {
@@ -132,9 +132,18 @@ namespace Client
 
                 if(userinfo!=null)
                 {
-                     string msg= ClientManager.Sync.Get<ServerMethods>().SendMsgToUser(userinfo.UserName,this.textBox1.Text);
+                    var msgres= await ClientManager.NewAsync().Get<ServerMethods>().SendMsgToUser(userinfo.UserName,this.textBox1.Text);
 
-                    this.richTextBox1.AppendText(userinfo.UserName+":"+ msg + "\r\n");
+                    var msg = msgres?.First?.Value<string>();
+
+                    if (!string.IsNullOrEmpty(msg))
+                    {
+                        this.BeginInvoke(new EventHandler(delegate
+                        {
+                            this.richTextBox1.AppendText(userinfo.UserName + ":" + msg + "\r\n");
+                        }));
+                     
+                    }
                 }
             }
         }

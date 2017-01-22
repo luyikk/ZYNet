@@ -103,6 +103,7 @@ namespace ZYNet.CloudSystem.SocketClient
 
                 if (BufferLenght <= 0)
                 {
+                    
                     _send.SetBuffer(data, 0, data.Length);
 
                     return true;
@@ -114,6 +115,7 @@ namespace ZYNet.CloudSystem.SocketClient
                     if (length > data.Length)
                         length = data.Length;
 
+                   
                     _send.SetBuffer(data, 0, length);
 
                     return true;
@@ -127,6 +129,7 @@ namespace ZYNet.CloudSystem.SocketClient
 
         public bool Send(byte[] data)
         {
+            
             BufferQueue.Enqueue(data);
 
             if(!SendIng)

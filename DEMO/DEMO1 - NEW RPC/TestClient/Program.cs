@@ -38,15 +38,13 @@ namespace TestClient
 
                 ServerPacker.SetPassWord("3123123");
 
-               
-                int? v= ServerPacker.TestRec(1000)?.First?.Value<int>();
-
-
                 System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch();
                 stop.Start();
-                int c = ServerPacker.TestRec2(10000);
+                int c = ServerPacker.TestRec2(1000);
                 stop.Stop();
                 Console.WriteLine("Rec:{0} time:{1} MS", c, stop.ElapsedMilliseconds);
+
+                RunTest(client);
 
                 Console.ReadLine();
 
@@ -54,6 +52,20 @@ namespace TestClient
 
         }
 
+
+        public static async void RunTest(CloudClient client)
+        {
+
+            int? v = (await client.NewAsync().Get<IPacker>().TestRecAsync(1000))?.First?.Value<int>();
+
+            System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch();
+            stop.Start();
+            int? c = (await client.NewAsync().Get<IPacker>().TestRecAsync(1000))?.First?.Value<int>();
+            stop.Stop();
+                       
+            if (c!=null)
+                Console.WriteLine("Sync Rec:{0} time:{1} MS", c, stop.ElapsedMilliseconds);
+        }
 
 
         private static void LogAction_LogOut(string msg, LogType type)

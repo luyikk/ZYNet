@@ -28,9 +28,9 @@ namespace Client
             return win.Nick;
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private async void button1_Click(object sender, EventArgs e)
         {
-            var res = ClientManager.Sync.Get<ServerMethods>().LogOn(this.textBox1.Text);
+            var res = await ClientManager.NewAsync().Get<ServerMethods>().LogOn(this.textBox1.Text);
 
             var isOK = res?.First?.Value<bool>();
 
@@ -38,7 +38,11 @@ namespace Client
             {
                 if(isOK.Value)
                 {
-                    this.Close();
+                    this.BeginInvoke(new EventHandler(delegate
+                    {
+                        this.Close();
+                    }));
+                   
                 }
                 else
                 {

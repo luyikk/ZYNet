@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Client\AsyncCalls.cs" />
+    <Compile Include="Client\AsyncRun.cs" />
     <Compile Include="Client\ISyncClient.cs" />
     <Compile Include="Client\CloudClient.cs" />
     <Compile Include="Client\AsyncModuleDef.cs" />
