@@ -130,20 +130,19 @@ namespace Client
             {
                 var userinfo= this.comboBox1.SelectedItem as UserInfo;
 
-                if(userinfo!=null)
+                if (userinfo != null)
                 {
-                    var msgres= await ClientManager.NewAsync().Get<ServerMethods>().SendMsgToUser(userinfo.UserName,this.textBox1.Text);
+                    var msgres = await ClientManager.NewAsync().Get<ServerMethods>().SendMsgToUser(userinfo.UserName, this.textBox1.Text);
 
                     var msg = msgres?.First?.Value<string>();
 
-                    if (!string.IsNullOrEmpty(msg))
+
+                    this.BeginInvoke(new EventHandler(delegate
                     {
-                        this.BeginInvoke(new EventHandler(delegate
-                        {
-                            this.richTextBox1.AppendText(userinfo.UserName + ":" + msg + "\r\n");
-                        }));
-                     
-                    }
+                        this.richTextBox1.AppendText(userinfo.UserName + ":" + msg??"发送失败" + "\r\n");
+                    }));
+
+
                 }
             }
         }

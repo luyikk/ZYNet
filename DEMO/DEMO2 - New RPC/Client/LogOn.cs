@@ -17,6 +17,7 @@ namespace Client
         public LogOn()
         {
             InitializeComponent();
+            TestHTML();
         }
 
 
@@ -41,14 +42,31 @@ namespace Client
                     this.BeginInvoke(new EventHandler(delegate
                     {
                         this.Close();
-                    }));
-                   
+                    }));                   
                 }
                 else
                 {
                     MessageBox.Show(res[1].Value<string>());
                 }
             }
+
+         
+        }
+
+        public async void TestHTML()
+        {
+
+            var a = await Task.Run<string>(() =>
+            {
+                for (int i = 0; i < 10; i++)
+                {
+                    System.Threading.Thread.Sleep(1000);
+                }
+
+                return "HH";
+
+            });
+            this.Text=a;
         }
 
         private void LogOn_Load(object sender, EventArgs e)
