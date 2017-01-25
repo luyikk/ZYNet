@@ -63,11 +63,11 @@ namespace ZYNETServerForNetCore
 
 
         [MethodRun(2002)]
-        public static DateTime GetTime(ASyncToken token)
+        public static Task<ReturnResult> GetTime(AsyncCalls async)
         {
-
-            return DateTime.Now;
+            return Task.FromResult< ReturnResult>(async.RET(DateTime.Now));
         }
+
 
         [MethodRun(2003)]
         public static void SetPassWord(ASyncToken token, string password)
