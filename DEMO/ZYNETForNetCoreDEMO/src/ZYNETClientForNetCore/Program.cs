@@ -67,6 +67,8 @@ namespace ZYNETClientForNetCore
 
         public static async void TestRun(CloudClient client)
         {
+            
+
             System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch();
             stop.Start();
             var rec = (await client.NewAsync().CR(2500, 1000))?.First?.Value<int>();

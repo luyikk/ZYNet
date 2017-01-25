@@ -20,13 +20,18 @@ namespace ZYNet.CloudSystem.Frame
 
         public void SetRet(ReturnResult result)
         {
-            if (awaiter == null)
-                awaiter = new ResultAwatier();
+            if (awaiter != null)
+            {
 
-            awaiter.SetResult(result);
-            awaiter.IsCompleted = true;
-            if(awaiter.Continuation!=null)
-                awaiter.Continuation();
+                awaiter.SetResult(result);
+                awaiter.IsCompleted = true;
+
+                Action _Continuation = awaiter.Continuation;
+                awaiter = null;
+
+                if (_Continuation != null)
+                    _Continuation();                
+            }
         }
 
         public ReturnResult RET(params object[] args)

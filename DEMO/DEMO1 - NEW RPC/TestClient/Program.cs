@@ -55,16 +55,19 @@ namespace TestClient
 
         public static async void RunTest(CloudClient client)
         {
+            var Server = client.NewAsync().Get<IPacker>();
 
-            int? v = (await client.NewAsync().Get<IPacker>().TestRecAsync(10))?.First?.Value<int>();
+            int? v = (await Server.TestRecAsync(100))?[0]?.Value<int>();
 
             System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch();
             stop.Start();
-            int? c = (await client.NewAsync().Get<IPacker>().TestRecAsync(10000))?.First?.Value<int>();
+            int? c = (await Server.TestRecAsync(10000))?.First?.Value<int>();
             stop.Stop();
-                       
-            if (c!=null)
+
+            if (c != null)
                 Console.WriteLine("Sync Rec:{0} time:{1} MS", c, stop.ElapsedMilliseconds);
+
+
         }
 
 

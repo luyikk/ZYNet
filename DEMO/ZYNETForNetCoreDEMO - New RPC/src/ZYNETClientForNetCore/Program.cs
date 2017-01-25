@@ -62,9 +62,13 @@ namespace ZYNETClientForNetCore
 
         public static async void TestRun(CloudClient client)
         {
+            var Server = client.NewAsync().Get<IPacker>();
+            var test = (await Server.TestRecAsync(10))?[0]?.Value<int>();
+            Console.WriteLine(test);
+
             System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch();
             stop.Start();
-            var rec = await client.NewAsync().Get<IPacker>().TestRecAsync(1000);
+            var rec = await Server.TestRecAsync(1000);
             stop.Stop();
 
             Console.WriteLine("Async Rec:{0} time:{1} MS", rec.First.Value<int>(), stop.ElapsedMilliseconds);

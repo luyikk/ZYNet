@@ -148,6 +148,7 @@ namespace ZYNet.CloudSystem.Client
                     CallSend(pdata);
             }
 
+             
             if (awaiter == null)
                 awaiter = new ResultAwatier();
 
