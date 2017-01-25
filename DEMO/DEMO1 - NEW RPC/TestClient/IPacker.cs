@@ -15,7 +15,7 @@ namespace TestClient
         ReturnResult IsLogOn(string username, string password);
 
         [MethodRun(2001)]
-        FiberThreadAwaiter<ReturnResult> StartDownAsync(string url);
+        ResultAwatier StartDownAsync(string url);
 
         [MethodRun(2001)]
         ReturnResult StartDown(string url);
@@ -42,7 +42,7 @@ namespace TestClient
         /// <returns></returns>
 
         [MethodRun(2002)]
-        FiberThreadAwaiter<ReturnResult> GetTimeAsync();
+        ResultAwatier GetTimeAsync();
 
 
         [MethodRun(2003)]
@@ -52,7 +52,7 @@ namespace TestClient
         ReturnResult TestRec(int count);
 
         [MethodRun(2500)]
-        FiberThreadAwaiter<ReturnResult> TestRecAsync(int count);
+        ResultAwatier TestRecAsync(int count);
 
         [MethodRun(2500)]
         int TestRec2(int count);

@@ -139,7 +139,7 @@ namespace Client
 
                     this.BeginInvoke(new EventHandler(delegate
                     {
-                        this.richTextBox1.AppendText(userinfo.UserName + ":" + msg??"发送失败" + "\r\n");
+                        this.richTextBox1.AppendText((userinfo.UserName + ":" + msg??"发送失败") + "\r\n");
                     }));
 
 

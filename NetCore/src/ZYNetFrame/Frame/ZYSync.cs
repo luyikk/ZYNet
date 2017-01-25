@@ -49,11 +49,8 @@ namespace ZYNet.CloudSystem.Frame
 
                 if (method.ReturnType != typeof(void))
                 {
-#if !COREFX
-                    if (method.ReturnType.BaseType != typeof(FiberThreadAwaiterBase))
-#else
-                    if (method.ReturnType.GetTypeInfo().BaseType != typeof(FiberThreadAwaiterBase))
-#endif
+
+                    if (!Common.IsTypeOfBaseTypeIs(method.ReturnType, typeof(FiberThreadAwaiterBase)))
                     {
                         if (method.ReturnType == typeof(ReturnResult))
                         {
@@ -73,7 +70,7 @@ namespace ZYNet.CloudSystem.Frame
                     }
                     else
                     {
-                        throw new Exception("Sync Call Not Use Return Type Of FiberThreadAwaiter<ReturnResult>");
+                        throw new Exception("Sync Call Not Use Return Type Of ResultAwatier");
                     }
                 }
                 else

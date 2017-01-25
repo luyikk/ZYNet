@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Reflection;
 
 namespace ZYNet.CloudSystem.Frame
 {
@@ -14,6 +15,33 @@ namespace ZYNet.CloudSystem.Frame
         public static long Id = 10000;
 
         public static long MakeID => Interlocked.Increment(ref Id);
-       
+
+        public static bool IsTypeOfBaseTypeIs(Type type,Type baseType)
+        {
+            if (type == baseType)
+                return true;
+
+#if !COREFX
+
+            if (type.BaseType == null)
+                return false;
+
+            if (type.BaseType == baseType)
+                return true;
+            else
+                return IsTypeOfBaseTypeIs(type.BaseType, baseType);
+#else
+            if (type.GetTypeInfo().BaseType == null)
+                return false;
+
+            if (type.GetTypeInfo().BaseType == baseType)
+                return true;
+            else
+                return IsTypeOfBaseTypeIs(type.GetTypeInfo().BaseType, baseType);
+
+#endif
+
+        }
+
     }
 }

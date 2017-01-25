@@ -96,11 +96,8 @@ namespace ZYNet.CloudSystem.Server
 
                     if (attrcmdtype != null)
                     {
-#if !COREFX
-                        if ((method.ReturnType == tasktype || (method.ReturnType.BaseType == tasktype && method.ReturnType.IsConstructedGenericType && method.ReturnType.GenericTypeArguments[0] == typeof(ReturnResult))))
-#else
-                        if ((method.ReturnType == tasktype || (method.ReturnType.GetTypeInfo().BaseType == tasktype && method.ReturnType.IsConstructedGenericType && method.ReturnType.GenericTypeArguments[0] == typeof(ReturnResult))))
-#endif
+
+                        if ((method.ReturnType == tasktype || (Common.IsTypeOfBaseTypeIs(method.ReturnType, tasktype) && method.ReturnType.IsConstructedGenericType && method.ReturnType.GenericTypeArguments[0] == typeof(ReturnResult))))
                         {
                             if (method.GetParameters().Length > 0 && method.GetParameters()[0].ParameterType == typeof(AsyncCalls))
                             {

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using ZYNet.CloudSystem.Frame;
 
 namespace ZYNet.CloudSystem.Server
 {
@@ -40,12 +41,8 @@ namespace ZYNet.CloudSystem.Server
             else
                 IsOut = true;
 
-#if !COREFX
-            if (methodInfo.ReturnType == tasktype || methodInfo.ReturnType.BaseType==tasktype)
-#else
-            if (methodInfo.ReturnType == tasktype || methodInfo.ReturnType.GetTypeInfo().BaseType == tasktype)
-#endif
 
+            if (Common.IsTypeOfBaseTypeIs(methodInfo.ReturnType,tasktype))
             {
                 IsAsync = true;
             }

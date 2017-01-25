@@ -108,4 +108,20 @@ namespace ZYNet.CloudSystem.Frame
         
 
     }
+
+    public class ResultAwatier : FiberThreadAwaiter<ReturnResult>
+    {
+        public ResultAwatier(Fiber GhostThread):base(GhostThread)
+        {
+
+        }
+
+        public ResultAwatier():base()
+        {
+
+        }
+
+    }
+    
+   
 }

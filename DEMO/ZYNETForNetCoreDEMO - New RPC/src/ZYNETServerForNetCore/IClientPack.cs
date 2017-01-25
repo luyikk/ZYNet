@@ -11,12 +11,12 @@ namespace ZYNETServerForNetCore
     public interface IClientPack
     {
         [MethodRun(2001)]
-        FiberThreadAwaiter<ReturnResult> DownHtmlAsync(string url);
+        ResultAwatier DownHtmlAsync(string url);
 
         [MethodRun(3001)]
         void Message(string msg);
 
         [MethodRun(2500)]
-        FiberThreadAwaiter<ReturnResult> TestRecAsync(int count);
+        ResultAwatier TestRecAsync(int count);
     }
 }

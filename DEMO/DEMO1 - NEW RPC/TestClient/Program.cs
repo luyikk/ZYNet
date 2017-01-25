@@ -40,7 +40,7 @@ namespace TestClient
 
                 System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch();
                 stop.Start();
-                int c = ServerPacker.TestRec2(1000);
+                int c = ServerPacker.TestRec2(10000);
                 stop.Stop();
                 Console.WriteLine("Rec:{0} time:{1} MS", c, stop.ElapsedMilliseconds);
 
@@ -56,11 +56,11 @@ namespace TestClient
         public static async void RunTest(CloudClient client)
         {
 
-            int? v = (await client.NewAsync().Get<IPacker>().TestRecAsync(1000))?.First?.Value<int>();
+            int? v = (await client.NewAsync().Get<IPacker>().TestRecAsync(10))?.First?.Value<int>();
 
             System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch();
             stop.Start();
-            int? c = (await client.NewAsync().Get<IPacker>().TestRecAsync(1000))?.First?.Value<int>();
+            int? c = (await client.NewAsync().Get<IPacker>().TestRecAsync(10000))?.First?.Value<int>();
             stop.Stop();
                        
             if (c!=null)

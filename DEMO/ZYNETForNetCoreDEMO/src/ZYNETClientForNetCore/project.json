@@ -10,7 +10,7 @@
       "version": "1.1.0"
     },  
     "ZYSOCKET-protobuf-net": "4.3.2",
-    "ZYNetClient-dnx": "1.0.8"
+    "ZYNetClient-dnx": "1.0.9"
   },
 
   "frameworks": {

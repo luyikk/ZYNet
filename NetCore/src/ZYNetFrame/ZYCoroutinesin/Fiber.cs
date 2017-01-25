@@ -12,8 +12,8 @@ namespace ZYNet.CloudSystem.Frame
 {
     public class Fiber
     {
-        ConcurrentDictionary<Type, ConcurrentQueue<FiberThreadAwaiterBase>> receivers = new ConcurrentDictionary<Type, ConcurrentQueue<FiberThreadAwaiterBase>>();
-        ConcurrentDictionary<Type, ConcurrentQueue<FiberThreadAwaiterBase>> senders = new ConcurrentDictionary<Type, ConcurrentQueue<FiberThreadAwaiterBase>>();
+        ConcurrentQueue<ResultAwatier> receivers = new ConcurrentQueue<ResultAwatier>();
+        ConcurrentQueue<ResultAwatier> senders = new ConcurrentQueue<ResultAwatier>();
 
         private Func<Task> Action { get; set; }
 
@@ -84,45 +84,31 @@ namespace ZYNet.CloudSystem.Frame
         }
 
 
-        public FiberThreadAwaiter<T> Set<T>(T data)
+        public ResultAwatier Set(ReturnResult data)
         {
-
-            Type key = typeof(T);
-
-            if (!receivers.ContainsKey(key) || receivers[key].Count == 0)
+            if (receivers.Count == 0)
             {
-                // Nobody receiving, let's wait until something comes up
+                
                 var GhostThread = Fiber.Current;
 
                 if (GhostThread == null)
                     GhostThread = this;
 
-
-                var waitingGhostThread = FiberThreadAwaiter<T>.New(GhostThread);
+                var waitingGhostThread =new ResultAwatier(GhostThread);
                 waitingGhostThread.Result = data;
 
-                if (senders.ContainsKey(key))
-                {
-                    senders[key].Enqueue(waitingGhostThread);
-                    return waitingGhostThread;
-                }
-                else
-                {
-                    ConcurrentQueue<FiberThreadAwaiterBase> table = new ConcurrentQueue<FiberThreadAwaiterBase>();
-                    senders.AddOrUpdate(key, table, (a, b) => table);
+                senders.Enqueue(waitingGhostThread);
+                return waitingGhostThread;
 
-                    senders[key].Enqueue(waitingGhostThread);
-                    return waitingGhostThread;
-                }
             }
 
 
 
-            FiberThreadAwaiterBase tmp;
+            ResultAwatier tmp;
 
-            if (receivers[key].TryDequeue(out tmp))
+            if (receivers.TryDequeue(out tmp))
             {
-                var receiver = tmp as FiberThreadAwaiter<T>;
+                var receiver = tmp as ResultAwatier;
 
                 receiver.Result = data;
                 receiver.IsCompleted = true;
@@ -132,7 +118,6 @@ namespace ZYNet.CloudSystem.Frame
                 if(receiver.Continuation!=null)
                     receiver.Continuation();
                 SynchronizationContext.SetSynchronizationContext(previousSyncContext);
-
                 return receiver;
             }
             else
@@ -141,42 +126,28 @@ namespace ZYNet.CloudSystem.Frame
         }
 
 
-        public FiberThreadAwaiter<T> Get<T>()
+        public ResultAwatier Get()
         {
-            Type key = typeof(T);
 
-            if (!senders.ContainsKey(key) || senders[key].Count == 0)
+            if (senders.Count == 0)
             {
                 var GhostThread = Fiber.Current;
-
-
 
                 if (GhostThread == null)
                     GhostThread = this;
 
-                var waitingGhostThread = FiberThreadAwaiter<T>.New(GhostThread);
+                var waitingGhostThread = new ResultAwatier(GhostThread);
+                receivers.Enqueue(waitingGhostThread);
+                return waitingGhostThread;
 
-                if (receivers.ContainsKey(key))
-                {
-                    receivers[key].Enqueue(waitingGhostThread);
-                    return waitingGhostThread;
-                }
-                else
-                {
-                    ConcurrentQueue<FiberThreadAwaiterBase> table = new ConcurrentQueue<FiberThreadAwaiterBase>();
-                    receivers.AddOrUpdate(key, table, (a, b) => table);
-                    receivers[key].Enqueue(waitingGhostThread);
-                    return waitingGhostThread;
-                }
             }
 
-            FiberThreadAwaiterBase sender;
+            ResultAwatier sender;
 
-            if (senders[key].TryDequeue(out sender))
+            if (senders.TryDequeue(out sender))
             {
-                sender.IsCompleted = true;
-                var senderl= sender as FiberThreadAwaiter<T>;
-                return senderl;
+                sender.IsCompleted = true;             
+                return sender;
             }
             else
                 return null;
@@ -184,79 +155,53 @@ namespace ZYNet.CloudSystem.Frame
 
      
 
-        public FiberThreadAwaiter<T> Read<T>()
+        public ResultAwatier Read()
         {
-            Type key = typeof(T);
 
-            if (!senders.ContainsKey(key) || senders[key].Count == 0)
+
+            if (senders.Count == 0)
             {
                 var GhostThread = Fiber.Current;
-
-
 
                 if (GhostThread == null)
                     GhostThread = this;
 
-                var waitingGhostThread = FiberThreadAwaiter<T>.New(GhostThread);
+                var waitingGhostThread = new ResultAwatier(GhostThread);
 
-                if (receivers.ContainsKey(key))
-                {
-                    receivers[key].Enqueue(waitingGhostThread);
-                    return waitingGhostThread;
-                }
-                else
-                {
-                    ConcurrentQueue<FiberThreadAwaiterBase> table = new ConcurrentQueue<FiberThreadAwaiterBase>();
-                    receivers.AddOrUpdate(key, table, (a, b) => table);
-                    receivers[key].Enqueue(waitingGhostThread);
-                    return waitingGhostThread;
-                }
+                receivers.Enqueue(waitingGhostThread);
+                return waitingGhostThread;
             }
 
-            FiberThreadAwaiterBase sender;
+            ResultAwatier sender;
 
-            if (senders[key].TryPeek(out sender))
+            if (senders.TryPeek(out sender))
             {
-                sender.IsCompleted = true;
-                var senderl = sender as FiberThreadAwaiter<T>;
-                return senderl;
+                sender.IsCompleted = true;             
+                return sender;
             }
             else
                 return null;
         }
 
-        public FiberThreadAwaiter<T> Back<T>()
+        public ResultAwatier Back()
         {
-            Type key = typeof(T);
 
-            if (!senders.ContainsKey(key) || senders[key].Count == 0)
+
+            if (senders.Count == 0)
             {
                 var GhostThread = Fiber.Current;
-
-
 
                 if (GhostThread == null)
                     GhostThread = this;
 
-                var waitingGhostThread = FiberThreadAwaiter<T>.New(GhostThread);
+                var waitingGhostThread = new ResultAwatier(GhostThread);
 
-                if (receivers.ContainsKey(key))
-                {
-                    receivers[key].Enqueue(waitingGhostThread);
-                    
-                }
-                else
-                {
-                    ConcurrentQueue<FiberThreadAwaiterBase> table = new ConcurrentQueue<FiberThreadAwaiterBase>();
-                    receivers.AddOrUpdate(key, table, (a, b) => table);
-                    receivers[key].Enqueue(waitingGhostThread);
-                   
-                }
+                receivers.Enqueue(waitingGhostThread);
             }
 
-            FiberThreadAwaiterBase sender;
+            ResultAwatier sender;
 
-            if (senders[key].TryDequeue(out sender))
+            if (senders.TryDequeue(out sender))
             {
                 sender.IsCompleted = true;
 
@@ -266,43 +211,26 @@ namespace ZYNet.CloudSystem.Frame
                     sender.Continuation();
                 SynchronizationContext.SetSynchronizationContext(previousSyncContext);
                
-                var senderl = sender as FiberThreadAwaiter<T>;
-                return senderl;
+               
+                return sender;
             }
             else
                 return null;
         }
 
-        public FiberThreadAwaiter<T> Send<T>(T data)
+        public ResultAwatier Send(ReturnResult data)
         {
-            Type key = typeof(T);
-
-
-            // Nobody receiving, let's wait until something comes up
+           
             var GhostThread = Fiber.Current;
 
             if (GhostThread == null)
                 GhostThread = this;
 
 
-            var waitingGhostThread = FiberThreadAwaiter<T>.New(GhostThread);
+            var waitingGhostThread = new ResultAwatier(GhostThread);
             waitingGhostThread.Result = data;
-
-            if (senders.ContainsKey(key))
-            {
-                senders[key].Enqueue(waitingGhostThread);
-            }
-            else
-            {
-                ConcurrentQueue<FiberThreadAwaiterBase> table = new ConcurrentQueue<FiberThreadAwaiterBase>();
-                senders.AddOrUpdate(key, table, (a, b) => table);
-                senders[key].Enqueue(waitingGhostThread);
-            }
-
-
+            senders.Enqueue(waitingGhostThread);
             return waitingGhostThread;
-
-
         }
 
     }

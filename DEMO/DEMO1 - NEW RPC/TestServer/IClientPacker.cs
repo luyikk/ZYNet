@@ -12,12 +12,12 @@ namespace TestServer
     interface IClientPacker
     {
         [MethodRun(2001)]
-        FiberThreadAwaiter<ReturnResult> DownHtml(string url);
+        ResultAwatier DownHtml(string url);
 
         [MethodRun(3001)]
         void Message(string msg);
 
         [MethodRun(2500)]
-        FiberThreadAwaiter<ReturnResult> TestRec(int count);
+        ResultAwatier TestRec(int count);
     }
 }

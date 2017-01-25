@@ -17,7 +17,6 @@ namespace Client
         public LogOn()
         {
             InitializeComponent();
-            TestHTML();
         }
 
 
@@ -31,6 +30,7 @@ namespace Client
 
         private async void button1_Click(object sender, EventArgs e)
         {
+
             var res = await ClientManager.NewAsync().Get<ServerMethods>().LogOn(this.textBox1.Text);
 
             var isOK = res?.First?.Value<bool>();
@@ -53,21 +53,6 @@ namespace Client
          
         }
 
-        public async void TestHTML()
-        {
-
-            var a = await Task.Run<string>(() =>
-            {
-                for (int i = 0; i < 10; i++)
-                {
-                    System.Threading.Thread.Sleep(1000);
-                }
-
-                return "HH";
-
-            });
-            this.Text=a;
-        }
 
         private void LogOn_Load(object sender, EventArgs e)
         {

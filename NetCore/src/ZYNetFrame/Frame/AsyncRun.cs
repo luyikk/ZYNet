@@ -9,19 +9,19 @@ namespace ZYNet.CloudSystem.Frame
 {
     public abstract class AsyncRunBase
     {
-        protected FiberThreadAwaiter<ReturnResult> awaiter;
+        protected ResultAwatier awaiter;
 
         public long Id { get; protected set; }
 
         public abstract void CV(int cmdTag, params object[] args);
 
-        public abstract FiberThreadAwaiter<ReturnResult> CR(int cmdTag, params object[] args);
+        public abstract ResultAwatier CR(int cmdTag, params object[] args);
        
 
         public void SetRet(ReturnResult result)
         {
             if (awaiter == null)
-                awaiter = new FiberThreadAwaiter<ReturnResult>();
+                awaiter = new ResultAwatier();
 
             awaiter.SetResult(result);
             awaiter.IsCompleted = true;

@@ -157,12 +157,8 @@ namespace ZYNet.CloudSystem.Server
                 if (method.ReturnType != typeof(void))
                 {
 
-#if !COREFX
-                    if (method.ReturnType.BaseType != typeof(FiberThreadAwaiterBase))
-#else
-                    if (method.ReturnType.GetTypeInfo().BaseType != typeof(FiberThreadAwaiterBase))
-#endif
 
+                    if (!Common.IsTypeOfBaseTypeIs(method.ReturnType, typeof(FiberThreadAwaiterBase)))
                     {
                         throw new Exception(string.Format("Async Call Not Use Sync Mehhod"));
                     }
@@ -190,7 +186,7 @@ namespace ZYNet.CloudSystem.Server
             AsyncUser.CV(cmdTag, args);
         }
 
-        public FiberThreadAwaiter<ReturnResult> CR(int cmdTag, params object[] args)
+        public ResultAwatier CR(int cmdTag, params object[] args)
         {
             CallPack buffer = new CallPack()
             {
@@ -259,13 +255,13 @@ namespace ZYNet.CloudSystem.Server
                     CallSend(pdata);
             }
 
-            return fiber.Read<ReturnResult>();
+            return fiber.Read();
         }
 
 
         public void SetRet(ReturnResult result)
         {
-            fiber.Set<ReturnResult>(result);
+            fiber.Set(result);
         }
 
         public ReturnResult RET(params object[] args)
