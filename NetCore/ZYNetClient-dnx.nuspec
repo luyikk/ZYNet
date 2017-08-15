@@ -1,44 +1,44 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
-    <metadata>
-        <id>ZYNetClient-dnx</id>
-        <version>1.1.0</version>
-        <title>ZYNetClient dnx</title>
-        <authors>luyikk</authors>
-        <owners>luyikk</owners>
-        <licenseUrl>https://github.com/luyikk/ZYNet</licenseUrl>
-        <projectUrl>https://github.com/luyikk/ZYNet</projectUrl>
-        <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <description>ZYNetClient for .NETCORE</description>
-        <summary>ZYNetClient for .NETCORE</summary>
-        <copyright>luyikk</copyright>
-        <language>en-US</language>
-    </metadata>
-    <files>
-        <file src="..\DLL\Release\Client\protobuf-net.dll" target="lib\Mono\protobuf-net.dll" />
-        <file src="..\DLL\Release\Client\ZYNetClient.dll" target="lib\Mono\ZYNetClient.dll" />
-        <file src="..\DLL\Release\Client\ZYNetClient.pdb" target="lib\Mono\ZYNetClient.pdb" />
-        <file src="..\DLL\Release\Client\ZYNetFrame.dll" target="lib\Mono\ZYNetFrame.dll" />
-        <file src="..\DLL\Release\Client\ZYNetFrame.pdb" target="lib\Mono\ZYNetFrame.pdb" />
-        <file src="..\DLL\Release\Client\protobuf-net.dll" target="lib\net45\protobuf-net.dll" />
-        <file src="..\DLL\Release\Client\ZYNetClient.dll" target="lib\net45\ZYNetClient.dll" />
-        <file src="..\DLL\Release\Client\ZYNetClient.pdb" target="lib\net45\ZYNetClient.pdb" />
-        <file src="..\DLL\Release\Client\ZYNetFrame.dll" target="lib\net45\ZYNetFrame.dll" />
-        <file src="..\DLL\Release\Client\ZYNetFrame.pdb" target="lib\net45\ZYNetFrame.pdb" />
-        <file src="src\ZYNetClient\bin\Release\netstandard1.3\ZYNetClient.deps.json" target="lib\netstandard1.3\ZYNetClient.deps.json" />
-        <file src="src\ZYNetClient\bin\Release\netstandard1.3\ZYNetClient.dll" target="lib\netstandard1.3\ZYNetClient.dll" />
-        <file src="src\ZYNetClient\bin\Release\netstandard1.3\ZYNetClient.pdb" target="lib\netstandard1.3\ZYNetClient.pdb" />
-        <file src="src\ZYNetClient\bin\Release\netstandard1.3\ZYNetFrame.dll" target="lib\netstandard1.3\ZYNetFrame.dll" />
-        <file src="src\ZYNetClient\bin\Release\netstandard1.3\ZYNetFrame.pdb" target="lib\netstandard1.3\ZYNetFrame.pdb" />
-        <file src="src\ZYNetClient\bin\Release\netstandard1.5\ZYNetClient.deps.json" target="lib\netstandard1.5\ZYNetClient.deps.json" />
-        <file src="src\ZYNetClient\bin\Release\netstandard1.5\ZYNetClient.dll" target="lib\netstandard1.5\ZYNetClient.dll" />
-        <file src="src\ZYNetClient\bin\Release\netstandard1.5\ZYNetClient.pdb" target="lib\netstandard1.5\ZYNetClient.pdb" />
-        <file src="src\ZYNetClient\bin\Release\netstandard1.5\ZYNetFrame.dll" target="lib\netstandard1.5\ZYNetFrame.dll" />
-        <file src="src\ZYNetClient\bin\Release\netstandard1.5\ZYNetFrame.pdb" target="lib\netstandard1.5\ZYNetFrame.pdb" />
-        <file src="src\ZYNetClient\bin\Release\netstandard1.6\ZYNetClient.deps.json" target="lib\netstandard1.6\ZYNetClient.deps.json" />
-        <file src="src\ZYNetClient\bin\Release\netstandard1.6\ZYNetClient.dll" target="lib\netstandard1.6\ZYNetClient.dll" />
-        <file src="src\ZYNetClient\bin\Release\netstandard1.6\ZYNetClient.pdb" target="lib\netstandard1.6\ZYNetClient.pdb" />
-        <file src="src\ZYNetClient\bin\Release\netstandard1.6\ZYNetFrame.dll" target="lib\netstandard1.6\ZYNetFrame.dll" />
-        <file src="src\ZYNetClient\bin\Release\netstandard1.6\ZYNetFrame.pdb" target="lib\netstandard1.6\ZYNetFrame.pdb" />
-    </files>
-</package>
+xml version=1.0 encoding=utf-8
+package xmlns=httpschemas.microsoft.compackaging201108nuspec.xsd
+    metadata
+        idZYNetClient-dnxid
+        version1.1.0version
+        titleZYNetClient dnxtitle
+        authorsluyikkauthors
+        ownersluyikkowners
+        licenseUrlhttpsgithub.comluyikkZYNetlicenseUrl
+        projectUrlhttpsgithub.comluyikkZYNetprojectUrl
+        requireLicenseAcceptancefalserequireLicenseAcceptance
+        descriptionZYNetClient for .NETCOREdescription
+        summaryZYNetClient for .NETCOREsummary
+        copyrightluyikkcopyright
+        languageen-USlanguage
+    metadata
+    files
+        file src=..DLLReleaseClientprotobuf-net.dll target=libMonoprotobuf-net.dll 
+        file src=..DLLReleaseClientZYNetClient.dll target=libMonoZYNetClient.dll 
+        file src=..DLLReleaseClientZYNetClient.pdb target=libMonoZYNetClient.pdb 
+        file src=..DLLReleaseClientZYNetFrame.dll target=libMonoZYNetFrame.dll 
+        file src=..DLLReleaseClientZYNetFrame.pdb target=libMonoZYNetFrame.pdb 
+        file src=..DLLReleaseClientprotobuf-net.dll target=libnet45protobuf-net.dll 
+        file src=..DLLReleaseClientZYNetClient.dll target=libnet45ZYNetClient.dll 
+        file src=..DLLReleaseClientZYNetClient.pdb target=libnet45ZYNetClient.pdb 
+        file src=..DLLReleaseClientZYNetFrame.dll target=libnet45ZYNetFrame.dll 
+        file src=..DLLReleaseClientZYNetFrame.pdb target=libnet45ZYNetFrame.pdb 
+        file src=srcZYNetClientbinReleasenetstandard1.3ZYNetClient.deps.json target=libnetstandard1.3ZYNetClient.deps.json 
+        file src=srcZYNetClientbinReleasenetstandard1.3ZYNetClient.dll target=libnetstandard1.3ZYNetClient.dll 
+        file src=srcZYNetClientbinReleasenetstandard1.3ZYNetClient.pdb target=libnetstandard1.3ZYNetClient.pdb 
+        file src=srcZYNetClientbinReleasenetstandard1.3ZYNetFrame.dll target=libnetstandard1.3ZYNetFrame.dll 
+        file src=srcZYNetClientbinReleasenetstandard1.3ZYNetFrame.pdb target=libnetstandard1.3ZYNetFrame.pdb 
+        file src=srcZYNetClientbinReleasenetstandard1.5ZYNetClient.deps.json target=libnetstandard1.5ZYNetClient.deps.json 
+        file src=srcZYNetClientbinReleasenetstandard1.5ZYNetClient.dll target=libnetstandard1.5ZYNetClient.dll 
+        file src=srcZYNetClientbinReleasenetstandard1.5ZYNetClient.pdb target=libnetstandard1.5ZYNetClient.pdb 
+        file src=srcZYNetClientbinReleasenetstandard1.5ZYNetFrame.dll target=libnetstandard1.5ZYNetFrame.dll 
+        file src=srcZYNetClientbinReleasenetstandard1.5ZYNetFrame.pdb target=libnetstandard1.5ZYNetFrame.pdb 
+        file src=srcZYNetClientbinReleasenetstandard1.6ZYNetClient.deps.json target=libnetstandard1.6ZYNetClient.deps.json 
+        file src=srcZYNetClientbinReleasenetstandard1.6ZYNetClient.dll target=libnetstandard1.6ZYNetClient.dll 
+        file src=srcZYNetClientbinReleasenetstandard1.6ZYNetClient.pdb target=libnetstandard1.6ZYNetClient.pdb 
+        file src=srcZYNetClientbinReleasenetstandard1.6ZYNetFrame.dll target=libnetstandard1.6ZYNetFrame.dll 
+        file src=srcZYNetClientbinReleasenetstandard1.6ZYNetFrame.pdb target=libnetstandard1.6ZYNetFrame.pdb 
+    files
+package

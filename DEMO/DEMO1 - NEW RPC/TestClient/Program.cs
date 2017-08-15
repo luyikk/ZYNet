@@ -56,7 +56,7 @@ namespace TestClient
         public static async void RunTest(CloudClient client)
         {
             var Server = client.NewAsync().Get<IPacker>();
-
+            
             int? v = (await Server.TestRecAsync(100))?[0]?.Value<int>();
 
             System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch();
