@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>ZYNetServer-dnx</id>
-        <version>1.1.0</version>
+        <version>1.1.2.1</version>
         <title>ZYNetServer dnx</title>
         <authors>luyikk</authors>
         <owners>luyikk</owners>
@@ -28,20 +28,25 @@ Fiber Socket</summary>
         <file src="..\DLL\Release\Server\ZYNetFrame.pdb" target="lib\net45\ZYNetFrame.pdb" />
         <file src="..\DLL\Release\Server\ZYNetServer.dll" target="lib\net45\ZYNetServer.dll" />
         <file src="..\DLL\Release\Server\ZYNetServer.pdb" target="lib\net45\ZYNetServer.pdb" />
-        <file src="src\ZYNetServer\bin\Release\netstandard1.3\ZYNetFrame.dll" target="lib\netstandard1.3\ZYNetFrame.dll" />
-        <file src="src\ZYNetServer\bin\Release\netstandard1.3\ZYNetFrame.pdb" target="lib\netstandard1.3\ZYNetFrame.pdb" />
-        <file src="src\ZYNetServer\bin\Release\netstandard1.3\ZYNetServer.deps.json" target="lib\netstandard1.3\ZYNetServer.deps.json" />
-        <file src="src\ZYNetServer\bin\Release\netstandard1.3\ZYNetServer.dll" target="lib\netstandard1.3\ZYNetServer.dll" />
-        <file src="src\ZYNetServer\bin\Release\netstandard1.3\ZYNetServer.pdb" target="lib\netstandard1.3\ZYNetServer.pdb" />
-        <file src="src\ZYNetServer\bin\Release\netstandard1.5\ZYNetFrame.dll" target="lib\netstandard1.5\ZYNetFrame.dll" />
-        <file src="src\ZYNetServer\bin\Release\netstandard1.5\ZYNetFrame.pdb" target="lib\netstandard1.5\ZYNetFrame.pdb" />
-        <file src="src\ZYNetServer\bin\Release\netstandard1.5\ZYNetServer.deps.json" target="lib\netstandard1.5\ZYNetServer.deps.json" />
-        <file src="src\ZYNetServer\bin\Release\netstandard1.5\ZYNetServer.dll" target="lib\netstandard1.5\ZYNetServer.dll" />
-        <file src="src\ZYNetServer\bin\Release\netstandard1.5\ZYNetServer.pdb" target="lib\netstandard1.5\ZYNetServer.pdb" />
-        <file src="src\ZYNetServer\bin\Release\netstandard1.6\ZYNetFrame.dll" target="lib\netstandard1.6\ZYNetFrame.dll" />
-        <file src="src\ZYNetServer\bin\Release\netstandard1.6\ZYNetFrame.pdb" target="lib\netstandard1.6\ZYNetFrame.pdb" />
-        <file src="src\ZYNetServer\bin\Release\netstandard1.6\ZYNetServer.deps.json" target="lib\netstandard1.6\ZYNetServer.deps.json" />
-        <file src="src\ZYNetServer\bin\Release\netstandard1.6\ZYNetServer.dll" target="lib\netstandard1.6\ZYNetServer.dll" />
-        <file src="src\ZYNetServer\bin\Release\netstandard1.6\ZYNetServer.pdb" target="lib\netstandard1.6\ZYNetServer.pdb" />
+        <file src="ZYNetServer\bin\Release\netstandard1.3\ZYNetFrame.dll" target="lib\netstandard1.3\ZYNetFrame.dll" />
+        <file src="ZYNetServer\bin\Release\netstandard1.3\ZYNetFrame.pdb" target="lib\netstandard1.3\ZYNetFrame.pdb" />
+        <file src="ZYNetServer\bin\Release\netstandard1.3\ZYNetServer.deps.json" target="lib\netstandard1.3\ZYNetServer.deps.json" />
+        <file src="ZYNetServer\bin\Release\netstandard1.3\ZYNetServer.dll" target="lib\netstandard1.3\ZYNetServer.dll" />
+        <file src="ZYNetServer\bin\Release\netstandard1.3\ZYNetServer.pdb" target="lib\netstandard1.3\ZYNetServer.pdb" />
+        <file src="ZYNetServer\bin\Release\netstandard1.4\ZYNetFrame.dll" target="lib\netstandard1.4\ZYNetFrame.dll" />
+        <file src="ZYNetServer\bin\Release\netstandard1.4\ZYNetFrame.pdb" target="lib\netstandard1.4\ZYNetFrame.pdb" />
+        <file src="ZYNetServer\bin\Release\netstandard1.4\ZYNetServer.deps.json" target="lib\netstandard1.4\ZYNetServer.deps.json" />
+        <file src="ZYNetServer\bin\Release\netstandard1.4\ZYNetServer.dll" target="lib\netstandard1.4\ZYNetServer.dll" />
+        <file src="ZYNetServer\bin\Release\netstandard1.4\ZYNetServer.pdb" target="lib\netstandard1.4\ZYNetServer.pdb" />
+        <file src="ZYNetServer\bin\Release\netstandard1.5\ZYNetFrame.dll" target="lib\netstandard1.5\ZYNetFrame.dll" />
+        <file src="ZYNetServer\bin\Release\netstandard1.5\ZYNetFrame.pdb" target="lib\netstandard1.5\ZYNetFrame.pdb" />
+        <file src="ZYNetServer\bin\Release\netstandard1.5\ZYNetServer.deps.json" target="lib\netstandard1.5\ZYNetServer.deps.json" />
+        <file src="ZYNetServer\bin\Release\netstandard1.5\ZYNetServer.dll" target="lib\netstandard1.5\ZYNetServer.dll" />
+        <file src="ZYNetServer\bin\Release\netstandard1.5\ZYNetServer.pdb" target="lib\netstandard1.5\ZYNetServer.pdb" />
+        <file src="ZYNetServer\bin\Release\netstandard1.6\ZYNetFrame.dll" target="lib\netstandard1.6\ZYNetFrame.dll" />
+        <file src="ZYNetServer\bin\Release\netstandard1.6\ZYNetFrame.pdb" target="lib\netstandard1.6\ZYNetFrame.pdb" />
+        <file src="ZYNetServer\bin\Release\netstandard1.6\ZYNetServer.deps.json" target="lib\netstandard1.6\ZYNetServer.deps.json" />
+        <file src="ZYNetServer\bin\Release\netstandard1.6\ZYNetServer.dll" target="lib\netstandard1.6\ZYNetServer.dll" />
+        <file src="ZYNetServer\bin\Release\netstandard1.6\ZYNetServer.pdb" target="lib\netstandard1.6\ZYNetServer.pdb" />
     </files>
 </package>
