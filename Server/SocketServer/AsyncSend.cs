@@ -130,8 +130,11 @@ namespace ZYSocket.AsyncSend
             {
                 if (InitData())
                 {
-                    SendIng = true;
-                    Sock.SendAsync(_send);
+                    SendIng = true;                   
+                    if (!Sock.SendAsync(_send))
+                    {
+                        BeginSend(_send);
+                    }
                     return true;
                 }               
                    

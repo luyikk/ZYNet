@@ -87,8 +87,7 @@ namespace ZYNet.CloudSystem.Client
 
                 byte[] data = { 0xFF, 0xFE, 0x00, 0x00, 0x00, 0xCE, 0x00, 0xED };
 
-                SendData(data);
-
+                SendData(data);           
 
                 return true;
             }

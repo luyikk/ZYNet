@@ -516,7 +516,8 @@ namespace ZYSocket.Server
                         this.BinaryOffsetInput(e.Buffer,e.Offset,e.BytesTransferred,e);
 
                 }
-                              
+
+             
                 if (!e.AcceptSocket.ReceiveAsync(e))
                 {
                     BeginReceive(e);
