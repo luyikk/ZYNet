@@ -64,19 +64,52 @@ namespace ZYNet.CloudSystem.SocketClient
                         length = e.Buffer.Length - offset;
 
                     e.SetBuffer(offset, length);
-                    sock.SendAsync(_send);
+                    try
+                    {
+                        if (!sock.SendAsync(_send))
+                        {
+                            BeginSend(_send);
+                        }
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        Free();
+                        sock = null;
+                    }
                 }
                 else
                 {
                     e.SetBuffer(offset, e.Count - e.Offset - e.BytesTransferred);
-                    sock.SendAsync(_send);
+                    try
+                    {
+                        if (!sock.SendAsync(_send))
+                        {
+                            BeginSend(_send);
+                        }
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        Free();
+                        sock = null;
+                    }
                 }
             }
             else
             {
                 if (InitData())
                 {
-                    sock.SendAsync(_send);
+                    try
+                    {
+                        if (!sock.SendAsync(_send))
+                        {
+                            BeginSend(_send);
+                        }
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        Free();
+                        sock = null;
+                    }
                 }
                 else
                 {
@@ -103,7 +136,6 @@ namespace ZYNet.CloudSystem.SocketClient
 
                 if (BufferLenght <= 0)
                 {
-                    
                     _send.SetBuffer(data, 0, data.Length);
 
                     return true;
@@ -115,7 +147,6 @@ namespace ZYNet.CloudSystem.SocketClient
                     if (length > data.Length)
                         length = data.Length;
 
-                   
                     _send.SetBuffer(data, 0, length);
 
                     return true;
@@ -129,27 +160,37 @@ namespace ZYNet.CloudSystem.SocketClient
 
         public bool Send(byte[] data)
         {
-            
+            if (sock == null)
+                return false;
+
             BufferQueue.Enqueue(data);
 
-            if(!SendIng)
+            if (!SendIng)
             {
                 if (InitData())
                 {
                     SendIng = true;
-                    if(!sock.SendAsync(_send))
+                    try
                     {
-                        BeginSend(_send);
+                        if (!sock.SendAsync(_send))
+                        {
+                            BeginSend(_send);
+                        }
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        Free();
+                        sock = null;
                     }
                     return true;
-                }               
-                   
+                }
+
             }
 
             return false;
         }
 
 
-        
+
     }
 }

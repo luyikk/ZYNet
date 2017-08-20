@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using ZYSocket.Server;
 using System.Net.Sockets;
+using System;
 
 namespace ZYSocket.AsyncSend
 {
@@ -12,14 +13,14 @@ namespace ZYSocket.AsyncSend
 
         private ConcurrentQueue<byte[]> BufferQueue { get; set; }
 
-        private Socket Sock { get; set; }
+        private Socket sock { get; set; }
 
         protected int BufferLenght { get; set; } = -1;
 
 
         public AsyncSend(Socket sock)
         {
-            Sock = sock;
+            this.sock = sock;
             SendIng = false;
             BufferQueue = new ConcurrentQueue<byte[]>();
             _send = new SocketAsyncEventArgs();
@@ -61,19 +62,52 @@ namespace ZYSocket.AsyncSend
                         length = e.Buffer.Length - offset;
 
                     e.SetBuffer(offset, length);
-                    Sock.SendAsync(_send);
+                    try
+                    {
+                        if (!sock.SendAsync(_send))
+                        {
+                            BeginSend(_send);
+                        }
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        Free();
+                        sock = null;
+                    }
                 }
                 else
                 {
                     e.SetBuffer(offset, e.Count - e.Offset - e.BytesTransferred);
-                    Sock.SendAsync(_send);
+                    try
+                    {
+                        if (!sock.SendAsync(_send))
+                        {
+                            BeginSend(_send);
+                        }
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        Free();
+                        sock = null;
+                    }
                 }
             }
             else
             {
                 if (InitData())
                 {
-                    Sock.SendAsync(_send);
+                    try
+                    {
+                        if (!sock.SendAsync(_send))
+                        {
+                            BeginSend(_send);
+                        }
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        Free();
+                        sock = null;
+                    }
                 }
                 else
                 {
@@ -124,26 +158,37 @@ namespace ZYSocket.AsyncSend
 
         public bool Send(byte[] data)
         {
+            if (sock == null)
+                return false;
+
             BufferQueue.Enqueue(data);
 
-            if(!SendIng)
+            if (!SendIng)
             {
                 if (InitData())
                 {
                     SendIng = true;
-                    if(!Sock.SendAsync(_send))
+                    try
                     {
-                        BeginSend(_send);
+                        if (!sock.SendAsync(_send))
+                        {
+                            BeginSend(_send);
+                        }
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        Free();
+                        sock = null;
                     }
                     return true;
-                }               
-                   
+                }
+
             }
 
             return false;
         }
 
 
-        
+
     }
 }

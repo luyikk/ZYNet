@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>ZYNetClient-dnx</id>
-        <version>1.1.2.3</version>
+        <version>1.1.2.4</version>
         <title>ZYNetClient dnx</title>
         <authors>luyikk</authors>
         <owners>luyikk</owners>
@@ -53,5 +53,11 @@
         <file src="ZYNetClient\bin\Release\netstandard2.0\ZYNetClient.pdb" target="lib\netstandard2.0\ZYNetClient.pdb" />
         <file src="ZYNetClient\bin\Release\netstandard2.0\ZYNetFrame.dll" target="lib\netstandard2.0\ZYNetFrame.dll" />
         <file src="ZYNetClient\bin\Release\netstandard2.0\ZYNetFrame.pdb" target="lib\netstandard2.0\ZYNetFrame.pdb" />
+        <file src="..\DLL\IOS\Client\protobuf-net.dll" target="lib\xamarinios\protobuf-net.dll" />
+        <file src="..\DLL\IOS\Client\ZYNetClientIOS.dll" target="lib\xamarinios\ZYNetClientIOS.dll" />
+        <file src="..\DLL\IOS\Client\ZYNetClientIOS.pdb" target="lib\xamarinios\ZYNetClientIOS.pdb" />
+        <file src="..\DLL\IOS\Client\ZYNetFrameIOS.dll" target="lib\xamarinios\ZYNetFrameIOS.dll" />
+        <file src="..\DLL\IOS\Client\ZYNetFrameIOS.dll.mdb" target="lib\xamarinios\ZYNetFrameIOS.dll.mdb" />
+        <file src="..\DLL\IOS\Client\ZYNetFrameIOS.pdb" target="lib\xamarinios\ZYNetFrameIOS.pdb" />
     </files>
 </package>
