@@ -13,7 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="ZYSOCKET-protobuf-net" Version="4.3.2" />
-    <PackageReference Include="ZYNetClient-dnx" Version="1.1.2.3" />
+    <PackageReference Include="ZYNetClient-dnx" Version="1.1.2.4" />
   </ItemGroup>
 
   <ItemGroup>
