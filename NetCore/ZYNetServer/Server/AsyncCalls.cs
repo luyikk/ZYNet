@@ -104,7 +104,9 @@ namespace ZYNet.CloudSystem.Server
                     {
                         var nullx = new ReturnResult();
                         nullx.Id = this.Id;
-
+                      
+                        nullx.ErrorMsg = er.ToString();                     
+                        nullx.ErrorId = er.HResult;
                         if (Complete != null)
                             Complete(nullx);
                     }
@@ -269,6 +271,12 @@ namespace ZYNet.CloudSystem.Server
             ReturnResult tmp = new ReturnResult(args);
             tmp.Id = this.Id;
             return tmp;
+        }
+
+        public void Disconnect()
+        {           
+            if (AsyncUser != null)
+                AsyncUser.Disconnect();
         }
     }
 }

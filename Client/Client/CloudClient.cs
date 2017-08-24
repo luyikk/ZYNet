@@ -154,8 +154,7 @@ namespace ZYNet.CloudSystem.Client
 
                 if (value != null)
                 {
-
-                    if (value.Arguments == null)
+                    if (value.Arguments == null&&value.ErrorId==0)
                         return null;
                     else
                         return value;

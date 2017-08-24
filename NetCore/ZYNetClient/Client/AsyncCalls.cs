@@ -84,7 +84,9 @@ namespace ZYNet.CloudSystem.Client
                     if (IsHaveReturn)
                     {
                         var nullx = new ReturnResult();
-                        nullx.Id = this.Id;
+                        nullx.Id = this.Id;                      
+                        nullx.ErrorMsg = er.ToString();
+                        nullx.ErrorId = er.HResult;
 
                         if (Complete != null)
                             Complete(nullx);

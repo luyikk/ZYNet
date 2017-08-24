@@ -25,6 +25,21 @@ namespace ZYNet.CloudSystem.Frame
         public List<byte[]> Arguments { get; set; }
     }
 
+    public class ZYNETException:Exception
+    {
+        public string ErrorMsg { get; set; }
+
+        public int ErrorId { get; set; }
+
+        public ZYNETException(string msg,int errorId)
+        {
+            this.ErrorMsg = msg;
+            this.ErrorId = errorId;
+        }
+
+        public override string Message => ErrorMsg;
+    }
+
 
     public class ResultValue
     {
@@ -53,11 +68,20 @@ namespace ZYNet.CloudSystem.Frame
 
         public List<byte[]> Arguments { get; set; }
 
+        public string ErrorMsg { get; set; }
+
+        public int ErrorId { get; set; }
+
 
         public ResultValue this[int index]
         {            
             get
             {
+                if(ErrorId!=0)
+                {
+                    throw new ZYNETException(ErrorMsg, ErrorId);
+                }
+
                 if (index < Arguments.Count)
                 {
                     return new ResultValue(Arguments[index]);
@@ -70,6 +94,11 @@ namespace ZYNet.CloudSystem.Frame
         {
             get
             {
+                if (ErrorId != 0)
+                {
+                    throw new ZYNETException(ErrorMsg, ErrorId);
+                }
+
                 if (Arguments == null || Arguments.Count == 0)
                     return null;
                 
@@ -103,7 +132,12 @@ namespace ZYNet.CloudSystem.Frame
 
         public T As<T>(int index)
         {
-           return (T)Serialization.UnpackSingleObject(typeof(T), Arguments[index]);
+            if (ErrorId!=0)
+            {
+                throw new ZYNETException(ErrorMsg, ErrorId);
+            }
+
+            return (T)Serialization.UnpackSingleObject(typeof(T), Arguments[index]);
         }
         
 

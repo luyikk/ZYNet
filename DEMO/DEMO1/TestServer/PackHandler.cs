@@ -45,26 +45,36 @@ namespace TestServer
         [MethodRun(2001)]
         public static async Task<ReturnResult> StartDown(AsyncCalls async, string url)
         {
-            
-            var htmldata = (await async.CR(2001, url))?[0]?.Value<byte[]>(); 
 
-            if (htmldata != null)
-            {               
-                string html = Encoding.UTF8.GetString(htmldata);
+            var callback = await async.CR(2001, url);
 
-                return async.RET(html);
+            if (callback != null && callback.ErrorId == 0)
+            {
+                var htmldata = callback?[0]?.Value<byte[]>();
 
+                if (htmldata != null)
+                {
+
+                    string html = Encoding.UTF8.GetString(htmldata);
+
+                    return async.RET(html);
+
+                }
+            }
+            else
+            {
+                Console.WriteLine(callback.ErrorMsg);
             }
 
-
             return async.RET();// or async.RET(null);
+            
         }
 
 
 
         [MethodRun(2002)]
         public static Task<ReturnResult> GetTime(AsyncCalls async)
-        {
+        {           
             return Task.FromResult<ReturnResult>(async.RET(DateTime.Now));
         }
 
@@ -77,6 +87,7 @@ namespace TestServer
             {
                 user.PassWord = password;
                 Console.WriteLine(user.UserName + " Set PassWord:" + password);
+               
             }
 
            
@@ -95,8 +106,15 @@ namespace TestServer
                     count = x.Value;
                 }
             }
-
+            
             return async.RET(count);
+        }
+
+
+        [MethodRun(2600)]
+        public static  Task<ReturnResult> TestError(AsyncCalls async, int c)
+        {
+            throw new Exception("EEEE");
         }
 
 

@@ -87,7 +87,8 @@ namespace ZYNet.CloudSystem.Client
 
                 byte[] data = { 0xFF, 0xFE, 0x00, 0x00, 0x00, 0xCE, 0x00, 0xED };
 
-                SendData(data);           
+                SendData(data);
+
 
                 return true;
             }
@@ -153,8 +154,7 @@ namespace ZYNet.CloudSystem.Client
 
                 if (value != null)
                 {
-
-                    if (value.Arguments == null)
+                    if (value.Arguments == null&&value.ErrorId==0)
                         return null;
                     else
                         return value;

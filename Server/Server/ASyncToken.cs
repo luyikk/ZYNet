@@ -88,11 +88,34 @@ namespace ZYNet.CloudSystem.Server
         {
             if(AsyncCallDiy!=null)
                 AsyncCallDiy.Clear();
-            if(CallBackDiy!=null)
+
+            if (CallBackDiy != null)
+            {
+
+                foreach (var item in CallBackDiy.Values)
+                {
+                    ReturnResult disconn = new ReturnResult();
+                    disconn.Id = item.Id;
+                    disconn.ErrorId = -1;
+                    disconn.ErrorMsg = "Disconnect";                   
+                    item.SetRet(disconn);
+                }
+
+
                 CallBackDiy.Clear();
+            }
 
             if (UserDisconnect != null)
                 UserDisconnect(this,message);
+        }
+
+
+        public void Disconnect()
+        {
+            var server = CurrentServer?.Server;
+            var socket = Asyn?.AcceptSocket;
+            if (server != null && socket != null)
+                server.Disconnect(Asyn.AcceptSocket);
         }
 
         public void DataOn(byte[] data)

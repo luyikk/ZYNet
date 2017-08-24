@@ -132,17 +132,25 @@ namespace Client
 
                 if (userinfo != null)
                 {
-                    var msgres = await ClientManager.NewAsync().Get<ServerMethods>().SendMsgToUser(userinfo.UserName, this.textBox1.Text);
-
-                    var msg = msgres?.First?.Value<string>();
-
-
-                    this.BeginInvoke(new EventHandler(delegate
+                    try
                     {
-                        this.richTextBox1.AppendText((userinfo.UserName + ":" + msg??"发送失败") + "\r\n");
-                    }));
+                        var msgres = await ClientManager.NewAsync().Get<ServerMethods>().SendMsgToUser(userinfo.UserName, this.textBox1.Text);
+
+                        var msg = msgres?.First?.Value<string>();
 
 
+                        this.BeginInvoke(new EventHandler(delegate
+                        {
+                            this.richTextBox1.AppendText((userinfo.UserName + ":" + msg ?? "发送失败") + "\r\n");
+                        }));
+
+                    }catch(Exception er)
+                    {
+                        this.BeginInvoke(new EventHandler(delegate
+                        {
+                            this.richTextBox1.AppendText((userinfo.UserName + ":" + er.ToString() ?? "发送失败") + "\r\n");
+                        }));
+                    }
                 }
             }
         }

@@ -57,6 +57,8 @@ namespace TestClient
                         }
 
                         RunTest(client);
+
+                        //RunTestError(client);
                     }
                 }
 
@@ -77,6 +79,24 @@ namespace TestClient
             if (rec != null)
             {
                 Console.WriteLine("ASYNC Rec:{0} time:{1} MS", rec.Value, stop.ElapsedMilliseconds);
+            }
+        }
+
+        public static async void RunTestError(CloudClient client)
+        {
+            var rec = (await client.NewAsync().CR(2600, 10000));
+
+            if(rec.ErrorId!=0)
+            {
+                try
+                {
+                    rec.First.Value<int>();
+                }
+                catch (ZYNETException cc)
+                {
+                    Console.WriteLine(cc.ErrorMsg);
+                }
+                Console.WriteLine(rec.ErrorMsg);
             }
         }
 

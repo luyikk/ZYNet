@@ -19,8 +19,7 @@ namespace TestClient
         public async Task<ReturnResult> DownHtml(AsyncCalls async,string url)
         {
             WebClient client = new WebClient();
-            byte[] html=  await client.DownloadDataTaskAsync(url);        
-
+            byte[] html=  await client.DownloadDataTaskAsync(url);         
             return async.RET(html);
         }
 
