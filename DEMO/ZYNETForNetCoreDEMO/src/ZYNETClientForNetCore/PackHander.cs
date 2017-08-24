@@ -19,8 +19,7 @@ namespace ZYNETClientForNetCore
         public async Task<ReturnResult> DownHtml(AsyncCalls async, string url)
         {
             HttpClient  client = new HttpClient();
-            byte[] html = await client.GetByteArrayAsync(url);
-
+            byte[] html = await client.GetByteArrayAsync(url);          
             return async.RET(html);
         }
 
