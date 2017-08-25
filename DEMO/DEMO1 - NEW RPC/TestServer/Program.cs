@@ -12,6 +12,7 @@ namespace TestServer
     {
         static void Main(string[] args)
         {
+            //其他不懂看DEMO1
             LogAction.LogOut += LogAction_LogOut;
             CloudServer tmp = new CloudServer("any", 2285, 1000, 1024*128, 1024*1024);//没个SocketAsync对象缓冲区128k,最大能接收1M长度的数据包
             tmp.Install(typeof(PackHandler));
@@ -22,7 +23,7 @@ namespace TestServer
 
                 foreach (var item in PackHandler.UserList)
                 {
-                    item.token.Get<IClientPacker>().Message(msg);
+                    item.token.Get<IClientPacker>().Message(msg);//返回一个 IClientPacker 同步调用 Message 函数
 
                 }
             }

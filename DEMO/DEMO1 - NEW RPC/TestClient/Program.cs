@@ -12,6 +12,10 @@ namespace TestClient
 {
     class Program
     {
+        /// <summary>
+        /// 其他不懂看DEMO 1
+        /// </summary>
+        /// <param name="args"></param>
         static void Main(string[] args)
         {
             LogAction.LogOut += LogAction_LogOut;          
@@ -23,20 +27,20 @@ namespace TestClient
             if (client.Connect("127.0.0.1", 2285))
             {
             
-                var ServerPacker = client.Sync.Get<IPacker>();
+                var ServerPacker = client.Sync.Get<IPacker>(); //获取一个 IPACKER 实例 用来调用服务器
                 
 
 
-                var isSuccess = ServerPacker.IsLogOn("123123", "3212312")?.First?.Value<bool>();
+                var isSuccess = ServerPacker.IsLogOn("123123", "3212312")?.First?.Value<bool>(); //调用服务器的isLOGON函数
 
-                var html = ServerPacker.StartDown("http://www.baidu.com").First?.Value<string>();
+                var html = ServerPacker.StartDown("http://www.baidu.com").First?.Value<string>(); //调用服务器的StartDown 函数
                 Console.WriteLine("BaiduHtml:" + html.Length);
 
-                var time = ServerPacker.GetTime();
+                var time = ServerPacker.GetTime();//调用服务器的GetTime 函数
 
                 Console.WriteLine("ServerTime:" + time);
 
-                ServerPacker.SetPassWord("3123123");
+                ServerPacker.SetPassWord("3123123"); //调用服务器的SetPassWord 函数
 
                 System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch();
                 stop.Start();

@@ -11,10 +11,16 @@ using System.Net;
 namespace TestClient
 {
     /// <summary>
-    /// 客户端包处理器
+    /// 客户端逻辑处理器
     /// </summary>
     public class PackHander
     {
+        /// <summary>
+        /// 下载函数 留给服务器调用
+        /// </summary>
+        /// <param name="async"></param>
+        /// <param name="url"></param>
+        /// <returns></returns>
         [MethodRun(2001)]
         public async Task<ReturnResult> DownHtml(AsyncCalls async,string url)
         {
@@ -23,13 +29,23 @@ namespace TestClient
             return async.RET(html);
         }
 
+        /// <summary>
+        /// 消息打印
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="msg"></param>
         [MethodRun(3001)]
         public void Message(CloudClient client,string msg)
         {            
             Console.WriteLine(msg);
         }
 
-
+        /// <summary>
+        /// 递归测试
+        /// </summary>
+        /// <param name="async"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
         [MethodRun(2500)]
         public  async Task<ReturnResult> TestRec(AsyncCalls async, int count)
         {

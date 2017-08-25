@@ -14,51 +14,51 @@ namespace TestClient
     {
         static void Main(string[] args)
         {
-            LogAction.LogOut += LogAction_LogOut;          
-            CloudClient client = new CloudClient(new SocketClient(), 500000, 1024 * 1024); //最大数据包能够接收 1M
-            PackHander tmp = new PackHander();
-            client.Install(tmp);
-            client.Disconnect += Client_Disconnect;           
+            LogAction.LogOut += LogAction_LogOut; //注册日记输出事件 用于打印日记          
+            CloudClient client = new CloudClient(new SocketClient(), 500000, 1024 * 1024); //创建一个客户端实例，最大数据包能够接收 1M
+            PackHander tmp = new PackHander(); //新建一个 客户端逻辑处理器
+            client.Install(tmp); //安装
+            client.Disconnect += Client_Disconnect;     //注册断开事件      
 
-            if (client.Connect("127.0.0.1", 2285))
+            if (client.Connect("127.0.0.1", 2285)) //连接到服务器
             {
-                ZYSync Sync = client.Sync;
+                ZYSync Sync = client.Sync; //返回同步回调
 
-                var res= Sync.CR(1000, "AAA", "BBB")?[0]?.Value<bool>();
+                var res= Sync.CR(1000, "AAA", "BBB")?[0]?.Value<bool>(); //调用服务器函数1000，穿入AAA BBB 返回一个布尔值
 
-                if(res!=null&&res==true)
+                if(res!=null&&res==true) //如果结果不等于NULL 并且登入成功
                 {
                     
 
-                    var html= Sync.CR(2001, "http://www.baidu.com")?[0]?.Value<string>();
-                    if (html != null)
+                    var html= Sync.CR(2001, "http://www.baidu.com")?[0]?.Value<string>();//调用服务器2001函数 输入一个URL 返回HTML 内容
+                    if (html != null) //如果HTML 不等于NULL
                     {
-                        Console.WriteLine("BaiduHtml:" + html.Length);
+                        Console.WriteLine("BaiduHtml:" + html.Length); //输出HTML长度
 
-                        var time = Sync.CR(2002)?.First?.Value<DateTime>();
+                        var time = Sync.CR(2002)?.First?.Value<DateTime>(); //调用2002函数 获取当前时间
 
-                        Console.WriteLine("ServerTime:" + time);
+                        Console.WriteLine("ServerTime:" + time); //打印时间
 
-                        Sync.CV(2003, "123123");
+                        Sync.CV(2003, "123123"); //调用2003函数 穿入123123
 
-                        var x = Sync.CR(2001, "http://www.qq.com");
+                        var x = Sync.CR(2001, "http://www.qq.com");  //调用服务器2001函数 输入一个URL 返回HTML 内容
 
-                        Console.WriteLine("QQHtml:" + x.First.Value<string>().Length);
+                        Console.WriteLine("QQHtml:" + x.First.Value<string>().Length); //输出HTML长度
 
-                        var recx = Sync.CR(2500, 100)?.First?.Value<int>();
+                        var recx = Sync.CR(2500, 100)?.First?.Value<int>(); //调用2500递归函数 输入100 返回1
 
-                        System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch();
+                        System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch(); //测试调用时间
                         stop.Start();
-                        var rec = Sync.CR(2500, 10000)?.First?.Value<int>();
+                        var rec = Sync.CR(2500, 10000)?.First?.Value<int>();  // 调用2500递归函数 输入10000 返回1
                         stop.Stop();
                         if (rec != null)
                         {
-                            Console.WriteLine("Rec:{0} time:{1} MS",rec.Value,stop.ElapsedMilliseconds);
+                            Console.WriteLine("Rec:{0} time:{1} MS",rec.Value,stop.ElapsedMilliseconds); //打印需要的时间
                         }
 
-                        RunTest(client);
+                        RunTest(client); //测试异步调用
 
-                        //RunTestError(client);
+                        //RunTestError(client); //测试异常处理
                     }
                 }
 
@@ -74,19 +74,20 @@ namespace TestClient
 
             System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch();
             stop.Start();
-            var rec = (await client.NewAsync().CR(2500, 10000))?.First?.Value<int>();
+            var rec = (await client.NewAsync().CR(2500, 10000))?.First?.Value<int>(); //异步调用2500  输入10000 返回1
             stop.Stop();
             if (rec != null)
             {
-                Console.WriteLine("ASYNC Rec:{0} time:{1} MS", rec.Value, stop.ElapsedMilliseconds);
+                Console.WriteLine("ASYNC Rec:{0} time:{1} MS", rec.Value, stop.ElapsedMilliseconds); //打印需要的时间
             }
         }
 
+
         public static async void RunTestError(CloudClient client)
         {
-            var rec = (await client.NewAsync().CR(2600, 10000));
+            var rec = (await client.NewAsync().CR(2600, 10000)); //测试异常处理函数
 
-            if(rec.ErrorId!=0)
+            if (rec.ErrorId!=0)
             {
                 try
                 {

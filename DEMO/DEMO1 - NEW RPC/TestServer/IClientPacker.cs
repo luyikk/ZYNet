@@ -9,6 +9,9 @@ using ZYNet.CloudSystem.Frame;
 
 namespace TestServer
 {
+    /// <summary>
+    /// 定义一个客户端调用接口 用来调用客户端
+    /// </summary>
     interface IClientPacker
     {
         [MethodRun(2001)]

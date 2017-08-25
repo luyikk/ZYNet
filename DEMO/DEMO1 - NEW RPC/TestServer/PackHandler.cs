@@ -46,7 +46,7 @@ namespace TestServer
         public static async Task<ReturnResult> StartDown(AsyncCalls async, string url)
         {
             
-            var htmldata = (await async.Get<IClientPacker>().DownHtml(url))?[0]?.Value<byte[]>(); 
+            var htmldata = (await async.Get<IClientPacker>().DownHtml(url))?[0]?.Value<byte[]>();  //返回一个IClientPacker 实例 调用客户端的DownHtml函数
 
             if (htmldata != null)
             {               
@@ -88,9 +88,9 @@ namespace TestServer
             count--;
             if (count > 1)
             {
-                var x = (await async.Get<IClientPacker>().TestRec(count))?[0]?.Value<int>();
+                var x = (await async.Get<IClientPacker>().TestRec(count))?[0]?.Value<int>();  //返回一个IClientPacker 实例 调用客户端的TestRec函数
 
-                if(x!=null&&x.HasValue)
+                if (x!=null&&x.HasValue)
                 {
                     count = x.Value;
                 }

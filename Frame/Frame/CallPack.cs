@@ -72,12 +72,13 @@ namespace ZYNet.CloudSystem.Frame
 
         public int ErrorId { get; set; }
 
+        public bool IsError => ErrorId != 0;
 
         public ResultValue this[int index]
         {            
             get
             {
-                if(ErrorId!=0)
+                if(IsError)
                 {
                     throw new ZYNETException(ErrorMsg, ErrorId);
                 }
@@ -94,7 +95,7 @@ namespace ZYNet.CloudSystem.Frame
         {
             get
             {
-                if (ErrorId != 0)
+                if (IsError)
                 {
                     throw new ZYNETException(ErrorMsg, ErrorId);
                 }
@@ -132,7 +133,7 @@ namespace ZYNet.CloudSystem.Frame
 
         public T As<T>(int index)
         {
-            if (ErrorId!=0)
+            if (IsError)
             {
                 throw new ZYNETException(ErrorMsg, ErrorId);
             }
