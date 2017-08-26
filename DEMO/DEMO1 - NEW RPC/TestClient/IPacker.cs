@@ -14,13 +14,13 @@ namespace TestClient
     /// </summary>
     public interface IPacker
     {
-        [MethodCmdTag(1000)]
+        [TAG(1000)]
         ReturnResult IsLogOn(string username, string password);
 
-        [MethodCmdTag(2001)]
+        [TAG(2001)]
         ResultAwatier StartDownAsync(string url);
 
-        [MethodCmdTag(2001)]
+        [TAG(2001)]
         ReturnResult StartDown(string url);
 
 
@@ -29,14 +29,14 @@ namespace TestClient
         /// 同步调用返回DateTime 注意：如果你写的CMD 服务器返回类型和此DateTime类型有出入或者无法返回，以及返回超时，此函数将抛出异常
         /// </summary>
         /// <returns></returns>
-        [MethodCmdTag(2002)]
+        [TAG(2002)]
         DateTime GetTime();
 
         /// <summary>
         /// 同步调用返回DateTime 注意：此方法调用失败将 返回null 而不会发生异常
         /// </summary>
         /// <returns></returns>
-        [MethodCmdTag(2002)]
+        [TAG(2002)]
         ReturnResult GetTimer();
 
         /// <summary>
@@ -44,20 +44,20 @@ namespace TestClient
         /// </summary>
         /// <returns></returns>
 
-        [MethodCmdTag(2002)]
+        [TAG(2002)]
         ResultAwatier GetTimeAsync();
 
 
-        [MethodCmdTag(2003)]
+        [TAG(2003)]
         void SetPassWord(string password);
 
-        [MethodCmdTag(2500)]
+        [TAG(2500)]
         ReturnResult TestRec(int count);
 
-        [MethodCmdTag(2500)]
+        [TAG(2500)]
         ResultAwatier TestRecAsync(int count);
 
-        [MethodCmdTag(2500)]
+        [TAG(2500)]
         int TestRec2(int count);
 
 

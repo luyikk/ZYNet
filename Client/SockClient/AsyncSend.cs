@@ -15,14 +15,14 @@ namespace ZYNet.CloudSystem.SocketClient
 
         private ConcurrentQueue<byte[]> BufferQueue { get; set; }
 
-        private Socket sock { get; set; }
+        private Socket _sock { get; set; }
 
         protected int BufferLenght { get; set; } = -1;
 
 
         public AsyncSend(Socket sock)
         {
-            this.sock = sock;
+            this._sock = sock;
             SendIng = false;
             BufferQueue = new ConcurrentQueue<byte[]>();
             _send = new SocketAsyncEventArgs();
@@ -66,7 +66,7 @@ namespace ZYNet.CloudSystem.SocketClient
                     e.SetBuffer(offset, length);
                     try
                     {
-                        if (!sock.SendAsync(_send))
+                        if (!_sock.SendAsync(_send))
                         {
                             BeginSend(_send);
                         }
@@ -74,7 +74,7 @@ namespace ZYNet.CloudSystem.SocketClient
                     catch (ObjectDisposedException)
                     {
                         Free();
-                        sock = null;
+                        _sock = null;
                     }
                 }
                 else
@@ -82,7 +82,7 @@ namespace ZYNet.CloudSystem.SocketClient
                     e.SetBuffer(offset, e.Count - e.Offset - e.BytesTransferred);
                     try
                     {
-                        if (!sock.SendAsync(_send))
+                        if (!_sock.SendAsync(_send))
                         {
                             BeginSend(_send);
                         }
@@ -90,7 +90,7 @@ namespace ZYNet.CloudSystem.SocketClient
                     catch (ObjectDisposedException)
                     {
                         Free();
-                        sock = null;
+                        _sock = null;
                     }
                 }
             }
@@ -100,7 +100,7 @@ namespace ZYNet.CloudSystem.SocketClient
                 {
                     try
                     {
-                        if (!sock.SendAsync(_send))
+                        if (!_sock.SendAsync(_send))
                         {
                             BeginSend(_send);
                         }
@@ -108,7 +108,7 @@ namespace ZYNet.CloudSystem.SocketClient
                     catch (ObjectDisposedException)
                     {
                         Free();
-                        sock = null;
+                        _sock = null;
                     }
                 }
                 else
@@ -123,15 +123,15 @@ namespace ZYNet.CloudSystem.SocketClient
         {
             _send.SetBuffer(null, 0, 0);
 
-            byte[] tmp;
+           
             for (int i = 0; i < BufferQueue.Count; i++)
-                BufferQueue.TryDequeue(out tmp);
+                BufferQueue.TryDequeue(out byte[]  tmp);
         }
 
         private bool InitData()
         {
-            byte[] data;
-            if (BufferQueue.TryDequeue(out data))
+          
+            if (BufferQueue.TryDequeue(out byte[] data))
             {
 
                 if (BufferLenght <= 0)
@@ -160,7 +160,7 @@ namespace ZYNet.CloudSystem.SocketClient
 
         public bool Send(byte[] data)
         {
-            if (sock == null)
+            if (_sock == null)
                 return false;
 
             BufferQueue.Enqueue(data);
@@ -172,7 +172,7 @@ namespace ZYNet.CloudSystem.SocketClient
                     SendIng = true;
                     try
                     {
-                        if (!sock.SendAsync(_send))
+                        if (!_sock.SendAsync(_send))
                         {
                             BeginSend(_send);
                         }
@@ -180,7 +180,7 @@ namespace ZYNet.CloudSystem.SocketClient
                     catch (ObjectDisposedException)
                     {
                         Free();
-                        sock = null;
+                        _sock = null;
                     }
                     return true;
                 }

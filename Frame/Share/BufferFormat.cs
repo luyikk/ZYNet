@@ -516,8 +516,10 @@ namespace ZYSocket.share
                         StringBuilder sBuilder = new StringBuilder();
 
                         XmlSerializer xmlSerializer = new XmlSerializer(pObj.GetType());
-                        XmlWriterSettings xmlWriterSettings = new XmlWriterSettings();
-                        xmlWriterSettings.Encoding = Encoding.Unicode;
+                        XmlWriterSettings xmlWriterSettings = new XmlWriterSettings()
+                        {
+                            Encoding = Encoding.Unicode
+                        };
                         XmlWriter xmlWriter = XmlWriter.Create(sBuilder, xmlWriterSettings);
                         xmlSerializer.Serialize(xmlWriter, pObj);
                         xmlWriter.Close();

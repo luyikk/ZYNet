@@ -25,7 +25,7 @@ namespace ZYNet.CloudSystem.Server
 
         internal event Action<byte[]> CallSend;
 
-        public Fiber fiber { get; private set; }
+        public Fiber _fiber { get; private set; }
 
         public bool IsHaveReturn { get; private set; }
 
@@ -61,12 +61,12 @@ namespace ZYNet.CloudSystem.Server
         public AsyncCalls(ASyncToken token,Fiber fiber)
         {
             this.AsyncUser = token;
-            this.fiber = fiber;
+            this._fiber = fiber;
         }
 
         ~AsyncCalls()
         {
-            fiber?.Dispose();
+            _fiber?.Dispose();
         }
 
 
@@ -90,8 +90,7 @@ namespace ZYNet.CloudSystem.Server
                     {
                         Result = await (Task<ReturnResult>)Method.Invoke(null, Args);
 
-                        if (Complete != null)
-                            Complete(Result);
+                        Complete?.Invoke(Result);
                     }
                     else
                     {
@@ -106,13 +105,13 @@ namespace ZYNet.CloudSystem.Server
 
                     if (IsHaveReturn)
                     {
-                        var nullx = new ReturnResult();
-                        nullx.Id = this.Id;
-                      
-                        nullx.ErrorMsg = er.ToString();                     
-                        nullx.ErrorId = er.HResult;
-                        if (Complete != null)
-                            Complete(nullx);
+                        var nullx = new ReturnResult()
+                        {
+                            Id = this.Id,
+                            ErrorMsg = er.ToString(),
+                            ErrorId = er.HResult
+                        };
+                        Complete?.Invoke(nullx);
                     }
 
                     LogAction.Log(LogType.Err, "Cmd:" + Cmd + " Error:\r\n" + Error.ToString());
@@ -126,9 +125,9 @@ namespace ZYNet.CloudSystem.Server
             };
 
 
-            fiber = new Fiber();
-            fiber.SetAction(wrappedGhostThreadFunction);
-            fiber.Start();
+            _fiber = new Fiber();
+            _fiber.SetAction(wrappedGhostThreadFunction);
+            _fiber.Start();
 
         }
 
@@ -146,17 +145,14 @@ namespace ZYNet.CloudSystem.Server
         protected virtual object Call(MethodInfo method, object[] args)
         {
 
-            var attr = method.GetCustomAttribute(typeof(MethodCmdTag), true);
+            var attr = method.GetCustomAttribute(typeof(TAG), true);
 
             if (attr == null)
             {
                 throw new FormatException(method.Name + " Is Not MethodRun Attribute");
             }
 
-
-            MethodCmdTag run = attr as MethodCmdTag;
-
-            if (run != null)
+            if (attr is TAG run)
             {
                 int cmd = run.CmdTag;
 
@@ -226,7 +222,7 @@ namespace ZYNet.CloudSystem.Server
 
                 BinaryWriter bufflist = new BinaryWriter(stream);
 
-                if (AsyncUser.dataExtra != null)
+                if (AsyncUser.DataExtra != null)
                 {
 
                     bufflist.Write(CmdDef.CallCmd);
@@ -234,7 +230,7 @@ namespace ZYNet.CloudSystem.Server
                     bufflist.Write(classdata.Length);
                     bufflist.Write(classdata);
 
-                    byte[] fdata = AsyncUser.dataExtra(stream.ToArray());
+                    byte[] fdata = AsyncUser.DataExtra(stream.ToArray());
 
                     stream.Position = 0;
                     stream.SetLength(0);
@@ -261,30 +257,27 @@ namespace ZYNet.CloudSystem.Server
 
 
                 byte[] pdata = stream.ToArray();
-#if !COREFX
-                stream.Close();
-#endif
-
 
                 AsyncUser.AddAsyncCallBack(this, buffer.Id);
 
-                if (CallSend != null)
-                    CallSend(pdata);
+                CallSend?.Invoke(pdata);
             }
 
-            return fiber.Read();
+            return _fiber.Read();
         }
 
 
         public void SetRet(ReturnResult result)
         {
-            fiber.Set(result);
+            _fiber.Set(result);
         }
 
         public ReturnResult RET(params object[] args)
         {
-            ReturnResult tmp = new ReturnResult(args);
-            tmp.Id = this.Id;
+            ReturnResult tmp = new ReturnResult(args)
+            {
+                Id = this.Id
+            };
             return tmp;
         }
 

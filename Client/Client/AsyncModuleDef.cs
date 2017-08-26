@@ -31,12 +31,12 @@ namespace ZYNet.CloudSystem.Client
             foreach (var method in methos)
             {
 
-                var attr = method.GetCustomAttributes(typeof(MethodCmdTag), true);
+                var attr = method.GetCustomAttributes(typeof(TAG), true);
 
                 foreach (var att in attr)
                 {
 
-                    MethodCmdTag attrcmdtype = att as MethodCmdTag;
+                    TAG attrcmdtype = att as TAG;
 
                     if (attrcmdtype != null)
                     {

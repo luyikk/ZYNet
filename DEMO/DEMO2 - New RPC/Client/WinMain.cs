@@ -23,7 +23,7 @@ namespace Client
 
 
 
-        [MethodCmdTag(1003)]
+        [TAG(1003)]
         public void SetUserList(CloudClient client, List<UserInfo> userlist)
         {
             AllUser = userlist;
@@ -35,7 +35,7 @@ namespace Client
             }));
         }
 
-        [MethodCmdTag(1002)]
+        [TAG(1002)]
         public void AddUser(CloudClient client, UserInfo user)
         {
             AllUser.Add(user);
@@ -46,7 +46,7 @@ namespace Client
             }));
         }
 
-        [MethodCmdTag(1004)]
+        [TAG(1004)]
         public void RemoveUser(CloudClient client,string username)
         {
             AllUser.RemoveAll(p => p.UserName == username);
@@ -60,7 +60,7 @@ namespace Client
         }
 
 
-        [MethodCmdTag(2001)]
+        [TAG(2001)]
         public void MessageTo(CloudClient client, string username, string msg)
         {
 
@@ -72,7 +72,7 @@ namespace Client
         }
 
 
-        [MethodCmdTag(2002)]
+        [TAG(2002)]
         public string MessageToMe(CloudClient client, string username,string msg)
         {
            

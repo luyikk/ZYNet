@@ -36,7 +36,7 @@ namespace ZYNet.CloudSystem.Client
         protected virtual object Call(MethodInfo method, object[] args)
         {
 
-            var attr = method.GetCustomAttribute(typeof(MethodCmdTag), true);
+            var attr = method.GetCustomAttribute(typeof(TAG), true);
 
             if (attr == null)
             {
@@ -44,7 +44,7 @@ namespace ZYNet.CloudSystem.Client
             }
 
 
-            MethodCmdTag run = attr as MethodCmdTag;
+            TAG run = attr as TAG;
 
             if (run != null)
             {

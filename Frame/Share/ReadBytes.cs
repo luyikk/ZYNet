@@ -551,10 +551,10 @@ namespace ZYSocket.share
         /// <returns></returns>
         public virtual bool ReadString(out string values)
         {
-            int lengt;
+          
             try
             {
-                if (ReadInt32(out lengt))
+                if (ReadInt32(out int lengt))
                 {
 
                     Byte[] buf = new Byte[lengt];
@@ -643,10 +643,10 @@ namespace ZYSocket.share
         /// <returns></returns>
         public virtual bool ReadByteArray(out byte[] values)
         {
-            int lengt;
+          
             try
             {
-                if (ReadInt32(out lengt))
+                if (ReadInt32(out int lengt))
                 {
                     values = new Byte[lengt];
                     Buffer.BlockCopy(Data, current, values, 0, values.Length);
@@ -706,8 +706,10 @@ namespace ZYSocket.share
                         object _newOjb = null;
                         if (pBytes == null)
                             return (T)_newOjb;
-                        System.IO.MemoryStream _memory = new System.IO.MemoryStream(pBytes);
-                        _memory.Position = 0;
+                        System.IO.MemoryStream _memory = new System.IO.MemoryStream(pBytes)
+                        {
+                            Position = 0
+                        };
                         BinaryFormatter formatter = new BinaryFormatter();
                         //  formatter.TypeFormat = System.Runtime.Serialization.Formatters.FormatterTypeStyle.XsdString;
                         _newOjb = formatter.Deserialize(_memory);
@@ -775,8 +777,8 @@ namespace ZYSocket.share
         /// <returns></returns>
         public virtual bool ReadObject<T>(out T obj)
         {
-            byte[] data;
-            if (this.ReadByteArray(out data))
+           
+            if (this.ReadByteArray(out byte[] data))
             {
                 obj = DeserializeObject<T>(data);
                 return true;

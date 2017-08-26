@@ -14,7 +14,7 @@ namespace Server
         public static List<UserInfo> UserList { get; set; } = new List<UserInfo>();
 
 
-        [MethodCmdTag(1000)]
+        [TAG(1000)]
         public static async Task<ReturnResult> IsLogOn(AsyncCalls async,string username)
         {
             if (UserList.Find(p => p.UserName == username) == null)
@@ -49,7 +49,7 @@ namespace Server
         }
 
 
-        [MethodCmdTag(2001)]
+        [TAG(2001)]
         public static void SendMessage(ASyncToken token,string msg)
         {
             var userinfo = token.UserToken as UserInfo;
@@ -63,7 +63,7 @@ namespace Server
             }
         }
 
-        [MethodCmdTag(2002)]
+        [TAG(2002)]
         public static async Task<ReturnResult> ToMessage(AsyncCalls async,string account,string msg)
         {
             var userinfo = async.Token<UserInfo>();

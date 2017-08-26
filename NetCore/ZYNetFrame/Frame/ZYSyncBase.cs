@@ -11,7 +11,7 @@ namespace ZYNet.CloudSystem.Frame
     public abstract class ZYSyncBase
     {
 
-        public Func<byte[],byte[]> dataExtra { get; set; }
+        public Func<byte[],byte[]> DataExtra { get; set; }
 
         public void CV(int cmdTag, params object[] args )
         {
@@ -36,7 +36,7 @@ namespace ZYNet.CloudSystem.Frame
 
                 BinaryWriter bufflist = new BinaryWriter(stream);
 
-                if (dataExtra != null)
+                if (DataExtra != null)
                 {
 
                     bufflist.Write(CmdDef.CallCmd);
@@ -44,7 +44,7 @@ namespace ZYNet.CloudSystem.Frame
                     bufflist.Write(classdata.Length);
                     bufflist.Write(classdata);
 
-                    byte[] fdata = dataExtra(stream.ToArray());
+                    byte[] fdata = DataExtra(stream.ToArray());
 
                     stream.Position = 0;
                     stream.SetLength(0);
@@ -101,7 +101,7 @@ namespace ZYNet.CloudSystem.Frame
 
                 BinaryWriter bufflist = new BinaryWriter(stream);
 
-                if (dataExtra != null)
+                if (DataExtra != null)
                 {
 
                     bufflist.Write(CmdDef.CallCmd);
@@ -109,7 +109,7 @@ namespace ZYNet.CloudSystem.Frame
                     bufflist.Write(classdata.Length);
                     bufflist.Write(classdata);
 
-                    byte[] fdata = dataExtra(stream.ToArray());
+                    byte[] fdata = DataExtra(stream.ToArray());
 
                     stream.Position = 0;
                     stream.SetLength(0);

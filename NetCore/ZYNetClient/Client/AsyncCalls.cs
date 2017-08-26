@@ -25,7 +25,7 @@ namespace ZYNet.CloudSystem.Client
 
         internal event Action<byte[]> CallSend;
 
-        public Fiber fiber { get; private set; }
+        public Fiber _fiber { get; private set; }
 
         public bool IsHaveReturn { get; private set; }
 
@@ -56,7 +56,7 @@ namespace ZYNet.CloudSystem.Client
 
         ~AsyncCalls()
         {
-            fiber?.Dispose();
+            _fiber?.Dispose();
         }
 
 
@@ -71,12 +71,11 @@ namespace ZYNet.CloudSystem.Client
                     {
                         Result = await (Task<ReturnResult>)Method.Invoke(Obj, Args);
 
-                        if (Complete != null)
-                            Complete(Result);                       
+                        Complete?.Invoke(Result);
                     }
                     else
                     {
-                        await (Task)Method.Invoke(Obj, Args);                      
+                        await (Task)Method.Invoke(Obj, Args);
                     }
                 }
                 catch (Exception er)
@@ -87,13 +86,14 @@ namespace ZYNet.CloudSystem.Client
 
                     if (IsHaveReturn)
                     {
-                        var nullx = new ReturnResult();
-                        nullx.Id = this.Id;                      
-                        nullx.ErrorMsg = er.ToString();
-                        nullx.ErrorId = er.HResult;
+                        var nullx = new ReturnResult()
+                        {
+                            Id = this.Id,
+                            ErrorMsg = er.ToString(),
+                            ErrorId = er.HResult                            
+                        };
 
-                        if (Complete != null)
-                            Complete(nullx);
+                        Complete?.Invoke(nullx);
                     }
 
                     LogAction.Log(LogType.Err, "Cmd:" + Cmd + " Error:\r\n" + Error.ToString());
@@ -106,9 +106,9 @@ namespace ZYNet.CloudSystem.Client
             };
 
 
-            fiber = new Fiber();
-            fiber.SetAction(wrappedGhostThreadFunction);
-            fiber.Start();
+            _fiber = new Fiber();
+            _fiber.SetAction(wrappedGhostThreadFunction);
+            _fiber.Start();
 
         }
 
@@ -126,7 +126,7 @@ namespace ZYNet.CloudSystem.Client
         protected virtual object Call(MethodInfo method, object[] args)
         {
 
-            var attr = method.GetCustomAttribute(typeof(MethodCmdTag), true);
+            var attr = method.GetCustomAttribute(typeof(TAG), true);
 
             if (attr == null)
             {
@@ -134,9 +134,7 @@ namespace ZYNet.CloudSystem.Client
             }
 
 
-            MethodCmdTag run = attr as MethodCmdTag;
-
-            if (run != null)
+            if (attr is TAG run)
             {
                 int cmd = run.CmdTag;
 
@@ -244,22 +242,23 @@ namespace ZYNet.CloudSystem.Client
 
                 CCloudClient.AddAsyncCallBack(this, buffer.Id);
 
-                if (CallSend != null)
-                    CallSend(pdata);
+                CallSend?.Invoke(pdata);
             }
 
-            return  fiber.Read();
+            return  _fiber.Read();
         }
 
         public void SetRet(ReturnResult result)
         {
-            fiber.Set(result);
+            _fiber.Set(result);
         }
 
         public ReturnResult RET(params object[] args)
         {
-            ReturnResult tmp = new ReturnResult(args);
-            tmp.Id = this.Id;
+            ReturnResult tmp = new ReturnResult(args)
+            {
+                Id = this.Id
+            };
             return tmp;
         }
     }

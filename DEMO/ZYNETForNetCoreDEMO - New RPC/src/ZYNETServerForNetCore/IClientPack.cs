@@ -10,13 +10,13 @@ namespace ZYNETServerForNetCore
 {
     public interface IClientPack
     {
-        [MethodCmdTag(2001)]
+        [TAG(2001)]
         ResultAwatier DownHtmlAsync(string url);
 
-        [MethodCmdTag(3001)]
+        [TAG(3001)]
         void Message(string msg);
 
-        [MethodCmdTag(2500)]
+        [TAG(2500)]
         ResultAwatier TestRecAsync(int count);
     }
 }

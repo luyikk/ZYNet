@@ -5,11 +5,13 @@ using System.Text;
 
 namespace ZYNet.CloudSystem
 {
+    [Flags]
     public enum LogType
     {
-        Log=0,
-        Err=1,
-        War = 2
+        None=0,
+        Log=1,
+        Err=2,
+        War = 3
     }
 
     public delegate void LogOutHandler(string msg, LogType type);
@@ -21,26 +23,22 @@ namespace ZYNet.CloudSystem
 
         public static void Warn(string msg, params object[] args)
         {
-            if (LogOut != null)
-                LogOut(string.Format(msg, args), LogType.War);
+            LogOut?.Invoke(string.Format(msg, args), LogType.War);
         }
 
         public static void Err(string msg, params object[] args)
         {
-            if (LogOut != null)
-                LogOut(string.Format(msg, args), LogType.Err);
+            LogOut?.Invoke(string.Format(msg, args), LogType.Err);
         }
 
         public static void Log(string msg, params object[] args)
         {
-            if (LogOut != null)
-                LogOut(string.Format(msg, args), LogType.Log);
+            LogOut?.Invoke(string.Format(msg, args), LogType.Log);
         }
 
         public static void Log(LogType type,string msg,params object[] args)
-        {          
-            if (LogOut != null)
-                LogOut(string.Format(msg, args), type);
+        {
+            LogOut?.Invoke(string.Format(msg, args), type);
         }
     }
 }

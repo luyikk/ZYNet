@@ -15,7 +15,7 @@ namespace ZYNETClientForNetCore
     /// </summary>
     public class PackHander
     {
-        [MethodCmdTag(2001)]
+        [TAG(2001)]
         public async Task<ReturnResult> DownHtml(AsyncCalls async, string url)
         {
             HttpClient  client = new HttpClient();
@@ -23,14 +23,14 @@ namespace ZYNETClientForNetCore
             return async.RET(html);
         }
 
-        [MethodCmdTag(3001)]
+        [TAG(3001)]
         public void Message(CloudClient client, string msg)
         {
             Console.WriteLine(msg);
         }
 
 
-        [MethodCmdTag(2500)]
+        [TAG(2500)]
         public async Task<ReturnResult> TestRec(AsyncCalls async, int count)
         {
             count--;

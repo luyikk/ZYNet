@@ -45,7 +45,7 @@ namespace ZYNet.CloudSystem.Server
             this.Asyn = asynca;
             Stream = new ZYNetRingBufferPool(MaxBuffsize);
             CurrentServer = server;
-            this.dataExtra = server.EcodeingHandler;
+            this.DataExtra = server.EcodeingHandler;
             sendobj = new AsyncSend(asynca.AcceptSocket);
         }
 
@@ -204,7 +204,7 @@ namespace ZYNet.CloudSystem.Server
 
                 BinaryWriter bufflist = new BinaryWriter(stream);
 
-                if (dataExtra != null)
+                if (DataExtra != null)
                 {
 
                     bufflist.Write(CmdDef.ReturnResult);
@@ -212,7 +212,7 @@ namespace ZYNet.CloudSystem.Server
                     bufflist.Write(classdata.Length);
                     bufflist.Write(classdata);
 
-                    byte[] fdata = dataExtra(stream.ToArray());
+                    byte[] fdata = DataExtra(stream.ToArray());
 
                     stream.Position = 0;
                     stream.SetLength(0);
@@ -239,9 +239,6 @@ namespace ZYNet.CloudSystem.Server
 
 
                 byte[] pdata = stream.ToArray();
-#if !COREFX
-                stream.Close();
-#endif
 
                 SendData(pdata);
 
@@ -252,7 +249,7 @@ namespace ZYNet.CloudSystem.Server
 
         public AsyncCalls MakeAsync(AsyncCalls async)
         {
-            AsyncCalls tmp = new AsyncCalls(this, async.fiber);
+            AsyncCalls tmp = new AsyncCalls(this, async._fiber);
             tmp.CallSend += SendData;
             return tmp;
         }

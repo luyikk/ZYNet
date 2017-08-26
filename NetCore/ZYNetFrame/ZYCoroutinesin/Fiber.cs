@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace ZYNet.CloudSystem.Frame
 {
-    public class Fiber
+    public class Fiber:IDisposable
     {
         ConcurrentQueue<ResultAwatier> receivers = new ConcurrentQueue<ResultAwatier>();
         ConcurrentQueue<ResultAwatier> senders = new ConcurrentQueue<ResultAwatier>();
@@ -20,7 +20,7 @@ namespace ZYNet.CloudSystem.Frame
         private CancellationTokenSource cancellationTokenSource;
         public CancellationToken CancellationToken => cancellationTokenSource.Token;
         
-        private SynchronizationContext previousSyncContext { get; set; }
+        private SynchronizationContext PreviousSyncContext { get; set; }
 
         private FiberSynchronizationContext _SynchronizationContext { get; set; }
 
@@ -78,14 +78,9 @@ namespace ZYNet.CloudSystem.Frame
             SynchronizationContext.SetSynchronizationContext(previousSyncContext);
         }
 
-        public void Dispose()
-        {
-            cancellationTokenSource.Dispose();
-        }
-
         public void Close()
         {
-            cancellationTokenSource.Cancel();
+            cancellationTokenSource.Cancel();           
         }
 
 
@@ -99,8 +94,10 @@ namespace ZYNet.CloudSystem.Frame
                 if (GhostThread == null)
                     GhostThread = this;
 
-                var waitingGhostThread =new ResultAwatier(GhostThread);
-                waitingGhostThread.Result = data;
+                var waitingGhostThread = new ResultAwatier(GhostThread)
+                {
+                    Result = data
+                };
 
                 senders.Enqueue(waitingGhostThread);
                 return waitingGhostThread;
@@ -109,19 +106,17 @@ namespace ZYNet.CloudSystem.Frame
 
 
 
-            ResultAwatier tmp;
+           
 
-            if (receivers.TryDequeue(out tmp))
+            if (receivers.TryDequeue(out ResultAwatier tmp))
             {
                 var receiver = tmp as ResultAwatier;
-
                 receiver.Result = data;
                 receiver.IsCompleted = true;
 
                 var previousSyncContext = SynchronizationContext.Current;
                 SynchronizationContext.SetSynchronizationContext(_SynchronizationContext);
-                if(receiver.Continuation!=null)
-                    receiver.Continuation();
+                receiver.Continuation?.Invoke();
                 SynchronizationContext.SetSynchronizationContext(previousSyncContext);
                 return receiver;
             }
@@ -146,10 +141,9 @@ namespace ZYNet.CloudSystem.Frame
                 return waitingGhostThread;
 
             }
+                     
 
-            ResultAwatier sender;
-
-            if (senders.TryDequeue(out sender))
+            if (senders.TryDequeue(out ResultAwatier sender))
             {
                 sender.IsCompleted = true;             
                 return sender;
@@ -176,10 +170,8 @@ namespace ZYNet.CloudSystem.Frame
                 receivers.Enqueue(waitingGhostThread);
                 return waitingGhostThread;
             }
-
-            ResultAwatier sender;
-
-            if (senders.TryPeek(out sender))
+            
+            if (senders.TryPeek(out ResultAwatier sender))
             {
                 sender.IsCompleted = true;             
                 return sender;
@@ -204,16 +196,14 @@ namespace ZYNet.CloudSystem.Frame
                 receivers.Enqueue(waitingGhostThread);
             }
 
-            ResultAwatier sender;
-
-            if (senders.TryDequeue(out sender))
+           
+            if (senders.TryDequeue(out ResultAwatier sender))
             {
                 sender.IsCompleted = true;
 
                 var previousSyncContext = SynchronizationContext.Current;
                 SynchronizationContext.SetSynchronizationContext(_SynchronizationContext);
-                if(sender.Continuation!=null)
-                    sender.Continuation();
+                sender.Continuation?.Invoke();
                 SynchronizationContext.SetSynchronizationContext(previousSyncContext);
                
                
@@ -232,12 +222,18 @@ namespace ZYNet.CloudSystem.Frame
                 GhostThread = this;
 
 
-            var waitingGhostThread = new ResultAwatier(GhostThread);
-            waitingGhostThread.Result = data;
+            var waitingGhostThread = new ResultAwatier(GhostThread)
+            {
+                Result = data
+            };
             senders.Enqueue(waitingGhostThread);
             return waitingGhostThread;
         }
 
+        public void Dispose()
+        {
+            cancellationTokenSource.Dispose();
+        }
     }
 }
 #endif

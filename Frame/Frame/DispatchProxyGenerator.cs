@@ -77,16 +77,14 @@ namespace ZYNet.CloudSystem.Frame //NOT USE System.Reflection
         private static Type GetProxyType(Type baseType, Type interfaceType)
         {
             lock (s_baseTypeAndInterfaceToGeneratedProxyType)
-            {
-                Dictionary<Type, Type> interfaceToProxy = null;
-                if (!s_baseTypeAndInterfaceToGeneratedProxyType.TryGetValue(baseType, out interfaceToProxy))
+            {              
+                if (!s_baseTypeAndInterfaceToGeneratedProxyType.TryGetValue(baseType, out Dictionary<Type, Type>  interfaceToProxy))
                 {
                     interfaceToProxy = new Dictionary<Type, Type>();
                     s_baseTypeAndInterfaceToGeneratedProxyType[baseType] = interfaceToProxy;
                 }
-
-                Type generatedProxy = null;
-                if (!interfaceToProxy.TryGetValue(interfaceType, out generatedProxy))
+                                
+                if (!interfaceToProxy.TryGetValue(interfaceType, out Type generatedProxy))
                 {
                     generatedProxy = GenerateProxyType(baseType, interfaceType);
                     interfaceToProxy[interfaceType] = generatedProxy;
@@ -384,8 +382,10 @@ namespace ZYNet.CloudSystem.Frame //NOT USE System.Reflection
                 _tb = tb;
                 _proxyBaseType = proxyBaseType;
 
-                _fields = new List<FieldBuilder>();
-                _fields.Add(tb.DefineField("invoke", typeof(Action<object[]>), FieldAttributes.Private));
+                _fields = new List<FieldBuilder>()
+                {
+                    tb.DefineField("invoke", typeof(Action<object[]>), FieldAttributes.Private)
+                };
             }
 
             private void Complete()
@@ -457,17 +457,16 @@ namespace ZYNet.CloudSystem.Frame //NOT USE System.Reflection
                 foreach (MethodInfo mi in iface.GetRuntimeMethods())
                 {
                     MethodBuilder mdb = AddMethodImpl(mi);
-                    PropertyAccessorInfo associatedProperty;
-                    if (propertyMap.TryGetValue(mi, out associatedProperty))
+                   
+                    if (propertyMap.TryGetValue(mi, out PropertyAccessorInfo associatedProperty))
                     {
                         if (MethodInfoEqualityComparer.Instance.Equals(associatedProperty.InterfaceGetMethod, mi))
                             associatedProperty.GetMethodBuilder = mdb;
                         else
                             associatedProperty.SetMethodBuilder = mdb;
                     }
-
-                    EventAccessorInfo associatedEvent;
-                    if (eventMap.TryGetValue(mi, out associatedEvent))
+                   
+                    if (eventMap.TryGetValue(mi, out EventAccessorInfo associatedEvent))
                     {
                         if (MethodInfoEqualityComparer.Instance.Equals(associatedEvent.InterfaceAddMethod, mi))
                             associatedEvent.AddMethodBuilder = mdb;
@@ -549,10 +548,8 @@ namespace ZYNet.CloudSystem.Frame //NOT USE System.Reflection
                 packedArr.EndSet(typeof(DispatchProxy));
 
                 // packed[PackedArgs.DeclaringTypePosition] = typeof(iface);
-                MethodInfo Type_GetTypeFromHandle = typeof(Type).GetRuntimeMethod("GetTypeFromHandle", new Type[] { typeof(RuntimeTypeHandle) });
-                int methodToken;
-                Type declaringType;
-                _assembly.GetTokenForMethod(mi, out declaringType, out methodToken);
+                MethodInfo Type_GetTypeFromHandle = typeof(Type).GetRuntimeMethod("GetTypeFromHandle", new Type[] { typeof(RuntimeTypeHandle) });               
+                _assembly.GetTokenForMethod(mi, out Type declaringType, out int methodToken);
                 packedArr.BeginSet(PackedArgs.DeclaringTypePosition);
                 il.Emit(OpCodes.Ldtoken, declaringType);
                 il.Emit(OpCodes.Call, Type_GetTypeFromHandle);

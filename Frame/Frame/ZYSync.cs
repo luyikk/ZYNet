@@ -33,17 +33,14 @@ namespace ZYNet.CloudSystem.Frame
         protected virtual object Call(MethodInfo method, object[] args)
         {
            
-            var attr = method.GetCustomAttribute(typeof(MethodCmdTag),true);
+            var attr = method.GetCustomAttribute(typeof(TAG),true);
 
             if(attr==null)
             {
                 throw new FormatException(method.Name + " Is Not MethodRun Attribute");
             }
             
-
-            MethodCmdTag run = attr as MethodCmdTag;
-
-            if (run != null)
+            if (attr is TAG run)
             {
                 int cmd= run.CmdTag;
 

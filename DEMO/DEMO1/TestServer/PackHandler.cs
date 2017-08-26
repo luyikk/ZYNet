@@ -28,7 +28,7 @@ namespace TestServer
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        [MethodCmdTag(1000)]
+        [TAG(1000)]
         public static bool IsLogOn(ASyncToken token, string username, string password)
         {
             UserInfo tmp = new UserInfo() //创建一个用户对象用来保存用户信息
@@ -57,7 +57,7 @@ namespace TestServer
         /// <param name="async"></param>
         /// <param name="url"></param>
         /// <returns></returns>
-        [MethodCmdTag(2001)]
+        [TAG(2001)]
         public static async Task<ReturnResult> StartDown(AsyncCalls async, string url)
         {
 
@@ -91,7 +91,7 @@ namespace TestServer
         /// </summary>
         /// <param name="async"></param>
         /// <returns></returns>
-        [MethodCmdTag(2002)]
+        [TAG(2002)]
         public static Task<ReturnResult> GetTime(AsyncCalls async)
         {           
             return Task.FromResult<ReturnResult>(async.RET(DateTime.Now)); //返回当前服务器时间
@@ -102,7 +102,7 @@ namespace TestServer
         /// </summary>
         /// <param name="token"></param>
         /// <param name="password"></param>
-        [MethodCmdTag(2003)]
+        [TAG(2003)]
         public static void SetPassWord(ASyncToken token,string password)
         {
             UserInfo user= token.UserToken as UserInfo;
@@ -123,7 +123,7 @@ namespace TestServer
         /// <param name="async"></param>
         /// <param name="count"></param>
         /// <returns></returns>
-        [MethodCmdTag(2500)]
+        [TAG(2500)]
         public static async Task<ReturnResult> TestRec(AsyncCalls async,int count)
         {
             count--;
@@ -146,7 +146,7 @@ namespace TestServer
         /// <param name="async"></param>
         /// <param name="c"></param>
         /// <returns></returns>
-        [MethodCmdTag(2600)]
+        [TAG(2600)]
         public static  Task<ReturnResult> TestError(AsyncCalls async, int c)
         {
             throw new Exception("EEEE");

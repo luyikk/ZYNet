@@ -85,14 +85,12 @@ namespace ZYNet.CloudSystem.Server
 
             foreach (var method in methods)
             {
-                var attr = method.GetCustomAttributes(typeof(MethodCmdTag), true);
+                var attr = method.GetCustomAttributes(typeof(TAG), true);
 
 
                 foreach (var att in attr)
                 {
-                    MethodCmdTag attrcmdtype = att as MethodCmdTag;
-
-                    if (attrcmdtype != null)
+                    if (att is TAG attrcmdtype)
                     {
 
                         if ((method.ReturnType == tasktype || (Common.IsTypeOfBaseTypeIs(method.ReturnType, tasktype) && method.ReturnType.IsConstructedGenericType && method.ReturnType.GenericTypeArguments[0] == typeof(ReturnResult))))
@@ -165,10 +163,8 @@ namespace ZYNet.CloudSystem.Server
         private void BinaryInputOffsetHandler(byte[] data, int offset, int count, SocketAsyncEventArgs socketAsync)
         {
             try
-            {
-                ASyncToken tmp = socketAsync.UserToken as ASyncToken;
-
-                if (tmp != null)
+            {              
+                if (socketAsync.UserToken is ASyncToken tmp)
                     tmp.Write(data, offset, count);
                 else if (count >= 8 && data[offset] == 0xFF && data[offset + 1] == 0xFE && data[offset + 5] == 0xCE &&
                          data[offset + 7] == 0xED)
@@ -196,9 +192,8 @@ namespace ZYNet.CloudSystem.Server
         private void MessageInputHandler(string message, SocketAsyncEventArgs socketAsync, int erorr)
         {
             if (socketAsync.UserToken != null)
-            {
-                ASyncToken tmp = socketAsync.UserToken as ASyncToken;
-                if (tmp != null)
+            {             
+                if (socketAsync.UserToken is ASyncToken tmp)
                     tmp.Disconnect(message);
 
             }

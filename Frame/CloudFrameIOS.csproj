@@ -45,11 +45,11 @@
   <ItemGroup>
     <Compile Include="Frame\AsyncRunBase.cs" />
     <Compile Include="Frame\CallPack.cs" />
+    <Compile Include="Frame\CmdTag.cs" />
     <Compile Include="Frame\Common.cs" />
     <Compile Include="Frame\DispatchProxy.cs" />
     <Compile Include="Frame\DispatchProxyGenerator.cs" />
     <Compile Include="Frame\LogAction.cs" />
-    <Compile Include="Frame\MethodCmdTag.cs" />
     <Compile Include="Frame\ReturnEventWaitHandle.cs" />
     <Compile Include="Frame\Serialization.cs" />
     <Compile Include="Frame\SyncProxy.cs" />

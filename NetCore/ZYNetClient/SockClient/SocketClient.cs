@@ -26,7 +26,7 @@ namespace ZYNet.CloudSystem.SocketClient
         /// <summary>
         /// SOCKET对象
         /// </summary>
-        public Socket sock { get; private set; }
+        public Socket _sock { get; private set; }
 
         /// <summary>
         /// 连接成功事件
@@ -48,8 +48,8 @@ namespace ZYNet.CloudSystem.SocketClient
         
         public SocketClient()
         {           
-            sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            _SendObj = new AsyncSend(sock);
+            _sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            _SendObj = new AsyncSend(_sock);
         }
 
         private bool IsConn;
@@ -87,15 +87,16 @@ namespace ZYNet.CloudSystem.SocketClient
 
             #endregion
 
-            SocketAsyncEventArgs e = new SocketAsyncEventArgs();
-
-            e.RemoteEndPoint = myEnd;
-            e.Completed += new EventHandler<SocketAsyncEventArgs>(e_Completed);
+            SocketAsyncEventArgs e = new SocketAsyncEventArgs()
+            {
+                RemoteEndPoint = myEnd
+            };
+            e.Completed += new EventHandler<SocketAsyncEventArgs>(Completed);
 
            
-            if (!sock.ConnectAsync(e))
+            if (!_sock.ConnectAsync(e))
             {
-                eCompleted(e);
+                ECompleted(e);
             }
         }
 
@@ -124,12 +125,15 @@ namespace ZYNet.CloudSystem.SocketClient
 
             #endregion
 
-            SocketAsyncEventArgs e = new SocketAsyncEventArgs();
-            e.RemoteEndPoint = myEnd;
-            e.Completed += new EventHandler<SocketAsyncEventArgs>(e_Completed);
-            if (!sock.ConnectAsync(e))
+            SocketAsyncEventArgs e = new SocketAsyncEventArgs()
             {
-                eCompleted(e);
+                RemoteEndPoint = myEnd               
+            };
+
+            e.Completed += new EventHandler<SocketAsyncEventArgs>(Completed);
+            if (!_sock.ConnectAsync(e))
+            {
+                ECompleted(e);
             }
 
             wait.WaitOne();
@@ -140,13 +144,13 @@ namespace ZYNet.CloudSystem.SocketClient
 
 
 
-        void e_Completed(object sender, SocketAsyncEventArgs e)
+        void Completed(object sender, SocketAsyncEventArgs e)
         {
-            eCompleted(e);
+            ECompleted(e);
         }
 
 
-        void eCompleted(SocketAsyncEventArgs e)
+        void ECompleted(SocketAsyncEventArgs e)
         {
             switch (e.LastOperation)
             {
@@ -158,21 +162,19 @@ namespace ZYNet.CloudSystem.SocketClient
                         IsConn = true;
                         wait.Set();
 
-                        if (Connection != null)
-                            Connection("连接成功", true);
+                        Connection?.Invoke("连接成功", true);
 
                         byte[] data = new byte[4096];
                         e.SetBuffer(data, 0, data.Length);  //设置数据包
 
                         try
                         {
-                            if (!sock.ReceiveAsync(e)) //开始读取数据包
-                                eCompleted(e);
+                            if (!_sock.ReceiveAsync(e)) //开始读取数据包
+                                ECompleted(e);
                         }
                         catch (ObjectDisposedException)
                         {
-                            if (Disconnect != null)
-                                Disconnect("与服务器断开连接");
+                            Disconnect?.Invoke("与服务器断开连接");
                         }
 
                     }
@@ -180,8 +182,7 @@ namespace ZYNet.CloudSystem.SocketClient
                     {
                         IsConn = false;
                         wait.Set();
-                        if (Connection != null)
-                            Connection("连接失败", false);
+                        Connection?.Invoke("连接失败", false);
                     }
                     break;
 
@@ -195,25 +196,22 @@ namespace ZYNet.CloudSystem.SocketClient
                         //byte[] dataLast = new byte[4098];
                         //e.SetBuffer(dataLast, 0, dataLast.Length);
 
-                        if (BinaryInput != null)
-                            BinaryInput(data);
+                        BinaryInput?.Invoke(data);
 
                         try
                         {
-                            if (!sock.ReceiveAsync(e))
-                                eCompleted(e);
+                            if (!_sock.ReceiveAsync(e))
+                                ECompleted(e);
                         }
                         catch (ObjectDisposedException)
                         {
-                            if (Disconnect != null)
-                                Disconnect("与服务器断开连接");
+                            Disconnect?.Invoke("与服务器断开连接");
                         }
 
                     }
                     else
                     {
-                        if (Disconnect != null)
-                            Disconnect("与服务器断开连接");
+                        Disconnect?.Invoke("与服务器断开连接");
                     }
                     break;
 
@@ -230,7 +228,7 @@ namespace ZYNet.CloudSystem.SocketClient
         {
             SocketAsyncEventArgs e = new SocketAsyncEventArgs();
             e.SetBuffer(data, 0, data.Length);
-            sock.SendAsync(e);
+            _sock.SendAsync(e);
         }
 
         public virtual void Send(byte[] data)
@@ -242,22 +240,20 @@ namespace ZYNet.CloudSystem.SocketClient
             }
             catch (ObjectDisposedException)
             {
-                if (Disconnect != null)
-                    Disconnect("与服务器断开连接");
+                Disconnect?.Invoke("与服务器断开连接");
             }
             catch (SocketException)
             {
                 try
                 {
 #if !COREFX
-                    sock.Close();
+                    _sock.Close();
 #endif
-                    sock.Dispose();
+                    _sock.Dispose();
                 }
                 catch { }
 
-                if (Disconnect != null)
-                    Disconnect("与服务器断开连接");
+                Disconnect?.Invoke("与服务器断开连接");
             }          
 
             
@@ -269,14 +265,14 @@ namespace ZYNet.CloudSystem.SocketClient
         {
             try
             {
-                sock.Shutdown(SocketShutdown.Both);
+                _sock.Shutdown(SocketShutdown.Both);
 
 #if !COREFX
-                sock.Disconnect(false);
-                sock.Close();
+                _sock.Disconnect(false);
+                _sock.Close();
                 wait.Close();
 #endif
-                sock.Dispose();
+                _sock.Dispose();
                 wait.Dispose();
 
             }

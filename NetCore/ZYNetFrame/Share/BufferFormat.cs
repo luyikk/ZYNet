@@ -340,7 +340,7 @@ namespace ZYSocket.share
 #if !COREFX
                 Attribute[] Attributes = Attribute.GetCustomAttributes(otype);
 #else
-                Attribute[] Attributes =(Attribute[]) System.Linq.Enumerable.ToArray(otype.GetTypeInfo().GetCustomAttributes(false));
+                Attribute[] Attributes = (Attribute[])System.Linq.Enumerable.ToArray(otype.GetTypeInfo().GetCustomAttributes(false));
 #endif
 
                 foreach (Attribute p in Attributes)
@@ -399,10 +399,7 @@ namespace ZYSocket.share
 
 
                     byte[] pdata = stream.ToArray();
-#if !COREFX
-                    stream.Close();
-#endif
-                    stream.Dispose();
+
 
                     return pdata;
                 }
@@ -519,8 +516,10 @@ namespace ZYSocket.share
                         StringBuilder sBuilder = new StringBuilder();
 
                         XmlSerializer xmlSerializer = new XmlSerializer(pObj.GetType());
-                        XmlWriterSettings xmlWriterSettings = new XmlWriterSettings();
-                        xmlWriterSettings.Encoding = Encoding.Unicode;
+                        XmlWriterSettings xmlWriterSettings = new XmlWriterSettings()
+                        {
+                            Encoding = Encoding.Unicode
+                        };
                         XmlWriter xmlWriter = XmlWriter.Create(sBuilder, xmlWriterSettings);
                         xmlSerializer.Serialize(xmlWriter, pObj);
                         xmlWriter.Close();
