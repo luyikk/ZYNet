@@ -22,22 +22,22 @@ namespace Server
 
     public interface ClientMethods
     {
-        [MethodRun((int)Cmdtype.GetNick)] 
+        [MethodCmdTag((int)Cmdtype.GetNick)] 
         FiberThreadAwaiter<ReturnResult> GetNick();
 
-        [MethodRun((int)Cmdtype.SetAllUser)]
+        [MethodCmdTag((int)Cmdtype.SetAllUser)]
         void SetUserList(List<UserInfo> userlist);
 
-        [MethodRun((int)Cmdtype.AddUser)]
+        [MethodCmdTag((int)Cmdtype.AddUser)]
         void AddUser(UserInfo user);
 
-        [MethodRun((int)Cmdtype.RemoveUser)]
+        [MethodCmdTag((int)Cmdtype.RemoveUser)]
         void RemoveUser(UserInfo user);
 
-        [MethodRun((int)Cmdtype.MessageTo)]
+        [MethodCmdTag((int)Cmdtype.MessageTo)]
         void MessageTo(string username, string msg);
 
-        [MethodRun((int)Cmdtype.MsgToUser)]
+        [MethodCmdTag((int)Cmdtype.MsgToUser)]
         FiberThreadAwaiter<ReturnResult> MsgToUser(string username, string msg);
     }
 }

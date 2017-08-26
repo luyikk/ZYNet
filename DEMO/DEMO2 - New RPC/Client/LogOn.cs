@@ -20,7 +20,7 @@ namespace Client
         }
 
 
-        [MethodRun(1001)]
+        [MethodCmdTag(1001)]
         public string GetNick(CloudClient client)
         {
             NickWin win = new NickWin();

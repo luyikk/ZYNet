@@ -9,17 +9,17 @@ namespace ZYNet.CloudSystem
    
 
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-    public sealed class MethodRun : Attribute
+    public sealed class MethodCmdTag : Attribute
     {
-        public int CmdType { get; set; }
+        public int CmdTag { get; set; }
 
         /// <summary>
         /// 数据包格式化类
         /// </summary>
-        /// <param name="bufferCmdType">数据包命令类型</param>
-        public MethodRun(int bufferCmdType)
+        /// <param name="bufferCmdTag">数据包命令类型</param>
+        public MethodCmdTag(int bufferCmdTag)
         {
-            this.CmdType = bufferCmdType;
+            this.CmdTag = bufferCmdTag;
         }
     }
 

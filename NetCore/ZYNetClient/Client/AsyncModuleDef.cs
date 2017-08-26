@@ -31,12 +31,12 @@ namespace ZYNet.CloudSystem.Client
             foreach (var method in methos)
             {
 
-                var attr = method.GetCustomAttributes(typeof(MethodRun), true);
+                var attr = method.GetCustomAttributes(typeof(MethodCmdTag), true);
 
                 foreach (var att in attr)
                 {
 
-                    MethodRun attrcmdtype = att as MethodRun;
+                    MethodCmdTag attrcmdtype = att as MethodCmdTag;
 
                     if (attrcmdtype != null)
                     {
@@ -46,30 +46,30 @@ namespace ZYNet.CloudSystem.Client
 
                             if (method.GetParameters().Length > 0 && method.GetParameters()[0].ParameterType == typeof(AsyncCalls))
                             {
-                                if (!ModuleDiy.ContainsKey(attrcmdtype.CmdType))
+                                if (!ModuleDiy.ContainsKey(attrcmdtype.CmdTag))
                                 {
                                     AsyncMethodDef tmp = new AsyncMethodDef(method, o);
-                                    ModuleDiy.Add(attrcmdtype.CmdType, tmp);
+                                    ModuleDiy.Add(attrcmdtype.CmdTag, tmp);
                                 }
                                 else
                                 {
                                     AsyncMethodDef tmp = new AsyncMethodDef(method, o);
-                                    ModuleDiy[attrcmdtype.CmdType] = tmp;
+                                    ModuleDiy[attrcmdtype.CmdTag] = tmp;
                                 }
                             }
 
                         }
                         else if (method.GetParameters().Length > 0 && method.GetParameters()[0].ParameterType == typeof(CloudClient))
                         {
-                            if (!ModuleDiy.ContainsKey(attrcmdtype.CmdType))
+                            if (!ModuleDiy.ContainsKey(attrcmdtype.CmdTag))
                             {
                                 AsyncMethodDef tmp = new AsyncMethodDef(method, o);
-                                ModuleDiy.Add(attrcmdtype.CmdType, tmp);
+                                ModuleDiy.Add(attrcmdtype.CmdTag, tmp);
                             }
                             else
                             {
                                 AsyncMethodDef tmp = new AsyncMethodDef(method, o);
-                                ModuleDiy[attrcmdtype.CmdType] = tmp;
+                                ModuleDiy[attrcmdtype.CmdTag] = tmp;
                             }
                         }
                         

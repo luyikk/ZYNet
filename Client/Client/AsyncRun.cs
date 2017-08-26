@@ -36,7 +36,7 @@ namespace ZYNet.CloudSystem.Client
         protected virtual object Call(MethodInfo method, object[] args)
         {
 
-            var attr = method.GetCustomAttribute(typeof(MethodRun), true);
+            var attr = method.GetCustomAttribute(typeof(MethodCmdTag), true);
 
             if (attr == null)
             {
@@ -44,11 +44,11 @@ namespace ZYNet.CloudSystem.Client
             }
 
 
-            MethodRun run = attr as MethodRun;
+            MethodCmdTag run = attr as MethodCmdTag;
 
             if (run != null)
             {
-                int cmd = run.CmdType;
+                int cmd = run.CmdTag;
 
                 if (method.ReturnType != typeof(void))
                 {
@@ -76,6 +76,12 @@ namespace ZYNet.CloudSystem.Client
 
 #endif
 
+        /// <summary>
+        /// CALL RETURN
+        /// </summary>
+        /// <param name="cmdTag"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
 
         public override ResultAwatier CR(int cmdTag, params object[] args)
         {
@@ -140,7 +146,6 @@ namespace ZYNet.CloudSystem.Client
 #if !COREFX
                 stream.Close();
 #endif
-                stream.Dispose();
 
                 CCloudClient.AddAsyncRunBack(this, buffer.Id);
 
@@ -155,6 +160,11 @@ namespace ZYNet.CloudSystem.Client
             return base.awaiter;
         }
 
+        /// <summary>
+        /// CALL VOID
+        /// </summary>
+        /// <param name="cmdTag"></param>
+        /// <param name="args"></param>
         public override void CV(int cmdTag, params object[] args)
         {
             CCloudClient.Sync.CV(cmdTag, args);

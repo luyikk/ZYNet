@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace ZYNet.CloudSystem.Frame
 {
-    public class Fiber
+    public class Fiber:IDisposable
     {
         ConcurrentQueue<ResultAwatier> receivers = new ConcurrentQueue<ResultAwatier>();
         ConcurrentQueue<ResultAwatier> senders = new ConcurrentQueue<ResultAwatier>();
@@ -80,7 +80,7 @@ namespace ZYNet.CloudSystem.Frame
 
         public void Close()
         {
-            cancellationTokenSource.Cancel();
+            cancellationTokenSource.Cancel();           
         }
 
 
@@ -233,6 +233,10 @@ namespace ZYNet.CloudSystem.Frame
             return waitingGhostThread;
         }
 
+        public void Dispose()
+        {
+            cancellationTokenSource.Dispose();
+        }
     }
 }
 #endif

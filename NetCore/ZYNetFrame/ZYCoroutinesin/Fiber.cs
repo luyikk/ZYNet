@@ -78,6 +78,11 @@ namespace ZYNet.CloudSystem.Frame
             SynchronizationContext.SetSynchronizationContext(previousSyncContext);
         }
 
+        public void Dispose()
+        {
+            cancellationTokenSource.Dispose();
+        }
+
         public void Close()
         {
             cancellationTokenSource.Cancel();

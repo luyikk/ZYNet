@@ -399,10 +399,7 @@ namespace ZYSocket.share
 
 
                     byte[] pdata = stream.ToArray();
-#if !COREFX
-                    stream.Close();
-#endif
-                    stream.Dispose();
+
 
                     return pdata;
                 }

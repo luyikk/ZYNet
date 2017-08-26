@@ -22,31 +22,31 @@ namespace ZYNETClientForNetCore
 
             if (client.Connect("127.0.0.1", 2285))
             {
-                ZYSync Sync = client.Sync;
+                ZYSync sync = client.Sync;
 
-                var res = Sync.CR(1000, "AAA", "BBB")?[0]?.Value<bool>();
+                var res = sync.CR(1000, "AAA", "BBB")?[0]?.Value<bool>();
 
                 if (res != null && res == true)
                 {
 
-                    var html = Sync.CR(2001, "http://www.baidu.com")?[0]?.Value<string>();
+                    var html = sync.CR(2001, "http://www.baidu.com")?[0]?.Value<string>();
                     if (html != null)
                     {
                         Console.WriteLine("BaiduHtml:" + html.Length);
 
-                        var time = Sync.CR(2002)?.First?.Value<DateTime>();
+                        var time = sync.CR(2002)?.First?.Value<DateTime>();
 
                         Console.WriteLine("ServerTime:" + time);
 
-                        Sync.CV(2003, "123123");
+                        sync.CV(2003, "123123");
 
-                        var x = Sync.CR(2001, "http://www.qq.com");
+                        var x = sync.CR(2001, "http://www.qq.com");
 
                         Console.WriteLine("QQHtml:" + x.First.Value<string>().Length);
 
                         System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch();
                         stop.Start();
-                        var rec = Sync.CR(2500, 10000)?.First?.Value<int>();
+                        var rec = sync.CR(2500, 10000)?.First?.Value<int>();
                         stop.Stop();
                         if (rec != null)
                         {

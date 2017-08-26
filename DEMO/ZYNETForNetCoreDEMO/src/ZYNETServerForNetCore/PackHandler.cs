@@ -19,7 +19,7 @@ namespace ZYNETServerForNetCore
         public static List<UserInfo> UserList = new List<UserInfo>();
 
 
-        [MethodRun(1000)]
+        [MethodCmdTag(1000)]
         public static bool IsLogOn(ASyncToken token, string username, string password)
         {
             UserInfo tmp = new UserInfo()
@@ -42,7 +42,7 @@ namespace ZYNETServerForNetCore
 
         }
 
-        [MethodRun(2001)]
+        [MethodCmdTag(2001)]
         public static async Task<ReturnResult> StartDown(AsyncCalls async, string url)
         {
 
@@ -62,14 +62,14 @@ namespace ZYNETServerForNetCore
 
 
 
-        [MethodRun(2002)]
+        [MethodCmdTag(2002)]
         public static Task<ReturnResult> GetTime(AsyncCalls async)
         {
             return Task.FromResult<ReturnResult>(async.RET(DateTime.Now));
         }
 
 
-        [MethodRun(2003)]
+        [MethodCmdTag(2003)]
         public static void SetPassWord(ASyncToken token, string password)
         {
             UserInfo user = token.UserToken as UserInfo;
@@ -83,7 +83,7 @@ namespace ZYNETServerForNetCore
 
         }
 
-        [MethodRun(2500)]
+        [MethodCmdTag(2500)]
         public static async Task<ReturnResult> TestRec(AsyncCalls async, int count)
         {
             count--;

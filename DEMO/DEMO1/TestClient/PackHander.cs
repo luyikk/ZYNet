@@ -21,7 +21,7 @@ namespace TestClient
         /// <param name="async"></param>
         /// <param name="url"></param>
         /// <returns></returns>
-        [MethodRun(2001)]
+        [MethodCmdTag(2001)]
         public async Task<ReturnResult> DownHtml(AsyncCalls async,string url)
         {
             WebClient client = new WebClient();
@@ -34,7 +34,7 @@ namespace TestClient
         /// </summary>
         /// <param name="client"></param>
         /// <param name="msg"></param>
-        [MethodRun(3001)]
+        [MethodCmdTag(3001)]
         public void Message(CloudClient client,string msg)
         {            
             Console.WriteLine(msg);
@@ -46,7 +46,7 @@ namespace TestClient
         /// <param name="async"></param>
         /// <param name="count"></param>
         /// <returns></returns>
-        [MethodRun(2500)]
+        [MethodCmdTag(2500)]
         public  async Task<ReturnResult> TestRec(AsyncCalls async, int count)
         {
             count--;

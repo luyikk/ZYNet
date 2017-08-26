@@ -150,7 +150,7 @@ namespace ZYNet.CloudSystem.Client
 
                 wait.WaitOne();
                 var value = wait.Result;
-                wait.Dispose();
+              
 
                 if (value != null)
                 {
@@ -433,7 +433,7 @@ namespace ZYNet.CloudSystem.Client
 #if !COREFX
                 stream.Close();
 #endif
-                stream.Dispose();
+             
 
                 SendData(pdata);
 

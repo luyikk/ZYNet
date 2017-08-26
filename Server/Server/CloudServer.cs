@@ -32,8 +32,6 @@ namespace ZYNet.CloudSystem.Server
         /// </summary>
         public event IsCanConnHandler IsCanConn;
 
-
-
         
         public Dictionary<int, AsyncStaticMethodDef> CallsMethods { get; private set; }
 
@@ -59,9 +57,9 @@ namespace ZYNet.CloudSystem.Server
         }
 #endif
 
-        public CloudServer(string host, int port, int maxconnectcout, int maxbuffersize, int maxPackSize)
+        public CloudServer(string host, int port, int maxConnectCout, int maxBuffersize, int maxPackSize)
         {
-            Server = new ZYSocketSuper(host, port, maxconnectcout, maxbuffersize);
+            Server = new ZYSocketSuper(host, port, maxConnectCout, maxBuffersize);
             MaxBuffsize = maxPackSize;
             Init();
         }
@@ -87,12 +85,12 @@ namespace ZYNet.CloudSystem.Server
 
             foreach (var method in methods)
             {
-                var attr = method.GetCustomAttributes(typeof(MethodRun), true);
+                var attr = method.GetCustomAttributes(typeof(MethodCmdTag), true);
 
 
                 foreach (var att in attr)
                 {
-                    MethodRun attrcmdtype = att as MethodRun;
+                    MethodCmdTag attrcmdtype = att as MethodCmdTag;
 
                     if (attrcmdtype != null)
                     {
@@ -101,10 +99,10 @@ namespace ZYNet.CloudSystem.Server
                         {
                             if (method.GetParameters().Length > 0 && method.GetParameters()[0].ParameterType == typeof(AsyncCalls))
                             {
-                                if (!CallsMethods.ContainsKey(attrcmdtype.CmdType))
+                                if (!CallsMethods.ContainsKey(attrcmdtype.CmdTag))
                                 {
                                     AsyncStaticMethodDef tmp = new AsyncStaticMethodDef(method);
-                                    CallsMethods.Add(attrcmdtype.CmdType, tmp);
+                                    CallsMethods.Add(attrcmdtype.CmdTag, tmp);
                                 }
                             }
 
@@ -112,10 +110,10 @@ namespace ZYNet.CloudSystem.Server
 
                         else if (method.GetParameters().Length > 0 && method.GetParameters()[0].ParameterType == typeof(ASyncToken))
                         {
-                            if (!CallsMethods.ContainsKey(attrcmdtype.CmdType))
+                            if (!CallsMethods.ContainsKey(attrcmdtype.CmdTag))
                             {
                                 AsyncStaticMethodDef tmp = new AsyncStaticMethodDef(method);
-                                CallsMethods.Add(attrcmdtype.CmdType, tmp);
+                                CallsMethods.Add(attrcmdtype.CmdTag, tmp);
                             }
                         }
                         

@@ -14,13 +14,13 @@ namespace TestServer
     /// </summary>
     interface IClientPacker
     {
-        [MethodRun(2001)]
+        [MethodCmdTag(2001)]
         ResultAwatier DownHtml(string url);
 
-        [MethodRun(3001)]
+        [MethodCmdTag(3001)]
         void Message(string msg);
 
-        [MethodRun(2500)]
+        [MethodCmdTag(2500)]
         ResultAwatier TestRec(int count);
     }
 }

@@ -71,11 +71,6 @@ namespace ZYNet.CloudSystem.Frame
 
 
                 byte[] pdata = stream.ToArray();
- #if !COREFX
-                stream.Close();
-#endif
-                stream.Dispose();
-
 
 
                 SendData(pdata);
@@ -141,11 +136,6 @@ namespace ZYNet.CloudSystem.Frame
 
 
                 byte[] pdata = stream.ToArray();
-#if !COREFX
-                stream.Close();
-#endif
-                stream.Dispose();
-
               
 
                 return SendDataAsWait(buffer.Id,pdata);

@@ -54,6 +54,10 @@ namespace ZYNet.CloudSystem.Client
             Cmd = cmd;
         }
 
+        ~AsyncCalls()
+        {
+            fiber?.Dispose();
+        }
 
 
         public void Run()
@@ -122,7 +126,7 @@ namespace ZYNet.CloudSystem.Client
         protected virtual object Call(MethodInfo method, object[] args)
         {
 
-            var attr = method.GetCustomAttribute(typeof(MethodRun), true);
+            var attr = method.GetCustomAttribute(typeof(MethodCmdTag), true);
 
             if (attr == null)
             {
@@ -130,11 +134,11 @@ namespace ZYNet.CloudSystem.Client
             }
 
 
-            MethodRun run = attr as MethodRun;
+            MethodCmdTag run = attr as MethodCmdTag;
 
             if (run != null)
             {
-                int cmd = run.CmdType;
+                int cmd = run.CmdTag;
 
                 if (method.ReturnType != typeof(void))
                 {
@@ -160,12 +164,22 @@ namespace ZYNet.CloudSystem.Client
         }
 
 #endif
-
+        /// <summary>
+        /// CALL VOID
+        /// </summary>
+        /// <param name="cmdTag"></param>
+        /// <param name="args"></param>
         public void CV(int cmdTag, params object[] args)
         {
             Sync.CV(cmdTag, args);
         }
 
+        /// <summary>
+        /// CALL RETURN
+        /// </summary>
+        /// <param name="cmdTag"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
         public ResultAwatier CR(int cmdTag, params object[] args)
         {
             CallPack buffer = new CallPack()
@@ -227,7 +241,6 @@ namespace ZYNet.CloudSystem.Client
 #if !COREFX
                 stream.Close();
 #endif
-                stream.Dispose();
 
                 CCloudClient.AddAsyncCallBack(this, buffer.Id);
 

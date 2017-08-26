@@ -27,24 +27,24 @@ namespace TestClient
             if (client.Connect("127.0.0.1", 2285))
             {
             
-                var ServerPacker = client.Sync.Get<IPacker>(); //获取一个 IPACKER 实例 用来调用服务器
+                var serverPacker = client.Sync.Get<IPacker>(); //获取一个 IPACKER 实例 用来调用服务器
                 
 
 
-                var isSuccess = ServerPacker.IsLogOn("123123", "3212312")?.First?.Value<bool>(); //调用服务器的isLOGON函数
+                var isSuccess = serverPacker.IsLogOn("123123", "3212312")?.First?.Value<bool>(); //调用服务器的isLOGON函数
 
-                var html = ServerPacker.StartDown("http://www.baidu.com").First?.Value<string>(); //调用服务器的StartDown 函数
+                var html = serverPacker.StartDown("http://www.baidu.com").First?.Value<string>(); //调用服务器的StartDown 函数
                 Console.WriteLine("BaiduHtml:" + html.Length);
 
-                var time = ServerPacker.GetTime();//调用服务器的GetTime 函数
+                var time = serverPacker.GetTime();//调用服务器的GetTime 函数
 
                 Console.WriteLine("ServerTime:" + time);
 
-                ServerPacker.SetPassWord("3123123"); //调用服务器的SetPassWord 函数
+                serverPacker.SetPassWord("3123123"); //调用服务器的SetPassWord 函数
 
                 System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch();
                 stop.Start();
-                int c = ServerPacker.TestRec2(10000);
+                int c = serverPacker.TestRec2(10000);
                 stop.Stop();
                 Console.WriteLine("Rec:{0} time:{1} MS", c, stop.ElapsedMilliseconds);
 
@@ -59,13 +59,13 @@ namespace TestClient
 
         public static async void RunTest(CloudClient client)
         {
-            var Server = client.NewAsync().Get<IPacker>();
+            var server = client.NewAsync().Get<IPacker>();
             
-            int? v = (await Server.TestRecAsync(100))?[0]?.Value<int>();
+            int? v = (await server.TestRecAsync(100))?[0]?.Value<int>();
 
             System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch();
             stop.Start();
-            int? c = (await Server.TestRecAsync(10000))?.First?.Value<int>();
+            int? c = (await server.TestRecAsync(10000))?.First?.Value<int>();
             stop.Stop();
 
             if (c != null)

@@ -49,7 +49,7 @@
     <Compile Include="Frame\DispatchProxy.cs" />
     <Compile Include="Frame\DispatchProxyGenerator.cs" />
     <Compile Include="Frame\LogAction.cs" />
-    <Compile Include="Frame\MethodRun.cs" />
+    <Compile Include="Frame\MethodCmdTag.cs" />
     <Compile Include="Frame\ReturnEventWaitHandle.cs" />
     <Compile Include="Frame\Serialization.cs" />
     <Compile Include="Frame\SyncProxy.cs" />

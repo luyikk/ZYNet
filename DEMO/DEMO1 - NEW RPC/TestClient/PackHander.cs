@@ -15,7 +15,7 @@ namespace TestClient
     /// </summary>
     public class PackHander
     {
-        [MethodRun(2001)]
+        [MethodCmdTag(2001)]
         public async Task<ReturnResult> DownHtml(AsyncCalls async,string url)
         {
             WebClient client = new WebClient();
@@ -24,7 +24,7 @@ namespace TestClient
             return async.RET(html);
         }
 
-        [MethodRun(3001)]
+        [MethodCmdTag(3001)]
         public async Task Message(AsyncCalls async,string msg)
         {
             msg += (await async.Get<IPacker>().GetTimeAsync())?.First?.Value<DateTime>() ;
@@ -33,7 +33,7 @@ namespace TestClient
         }
 
 
-        [MethodRun(2500)]
+        [MethodCmdTag(2500)]
         public  async Task<ReturnResult> TestRec(AsyncCalls async, int count)
         {
             count--;

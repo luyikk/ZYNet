@@ -25,6 +25,7 @@ namespace ZYNet.CloudSystem.Frame
         public List<byte[]> Arguments { get; set; }
     }
 
+  
     public class ZYNETException:Exception
     {
         public string ErrorMsg { get; set; }
@@ -36,6 +37,7 @@ namespace ZYNet.CloudSystem.Frame
             this.ErrorMsg = msg;
             this.ErrorId = errorId;
         }
+
 
         public override string Message => ErrorMsg;
     }
@@ -78,11 +80,7 @@ namespace ZYNet.CloudSystem.Frame
         {            
             get
             {
-                if(IsError)
-                {
-                    throw new ZYNETException(ErrorMsg, ErrorId);
-                }
-
+               
                 if (index < Arguments.Count)
                 {
                     return new ResultValue(Arguments[index]);
@@ -94,11 +92,7 @@ namespace ZYNet.CloudSystem.Frame
         public ResultValue First
         {
             get
-            {
-                if (IsError)
-                {
-                    throw new ZYNETException(ErrorMsg, ErrorId);
-                }
+            {               
 
                 if (Arguments == null || Arguments.Count == 0)
                     return null;

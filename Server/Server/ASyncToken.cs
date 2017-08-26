@@ -55,9 +55,9 @@ namespace ZYNet.CloudSystem.Server
 
             if(!AsyncCallDiy.TryRemove(id, out call))
             {
-                Console.WriteLine();
+               
             }
-
+           
          
         }
 
@@ -97,7 +97,8 @@ namespace ZYNet.CloudSystem.Server
                     ReturnResult disconn = new ReturnResult();
                     disconn.Id = item.Id;
                     disconn.ErrorId = -1;
-                    disconn.ErrorMsg = "Disconnect";                   
+                    disconn.ErrorMsg = "Disconnect";
+                    disconn.Arguments = new List<byte[]>();
                     item.SetRet(disconn);
                 }
 
@@ -241,7 +242,6 @@ namespace ZYNet.CloudSystem.Server
 #if !COREFX
                 stream.Close();
 #endif
-                stream.Dispose();
 
                 SendData(pdata);
 
