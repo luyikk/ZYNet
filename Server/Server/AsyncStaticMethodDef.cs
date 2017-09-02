@@ -15,7 +15,7 @@ namespace ZYNet.CloudSystem.Server
 
         public bool IsOut { get; set; }
 
-        public MethodInfo methodInfo { get; set; }
+        public MethodInfo MethodInfo { get; set; }
 
         public Type[] ArgsType { get; set; }
 
@@ -25,7 +25,7 @@ namespace ZYNet.CloudSystem.Server
         {
 
           
-            this.methodInfo = methodInfo;
+            this.MethodInfo = methodInfo;
             var parameters = methodInfo.GetParameters();
             ArgsType = new Type[parameters.Length];
 

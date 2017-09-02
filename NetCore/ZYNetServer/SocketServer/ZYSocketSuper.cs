@@ -270,9 +270,8 @@ namespace ZYSocket.Server
         /// </summary>
         /// <param name="ar"></param>
         private void CallBackEvent(IAsyncResult ar)
-        {
-            EventHandler<LogOutEventArgs> MessageOut = ar.AsyncState as EventHandler<LogOutEventArgs>;
-            if (MessageOut != null)
+        {          
+            if (ar.AsyncState is EventHandler<LogOutEventArgs> MessageOut)
                 MessageOut.EndInvoke(ar);
         }
 #endregion
@@ -507,17 +506,14 @@ namespace ZYSocket.Server
 
                     Buffer.BlockCopy(e.Buffer, e.Offset, data, 0, data.Length);
 
-                    if (this.BinaryInput != null)
-                        this.BinaryInput(data, e);
+                    this.BinaryInput?.Invoke(data, e);
                 }
                 else
                 {
-                    if (this.BinaryOffsetInput != null)
-                        this.BinaryOffsetInput(e.Buffer,e.Offset,e.BytesTransferred,e);
+                    this.BinaryOffsetInput?.Invoke(e.Buffer, e.Offset, e.BytesTransferred, e);
 
                 }
-
-             
+                              
                 if (!e.AcceptSocket.ReceiveAsync(e))
                 {
                     BeginReceive(e);
@@ -542,18 +538,12 @@ namespace ZYSocket.Server
 
                     LogOutEvent(null, LogType.Error, message);
 
-                    if (MessageInput != null)
-                    {
-                        MessageInput(message, e, 0);
-                    }
+                    MessageInput?.Invoke(message, e, 0);
 
                 }
                 else
                 {
-                    if (MessageInput != null)
-                    {
-                        MessageInput("User Disconnect But cannot get Ipaddress", e, 0);
-                    }
+                    MessageInput?.Invoke("User Disconnect But cannot get Ipaddress", e, 0);
                 }
 
                 e.AcceptSocket = null;
@@ -633,9 +623,8 @@ namespace ZYSocket.Server
         {
             try
             {
-                Socket sock = result.AsyncState as Socket;
 
-                if (sock != null)
+                if (result.AsyncState is Socket sock)
                 {
                     sock.EndSend(result);
                 }
@@ -672,9 +661,8 @@ namespace ZYSocket.Server
         {
             try
             {
-                Socket sock = result.AsyncState as Socket;
 
-                if (sock != null)
+                if (result.AsyncState is Socket sock)
                 {
                     try
                     {

@@ -91,7 +91,9 @@ namespace TestClient
             {
                 try
                 {
-                    rec.First.Value<int>();
+                   
+                    rec?.As<int>(0);
+                   
                 }
                 catch (ZYNETException cc)
                 {

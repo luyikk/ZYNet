@@ -2,14 +2,13 @@
 using ZYSocket.Server;
 using System.Net.Sockets;
 using System;
+using System.Threading;
 
 namespace ZYSocket.AsyncSend
 {
     public class AsyncSend : ISend
     {
-        private SocketAsyncEventArgs _send { get; set; }
-
-        private bool SendIng { get; set; }
+        private SocketAsyncEventArgs _send { get; set; }       
 
         private ConcurrentQueue<byte[]> BufferQueue { get; set; }
 
@@ -17,11 +16,12 @@ namespace ZYSocket.AsyncSend
 
         protected int BufferLenght { get; set; } = -1;
 
+        private int SendIng;
 
         public AsyncSend(Socket sock)
         {
             this._sock = sock;
-            SendIng = false;
+            SendIng = 0;
             BufferQueue = new ConcurrentQueue<byte[]>();
             _send = new SocketAsyncEventArgs();
             _send.Completed += Completed;
@@ -111,7 +111,7 @@ namespace ZYSocket.AsyncSend
                 }
                 else
                 {
-                    SendIng = false;
+                    Interlocked.Exchange(ref SendIng, 0);
                 }
             }
 
@@ -161,11 +161,10 @@ namespace ZYSocket.AsyncSend
 
             BufferQueue.Enqueue(data);
 
-            if (!SendIng)
+            if (Interlocked.CompareExchange(ref SendIng,1,0)==0)
             {
                 if (InitData())
-                {
-                    SendIng = true;
+                {                   
                     try
                     {
                         if (!_sock.SendAsync(_send))
@@ -179,6 +178,10 @@ namespace ZYSocket.AsyncSend
                         _sock = null;
                     }
                     return true;
+                }
+                else
+                {
+                    Interlocked.Exchange(ref SendIng, 0);
                 }
 
             }

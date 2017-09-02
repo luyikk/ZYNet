@@ -42,11 +42,9 @@ namespace ZYNet.CloudSystem.Client
             {
                 throw new FormatException(method.Name + " Is Not MethodRun Attribute");
             }
+            
 
-
-            TAG run = attr as TAG;
-
-            if (run != null)
+            if (attr is TAG run)
             {
                 int cmd = run.CmdTag;
 
@@ -149,8 +147,7 @@ namespace ZYNet.CloudSystem.Client
 
                 CCloudClient.AddAsyncRunBack(this, buffer.Id);
 
-                if (CallSend != null)
-                    CallSend(pdata);
+                CallSend?.Invoke(pdata);
             }
 
              

@@ -13,6 +13,6 @@ namespace TestServer
 
         public string PassWord { get; set; }
 
-        public ASyncToken token { get; set; }
+        public ASyncToken Token { get; set; }
     }
 }

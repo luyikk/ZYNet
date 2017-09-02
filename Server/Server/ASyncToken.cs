@@ -24,7 +24,7 @@ namespace ZYNet.CloudSystem.Server
 
         public event Action<ASyncToken,string> UserDisconnect;
 
-        public AsyncSend sendobj { get; private set; }
+        public AsyncSend Sendobj { get; private set; }
 
         public object UserToken { get; set; }
 
@@ -46,18 +46,16 @@ namespace ZYNet.CloudSystem.Server
             Stream = new ZYNetRingBufferPool(MaxBuffsize);
             CurrentServer = server;
             this.DataExtra = server.EcodeingHandler;
-            sendobj = new AsyncSend(asynca.AcceptSocket);
+            Sendobj = new AsyncSend(asynca.AcceptSocket);
         }
 
         internal void RemoveAsyncCall(long id)
-        {
-            AsyncCalls call;
+        {           
 
-            if(!AsyncCallDiy.TryRemove(id, out call))
+            if(!AsyncCallDiy.TryRemove(id, out AsyncCalls call))
             {
                
-            }
-           
+            }          
          
         }
 
@@ -73,11 +71,9 @@ namespace ZYNet.CloudSystem.Server
 
         internal void Write(byte[] data,int offset,int count)
         {
-            Stream.Write(data,offset,count);
+            Stream.Write(data,offset,count);        
 
-            byte[] pdata;
-
-            while(Stream.Read(out pdata))
+            while(Stream.Read(out byte[] pdata))
             {
                 DataOn(pdata);
             }
@@ -94,11 +90,13 @@ namespace ZYNet.CloudSystem.Server
 
                 foreach (var item in CallBackDiy.Values)
                 {
-                    ReturnResult disconn = new ReturnResult();
-                    disconn.Id = item.Id;
-                    disconn.ErrorId = -1;
-                    disconn.ErrorMsg = "Disconnect";
-                    disconn.Arguments = new List<byte[]>();
+                    ReturnResult disconn = new ReturnResult
+                    {
+                        Id = item.Id,
+                        ErrorId = -1,
+                        ErrorMsg = "Disconnect",
+                        Arguments = new List<byte[]>()
+                    };
                     item.SetRet(disconn);
                 }
 
@@ -106,8 +104,7 @@ namespace ZYNet.CloudSystem.Server
                 CallBackDiy.Clear();
             }
 
-            if (UserDisconnect != null)
-                UserDisconnect(this,message);
+            UserDisconnect?.Invoke(this, message);
         }
 
 
@@ -130,18 +127,15 @@ namespace ZYNet.CloudSystem.Server
             else
                 read = new ReadBytes(data);
 
-            int cmd;
-            int length;
 
-            if(read.ReadInt32(out length) &&read.ReadInt32(out cmd)&& read.Length== length)
+            if (read.ReadInt32(out int length) && read.ReadInt32(out int cmd) && read.Length == length)
             {
-                switch(cmd)
+                switch (cmd)
                 {
                     case CmdDef.CallCmd:
                         {
-                            CallPack tmp;
 
-                            if(read.ReadObject<CallPack>(out tmp))
+                            if (read.ReadObject<CallPack>(out CallPack tmp))
                             {
                                 try
                                 {
@@ -149,27 +143,25 @@ namespace ZYNet.CloudSystem.Server
                                 }
                                 catch (Exception er)
                                 {
-                                    LogAction.Log(LogType.Err,"CMD:" +tmp.CmdTag + "\r\n" + er.ToString());
+                                    LogAction.Log(LogType.Err, "CMD:" + tmp.CmdTag + "\r\n" + er.ToString());
                                 }
                             }
                         }
                         break;
                     case CmdDef.ReturnResult:
                         {
-                            ReturnResult result;
 
-                            if (read.ReadObject<ReturnResult>(out result))
+                            if (read.ReadObject<ReturnResult>(out ReturnResult result))
                             {
                                 if (CallBackDiy.ContainsKey(result.Id))
                                 {
-                                    AsyncCalls call;
 
-                                    if (CallBackDiy.TryRemove(result.Id, out call))
+                                    if (CallBackDiy.TryRemove(result.Id, out AsyncCalls call))
                                     {
                                         try
                                         {
                                             call.SetRet(result);
-                                          
+
                                         }
                                         catch (Exception er)
                                         {
@@ -180,14 +172,14 @@ namespace ZYNet.CloudSystem.Server
                             }
                         }
                         break;
-                    
+
                 }
             }
         }
 
         protected override void SendData(byte[] data)
         {
-            CurrentServer.Send(sendobj, data);
+            CurrentServer.Send(Sendobj, data);
         }
 
         protected override ReturnResult SendDataAsWait(long Id, byte[] Data)
@@ -297,7 +289,7 @@ namespace ZYNet.CloudSystem.Server
                     if (!method.IsOut)
                     {
 
-                        AsyncCalls _calls_ = new AsyncCalls(pack.Id, pack.CmdTag, this, method.methodInfo, args, false);
+                        AsyncCalls _calls_ = new AsyncCalls(pack.Id, pack.CmdTag, this, method.MethodInfo, args, false);
                         args[0] = _calls_;
                         _calls_.CallSend += SendData;                   
                         AsyncCallDiy.AddOrUpdate(pack.Id, _calls_, (a, b) => _calls_);
@@ -307,7 +299,7 @@ namespace ZYNet.CloudSystem.Server
                     else
                     {
 
-                        AsyncCalls _calls_ = new AsyncCalls(pack.Id, pack.CmdTag, this, method.methodInfo, args, true);
+                        AsyncCalls _calls_ = new AsyncCalls(pack.Id, pack.CmdTag, this, method.MethodInfo, args, true);
                         args[0] = _calls_;
                         _calls_.CallSend += SendData;
                         _calls_.Complete += RetrunResultData;  
@@ -319,26 +311,30 @@ namespace ZYNet.CloudSystem.Server
                 {
                     if (!method.IsOut)
                     {
-                        method.methodInfo.Invoke(null, args);
+                        method.MethodInfo.Invoke(null, args);
                     }
                     else
                     {
                         try
                         {
-                            object res = method.methodInfo.Invoke(null, args);
+                            object res = method.MethodInfo.Invoke(null, args);
 
                             if (res != null)
                             {
-                                ReturnResult tmp = new ReturnResult(res);
-                                tmp.Id = pack.Id;
+                                ReturnResult tmp = new ReturnResult(res)
+                                {
+                                    Id = pack.Id
+                                };
                                 RetrunResultData(tmp);
 
                             }
                         }
                         catch (Exception er)
                         {
-                            ReturnResult tmp = new ReturnResult();
-                            tmp.Id = pack.Id;
+                            ReturnResult tmp = new ReturnResult
+                            {
+                                Id = pack.Id
+                            };
                             RetrunResultData(tmp);
 
                             LogAction.Log(LogType.Err, "Cmd:{0} ERROR:" + er.ToString(), pack.CmdTag);

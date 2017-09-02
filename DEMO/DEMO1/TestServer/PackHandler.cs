@@ -35,7 +35,7 @@ namespace TestServer
             {
                 UserName=username,
                 PassWord=password,
-                token=token
+                Token=token
             };
 
             token.UserToken = tmp;
@@ -105,16 +105,15 @@ namespace TestServer
         [TAG(2003)]
         public static void SetPassWord(ASyncToken token,string password)
         {
-            UserInfo user= token.UserToken as UserInfo;
 
-            if (user != null)
+            if (token.UserToken is UserInfo user)
             {
                 user.PassWord = password;
                 Console.WriteLine(user.UserName + " Set PassWord:" + password);
-               
+
             }
 
-           
+
         }
 
         /// <summary>
@@ -163,16 +162,15 @@ namespace TestServer
         {
            if(arg1.UserToken!=null)
            {
-                UserInfo user = arg1.UserToken as UserInfo;
 
-                if(user!=null)
+                if (arg1.UserToken is UserInfo user)
                 {
                     lock (UserList)
                     {
                         UserList.Remove(user);
                     }
                 }
-           }
+            }
         }
 
 

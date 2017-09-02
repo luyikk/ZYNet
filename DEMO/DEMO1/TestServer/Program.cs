@@ -23,7 +23,7 @@ namespace TestServer
                 foreach (var item in PackHandler.UserList)
                 {
                     // item.token.CV(3001, msg);
-                    item.token.Disconnect(); //断开所用用户
+                    item.Token.Disconnect(); //断开所用用户
 
                 }
             }

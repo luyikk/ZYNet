@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Text;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace ZYNet.CloudSystem.SocketClient
 {
@@ -11,19 +12,18 @@ namespace ZYNet.CloudSystem.SocketClient
     {
         private SocketAsyncEventArgs _send { get; set; }
 
-        private bool SendIng { get; set; }
-
         private ConcurrentQueue<byte[]> BufferQueue { get; set; }
 
         private Socket _sock { get; set; }
 
         protected int BufferLenght { get; set; } = -1;
 
+        private int SendIng;
 
         public AsyncSend(Socket sock)
         {
             this._sock = sock;
-            SendIng = false;
+            SendIng = 0;
             BufferQueue = new ConcurrentQueue<byte[]>();
             _send = new SocketAsyncEventArgs();
             _send.Completed += Completed;
@@ -113,7 +113,7 @@ namespace ZYNet.CloudSystem.SocketClient
                 }
                 else
                 {
-                    SendIng = false;
+                    Interlocked.Exchange(ref SendIng, 0);
                 }
             }
 
@@ -123,14 +123,12 @@ namespace ZYNet.CloudSystem.SocketClient
         {
             _send.SetBuffer(null, 0, 0);
 
-           
             for (int i = 0; i < BufferQueue.Count; i++)
-                BufferQueue.TryDequeue(out byte[]  tmp);
+                BufferQueue.TryDequeue(out byte[] tmp);
         }
 
         private bool InitData()
         {
-          
             if (BufferQueue.TryDequeue(out byte[] data))
             {
 
@@ -165,11 +163,10 @@ namespace ZYNet.CloudSystem.SocketClient
 
             BufferQueue.Enqueue(data);
 
-            if (!SendIng)
+            if (Interlocked.CompareExchange(ref SendIng, 1, 0) == 0)
             {
                 if (InitData())
                 {
-                    SendIng = true;
                     try
                     {
                         if (!_sock.SendAsync(_send))
@@ -183,6 +180,10 @@ namespace ZYNet.CloudSystem.SocketClient
                         _sock = null;
                     }
                     return true;
+                }
+                else
+                {
+                    Interlocked.Exchange(ref SendIng, 0);
                 }
 
             }

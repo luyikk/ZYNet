@@ -2,6 +2,7 @@
 using ZYSocket.Server;
 using System.Net.Sockets;
 using System;
+using System.Threading;
 
 namespace ZYSocket.AsyncSend
 {
@@ -9,19 +10,18 @@ namespace ZYSocket.AsyncSend
     {
         private SocketAsyncEventArgs _send { get; set; }
 
-        private bool SendIng { get; set; }
-
         private ConcurrentQueue<byte[]> BufferQueue { get; set; }
 
         private Socket _sock { get; set; }
 
         protected int BufferLenght { get; set; } = -1;
 
+        private int SendIng;
 
         public AsyncSend(Socket sock)
         {
             this._sock = sock;
-            SendIng = false;
+            SendIng = 0;
             BufferQueue = new ConcurrentQueue<byte[]>();
             _send = new SocketAsyncEventArgs();
             _send.Completed += Completed;
@@ -111,7 +111,7 @@ namespace ZYSocket.AsyncSend
                 }
                 else
                 {
-                    SendIng = false;
+                    Interlocked.Exchange(ref SendIng, 0);
                 }
             }
 
@@ -120,13 +120,13 @@ namespace ZYSocket.AsyncSend
         private void Free()
         {
             _send.SetBuffer(null, 0, 0);
-                       
+
             for (int i = 0; i < BufferQueue.Count; i++)
-                BufferQueue.TryDequeue(out byte[]  tmp);
+                BufferQueue.TryDequeue(out byte[] tmp);
         }
 
         private bool InitData()
-        {             
+        {
             if (BufferQueue.TryDequeue(out byte[] data))
             {
 
@@ -161,11 +161,10 @@ namespace ZYSocket.AsyncSend
 
             BufferQueue.Enqueue(data);
 
-            if (!SendIng)
+            if (Interlocked.CompareExchange(ref SendIng, 1, 0) == 0)
             {
                 if (InitData())
                 {
-                    SendIng = true;
                     try
                     {
                         if (!_sock.SendAsync(_send))
@@ -179,6 +178,10 @@ namespace ZYSocket.AsyncSend
                         _sock = null;
                     }
                     return true;
+                }
+                else
+                {
+                    Interlocked.Exchange(ref SendIng, 0);
                 }
 
             }
