@@ -127,20 +127,20 @@ namespace ZYNet.CloudSystem.Server
         public void Start()
         {
             Server.Start();
-            LogAction.Log("Server is Start");
+            LogAction.Log(this,"Server is Start");
         }
 
         public void Pause()
         {
             Server.Stop();
-            LogAction.Log("Server is Pause");
+            LogAction.Log(this, "Server is Pause");
         }
 
 
         private bool ConnectionFilter(SocketAsyncEventArgs socketAsync)
         {
 
-            LogAction.Log(socketAsync.AcceptSocket.RemoteEndPoint + " Connect");
+            LogAction.Log(this, socketAsync.AcceptSocket.RemoteEndPoint + " Connect");
 
             return IsCanConn == null || IsCanConn((IPEndPoint)socketAsync.AcceptSocket.RemoteEndPoint);
         }
@@ -176,9 +176,13 @@ namespace ZYNet.CloudSystem.Server
                     {
                         byte[] bakdata = new byte[count - 8];
                         Buffer.BlockCopy(data, offset + 8, bakdata, 0, bakdata.Length);
-
                         token.Write(bakdata, 0, bakdata.Length);
                     }
+                }
+                else
+                {
+                    Server.Disconnect(socketAsync.AcceptSocket);
+
                 }
             }
             catch (Exception er)
@@ -203,7 +207,7 @@ namespace ZYNet.CloudSystem.Server
             socketAsync.AcceptSocket.Close();
 #endif
             socketAsync.AcceptSocket.Dispose();
-            LogAction.Log(message);
+            LogAction.Log(this, message);
         }
 
 

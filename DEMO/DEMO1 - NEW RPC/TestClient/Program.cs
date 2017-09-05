@@ -75,7 +75,7 @@ namespace TestClient
         }
 
 
-        private static void LogAction_LogOut(string msg, LogType type)
+        private static void LogAction_LogOut(object sender, string msg, LogType type)
         {
             Console.WriteLine(msg);
         }

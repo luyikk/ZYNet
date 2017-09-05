@@ -421,9 +421,6 @@ namespace ZYNet.CloudSystem.Client
 
 
                 byte[] pdata = stream.ToArray();
-#if !COREFX
-                stream.Close();
-#endif
              
 
                 SendData(pdata);

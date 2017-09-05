@@ -725,12 +725,10 @@ namespace ZYSocket.share
                         {
                             XmlReader xmlReader = XmlReader.Create(stream);
 
-                            result = (T)xmlSerializer.Deserialize(xmlReader);
-
-                            xmlReader.Close();
+                            return (T)xmlSerializer.Deserialize(xmlReader);
 
                         }
-                        return (T)result;
+                      
                     }
 #endif
            

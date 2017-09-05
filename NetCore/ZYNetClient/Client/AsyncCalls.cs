@@ -236,9 +236,7 @@ namespace ZYNet.CloudSystem.Client
 
 
                 byte[] pdata = stream.ToArray();
-#if !COREFX
-                stream.Close();
-#endif
+
 
                 CCloudClient.AddAsyncCallBack(this, buffer.Id);
 

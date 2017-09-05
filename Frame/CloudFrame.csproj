@@ -69,7 +69,6 @@
     <Compile Include="Frame\SyncProxy.cs" />
     <Compile Include="Frame\ZYSync.cs" />
     <Compile Include="Frame\ZYSyncBase.cs" />
-    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Share\BufferFormat.cs" />
     <Compile Include="Share\FormatClassAttibutes.cs" />

@@ -14,31 +14,31 @@ namespace ZYNet.CloudSystem
         War = 3
     }
 
-    public delegate void LogOutHandler(string msg, LogType type);
+    public delegate void LogOutHandler(object sender, string msg, LogType type);
 
     public static class LogAction
     {
         public static event LogOutHandler LogOut;
         
 
-        public static void Warn(string msg, params object[] args)
+        public static void Warn(object sender,string msg, params object[] args)
         {
-            LogOut?.Invoke(string.Format(msg, args), LogType.War);
+            LogOut?.Invoke(sender,string.Format(msg, args), LogType.War);
         }
 
-        public static void Err(string msg, params object[] args)
+        public static void Err(object sender,string msg, params object[] args)
         {
-            LogOut?.Invoke(string.Format(msg, args), LogType.Err);
+            LogOut?.Invoke(sender,string.Format(msg, args), LogType.Err);
         }
 
-        public static void Log(string msg, params object[] args)
+        public static void Log(object sender,string msg, params object[] args)
         {
-            LogOut?.Invoke(string.Format(msg, args), LogType.Log);
+            LogOut?.Invoke(sender,string.Format(msg, args), LogType.Log);
         }
 
-        public static void Log(LogType type,string msg,params object[] args)
+        public static void Log(object sender,LogType type,string msg,params object[] args)
         {
-            LogOut?.Invoke(string.Format(msg, args), type);
+            LogOut?.Invoke(sender,string.Format(msg, args), type);
         }
     }
 }

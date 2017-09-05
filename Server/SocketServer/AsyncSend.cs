@@ -8,7 +8,7 @@ namespace ZYSocket.AsyncSend
 {
     public class AsyncSend : ISend
     {
-        private SocketAsyncEventArgs _send { get; set; }       
+        private SocketAsyncEventArgs _send { get; set; }
 
         private ConcurrentQueue<byte[]> BufferQueue { get; set; }
 
@@ -53,11 +53,9 @@ namespace ZYSocket.AsyncSend
 
             if (offset < e.Buffer.Length)
             {
-
                 if (BufferLenght > 0)
                 {
                     int length = BufferLenght;
-
                     if (offset + length > e.Buffer.Length)
                         length = e.Buffer.Length - offset;
                     e.SetBuffer(offset, length);
@@ -72,25 +70,22 @@ namespace ZYSocket.AsyncSend
             else
             {
                 Interlocked.Exchange(ref SendIng, 0);
-
-                if (BufferQueue.Count>0)               
-                    SendComputer();                    
-                            
+                if (BufferQueue.Count > 0)
+                    SendComputer();
             }
 
         }
 
         private void Free()
         {
-            _send.SetBuffer(null, 0, 0);                       
+            _send.SetBuffer(null, 0, 0);
             for (int i = 0; i < BufferQueue.Count; i++)
-                BufferQueue.TryDequeue(out byte[]  tmp);
+                BufferQueue.TryDequeue(out byte[] tmp);
         }
 
         private bool InitData()
-        {             
+        {
             if (BufferQueue.TryDequeue(out byte[] data))
-            {
                 if (BufferLenght <= 0)
                 {
                     _send.SetBuffer(data, 0, data.Length);
@@ -105,9 +100,7 @@ namespace ZYSocket.AsyncSend
                     return true;
                 }
 
-            }
-            else
-                return false;
+            return false;
         }
 
 
@@ -128,18 +121,13 @@ namespace ZYSocket.AsyncSend
         private bool SendComputer()
         {
             if (Interlocked.CompareExchange(ref SendIng, 1, 0) == 0)
-            {
                 if (InitData())
                 {
                     SendAsync();
                     return true;
                 }
                 else
-                {
                     Interlocked.Exchange(ref SendIng, 0);
-                }
-
-            }
 
             return false;
         }
@@ -149,9 +137,7 @@ namespace ZYSocket.AsyncSend
             try
             {
                 if (!_sock.SendAsync(_send))
-                {
                     BeginSend(_send);
-                }
             }
             catch (ObjectDisposedException)
             {

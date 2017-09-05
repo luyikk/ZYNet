@@ -55,11 +55,9 @@ namespace ZYNet.CloudSystem.SocketClient
 
             if (offset < e.Buffer.Length)
             {
-
                 if (BufferLenght > 0)
                 {
                     int length = BufferLenght;
-
                     if (offset + length > e.Buffer.Length)
                         length = e.Buffer.Length - offset;
                     e.SetBuffer(offset, length);
@@ -74,10 +72,8 @@ namespace ZYNet.CloudSystem.SocketClient
             else
             {
                 Interlocked.Exchange(ref SendIng, 0);
-
                 if (BufferQueue.Count > 0)
                     SendComputer();
-
             }
 
         }
@@ -92,7 +88,6 @@ namespace ZYNet.CloudSystem.SocketClient
         private bool InitData()
         {
             if (BufferQueue.TryDequeue(out byte[] data))
-            {
                 if (BufferLenght <= 0)
                 {
                     _send.SetBuffer(data, 0, data.Length);
@@ -107,9 +102,7 @@ namespace ZYNet.CloudSystem.SocketClient
                     return true;
                 }
 
-            }
-            else
-                return false;
+            return false;
         }
 
 
@@ -129,19 +122,14 @@ namespace ZYNet.CloudSystem.SocketClient
 
         private bool SendComputer()
         {
-            if (Interlocked.CompareExchange(ref SendIng, 1, 0) == 0)
-            {
+            if (Interlocked.CompareExchange(ref SendIng, 1, 0) == 0)            
                 if (InitData())
                 {
                     SendAsync();
                     return true;
                 }
-                else
-                {
+                else                
                     Interlocked.Exchange(ref SendIng, 0);
-                }
-
-            }
 
             return false;
         }
@@ -150,10 +138,8 @@ namespace ZYNet.CloudSystem.SocketClient
         {
             try
             {
-                if (!_sock.SendAsync(_send))
-                {
-                    BeginSend(_send);
-                }
+                if (!_sock.SendAsync(_send))                
+                    BeginSend(_send);                
             }
             catch (ObjectDisposedException)
             {

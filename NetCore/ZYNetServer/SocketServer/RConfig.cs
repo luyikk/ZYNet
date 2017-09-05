@@ -42,10 +42,8 @@ namespace ZYSocket.Server
                 throw new ConfigurationErrorsException(string.Format("节点{0}为空", key));                
             }
             else
-            {
-                int p;
-
-                if (int.TryParse(val, out p))
+            {               
+                if (int.TryParse(val, out int p))
                 {
                     return p;
                 }

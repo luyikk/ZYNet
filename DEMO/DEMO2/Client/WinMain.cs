@@ -104,7 +104,7 @@ namespace Client
 
         }
 
-        private void LogAction_LogOut(string msg, LogType type)
+        private void LogAction_LogOut(object sender, string msg, LogType type)
         {
             this.BeginInvoke(new EventHandler(delegate
             {
