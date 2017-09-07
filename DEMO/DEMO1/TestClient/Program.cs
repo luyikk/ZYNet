@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ZYNet.CloudSystem;
+using ZYNet.CloudSystem.Loggine;
 using ZYNet.CloudSystem.Client;
 using ZYNet.CloudSystem.Frame;
 using ZYNet.CloudSystem.SocketClient;
+
 
 namespace TestClient
 {
@@ -14,7 +16,7 @@ namespace TestClient
     {
         static void Main(string[] args)
         {
-            LogAction.LogOut += LogAction_LogOut; //注册日记输出事件 用于打印日记          
+            LogFactory.AddConsole(); //注册日记输出事件 用于打印日记          
             CloudClient client = new CloudClient(new SocketClient(), 500000, 1024 * 1024); //创建一个客户端实例，最大数据包能够接收 1M
             PackHander tmp = new PackHander(); //新建一个 客户端逻辑处理器
             client.Install(tmp); //安装
@@ -103,10 +105,7 @@ namespace TestClient
             }
         }
 
-        private static void LogAction_LogOut(object sender, string msg, LogType type)
-        {
-            Console.WriteLine(msg);
-        }
+     
 
         private static void Client_Disconnect(string obj)
         {

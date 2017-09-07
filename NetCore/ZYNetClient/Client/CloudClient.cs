@@ -1,20 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using ZYNet.CloudSystem.Frame;
 using ZYSocket.share;
 using System.IO;
-using System.Diagnostics;
+using ZYNet.CloudSystem.Loggine;
 
 namespace ZYNet.CloudSystem.Client
 {
     public class CloudClient
     {
-
+        protected static readonly ILog Log = LogFactory.ForContext<CloudClient>();
         public ZYNetRingBufferPool RingBuffer { get; private set; }
 
         public ISyncClient Client { get; private set; }
@@ -142,7 +138,7 @@ namespace ZYNet.CloudSystem.Client
             {
                 if (!SyncWaitDic.TryAdd(Id, wait))
                 {
-                    LogAction.Log(LogType.Err,"Insert Wait Dic fail");
+                    Log.Error("Insert Wait Dic fail");
                     return null;
                 }
 
@@ -207,7 +203,7 @@ namespace ZYNet.CloudSystem.Client
                                 }
                                 catch (Exception er)
                                 {
-                                    LogAction.Log(LogType.Err,"CMD:" + tmp.CmdTag + "\r\n" + er.ToString());
+                                    Log.Error($"CMD:{tmp.CmdTag} Error:\r\n{er}");
                                   
                                 }
                             }
@@ -243,7 +239,7 @@ namespace ZYNet.CloudSystem.Client
                     }
                     catch (Exception er)
                     {
-                        LogAction.Log(LogType.Err, "CMD:" + call.Cmd + " ERROR:\r\n" + er.Message);
+                        Log.Error($"CMD:{call.Cmd} ERROR:\r\n{er.Message}");
                     }
                 }
             }
@@ -257,7 +253,7 @@ namespace ZYNet.CloudSystem.Client
                     }
                     catch (Exception er)
                     {
-                        LogAction.Log(LogType.Err, "AsynRun ID:" + result.Id + " ERROR:\r\n" + er.Message);
+                        Log.Error($"AsynRun ID:{result.Id} ERROR:\r\n{er.Message}");
                     }
                 }
             }
@@ -304,7 +300,7 @@ namespace ZYNet.CloudSystem.Client
 
                 if (args == null)
                 {
-                    LogAction.Log(LogType.Err,"Server Call To Me-> Cmd:{0} ArgsCount:{1} Args count is Error", pack.CmdTag, argcount);
+                    Log.ErrorFormat("Server Call To Me-> Cmd:{0} ArgsCount:{1} Args count is Error", pack.CmdTag, argcount);
                                  
                 }
 
@@ -365,7 +361,7 @@ namespace ZYNet.CloudSystem.Client
                             };
                             RetrunResultData(tmp);
 
-                            LogAction.Log(LogType.Err, "Cmd:{0} ERROR:"+er.ToString(), pack.CmdTag);
+                            Log.Error($"Cmd:{pack.CmdTag} ERROR:{er.ToString()}");
                         }
                     }
 
@@ -373,7 +369,7 @@ namespace ZYNet.CloudSystem.Client
             }
             else
             {
-                LogAction.Log(LogType.Err,"Server Call To Me-> Cmd:{0} Not Find Cmd", pack.CmdTag);
+                Log.Error($"Server Call To Me-> Cmd:{pack.CmdTag} Not Find Cmd");
             }
         }
 

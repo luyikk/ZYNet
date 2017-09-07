@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using ZYNet.CloudSystem.Frame;
+using ZYNet.CloudSystem.Loggine;
 using ZYSocket.share;
 
 
@@ -13,6 +12,8 @@ namespace ZYNet.CloudSystem.Client
 {
     public class AsyncCalls
     {
+        protected static readonly ILog Log = LogFactory.ForContext<AsyncCalls>();
+
         public ReturnResult Result { get; private set; }
 
         public CloudClient CCloudClient { get; private set; }
@@ -96,7 +97,7 @@ namespace ZYNet.CloudSystem.Client
                         Complete?.Invoke(nullx);
                     }
 
-                    LogAction.Log(LogType.Err, "Cmd:" + Cmd + " Error:\r\n" + Error.ToString());
+                    Log.Error($"Cmd:{Cmd} Error:\r\n {Error}");
                 }
                 finally
                 {

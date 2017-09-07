@@ -27,7 +27,7 @@ namespace IOSTest
 
         partial void Start_TouchUpInside(UIButton sender)
         {
-            LogAction.LogOut += LogAction_LogOut;
+           
             CloudClient client = new CloudClient(new SocketClient(), 500000, 1024 * 1024); //最大数据包能够接收 1M
             PackHander tmp = new PackHander();
             client.Install(tmp);
@@ -79,15 +79,7 @@ namespace IOSTest
             });
         }
 
-        private void LogAction_LogOut(string msg, LogType type)
-        {
-            this.BeginInvokeOnMainThread(delegate
-            {
-
-                this.Out.Text += type + ":" + msg + "\r\n";
-
-            });
-        }
+       
 
         private void AddText(string txt)
         {

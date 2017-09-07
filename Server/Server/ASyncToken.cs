@@ -9,11 +9,14 @@ using ZYNet.CloudSystem.Frame;
 using ZYSocket.share;
 using System.IO;
 using ZYSocket.AsyncSend;
+using ZYNet.CloudSystem.Loggine;
 
 namespace ZYNet.CloudSystem.Server
 {
     public class ASyncToken:ZYSync
     {
+        protected static readonly ILog Log = LogFactory.ForContext<ASyncToken>();
+
         public SocketAsyncEventArgs Asyn { get; private set; }
         public ZYNetRingBufferPool Stream { get; private set; }
 
@@ -143,7 +146,7 @@ namespace ZYNet.CloudSystem.Server
                                 }
                                 catch (Exception er)
                                 {
-                                    LogAction.Log(LogType.Err, "CMD:" + tmp.CmdTag + "\r\n" + er.ToString());
+                                   Log.Error($"CMD:{tmp.CmdTag} Error:\r\n {er}");
                                 }
                             }
                         }
@@ -165,7 +168,7 @@ namespace ZYNet.CloudSystem.Server
                                         }
                                         catch (Exception er)
                                         {
-                                            LogAction.Log(LogType.Err, "Cmd:" + call.Cmd + " Error:\r\n" + er.ToString());
+                                            Log.Error($"Cmd:{call.Cmd} Error:\r\n {er}");
                                         }
                                     }
                                 }
@@ -281,7 +284,7 @@ namespace ZYNet.CloudSystem.Server
 
                 if (args == null)
                 {
-                    LogAction.Log(LogType.Err,"Clent Call Cmd:{0} ArgsCount:{1} Args count is Error", pack.CmdTag, argcount);
+                    Log.ErrorFormat("Clent Call Cmd:{0} ArgsCount:{1} Args count is Error", pack.CmdTag, argcount);
                     return;
                 }
                 if (method.IsAsync)
@@ -337,7 +340,7 @@ namespace ZYNet.CloudSystem.Server
                             };
                             RetrunResultData(tmp);
 
-                            LogAction.Log(LogType.Err, "Cmd:{0} ERROR:" + er.ToString(), pack.CmdTag);
+                            Log.Error($"Cmd:{pack.CmdTag} ERROR:{er}");
                         }
                     }
 
@@ -345,7 +348,7 @@ namespace ZYNet.CloudSystem.Server
             }
             else
             {
-                LogAction.Log(LogType.Err,"Clent Call Cmd:{0} Not Find", pack.CmdTag);
+                Log.Error($"Clent Call Cmd:{pack.CmdTag} Not Find");
             }
         }
 

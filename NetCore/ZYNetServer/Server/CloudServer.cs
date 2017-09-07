@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Threading.Tasks;
 using ZYNet.CloudSystem.Frame;
+using ZYNet.CloudSystem.Loggine;
 using ZYSocket.Server;
 
 namespace ZYNet.CloudSystem.Server
@@ -12,6 +13,8 @@ namespace ZYNet.CloudSystem.Server
     public delegate bool IsCanConnHandler(IPEndPoint ipaddress);
     public class CloudServer
     {
+        protected static readonly ILog Log = LogFactory.ForContext<CloudServer>();
+
         public ZYSocketSuper Server { get; private set; }
 
         /// <summary>
@@ -127,20 +130,20 @@ namespace ZYNet.CloudSystem.Server
         public void Start()
         {
             Server.Start();
-            LogAction.Log(this,"Server is Start");
+            Log.Info("Server is Start");
         }
 
         public void Pause()
         {
             Server.Stop();
-            LogAction.Log(this, "Server is Pause");
+            Log.Info("Server is Pause");
         }
 
 
         private bool ConnectionFilter(SocketAsyncEventArgs socketAsync)
         {
 
-            LogAction.Log(this, socketAsync.AcceptSocket.RemoteEndPoint + " Connect");
+            Log.Trace(socketAsync.AcceptSocket.RemoteEndPoint + " Connect");
 
             return IsCanConn == null || IsCanConn((IPEndPoint)socketAsync.AcceptSocket.RemoteEndPoint);
         }
@@ -187,7 +190,7 @@ namespace ZYNet.CloudSystem.Server
             }
             catch (Exception er)
             {
-                LogAction.Log(LogType.Err, er.ToString(), er);
+                Log.Error(er.Message,er);
             }
 
         }
@@ -207,7 +210,7 @@ namespace ZYNet.CloudSystem.Server
             socketAsync.AcceptSocket.Close();
 #endif
             socketAsync.AcceptSocket.Dispose();
-            LogAction.Log(this, message);
+            Log.Trace(message);
         }
 
 

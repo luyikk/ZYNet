@@ -4,11 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using ZYNet.CloudSystem.Loggine;
 
 namespace ZYNet.CloudSystem.Frame
 {
     public class ReturnEventWaitHandle:IDisposable
     {
+        protected static readonly ILog Log = LogFactory.ForContext<ReturnEventWaitHandle>();
+
         public ReturnResult Result { get; private set; }
 
         public EventWaitHandle WaitHandle { get; }
@@ -30,7 +33,7 @@ namespace ZYNet.CloudSystem.Frame
         {
             if(!WaitHandle.WaitOne(MillisecondsTimeout))
             {
-                LogAction.Log(LogType.War,"Wait Result Time Out");
+                Log.Warn("Wait Result Time Out");
 
             }
             return true;

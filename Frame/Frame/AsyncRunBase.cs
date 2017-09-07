@@ -29,15 +29,16 @@ namespace ZYNet.CloudSystem.Frame
                 Action _Continuation = awaiter.Continuation;
                 awaiter = null;
 
-                if (_Continuation != null)
-                    _Continuation();                
+                _Continuation?.Invoke();
             }
         }
 
         public ReturnResult RET(params object[] args)
         {
-            ReturnResult tmp = new ReturnResult(args);
-            tmp.Id = this.Id;
+            ReturnResult tmp = new ReturnResult(args)
+            {
+                Id = this.Id
+            };
             return tmp;
         }
     }

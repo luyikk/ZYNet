@@ -88,7 +88,7 @@ namespace Client
 
         private void WinMain_Load(object sender, EventArgs e)
         {
-            LogAction.LogOut += LogAction_LogOut;
+            
             if (ClientManager.Connect("127.0.0.1", 3775))
             {
                 ClientManager.Client.Install(this);
@@ -104,14 +104,7 @@ namespace Client
 
         }
 
-        private void LogAction_LogOut(object sender, string msg, LogType type)
-        {
-            this.BeginInvoke(new EventHandler(delegate
-            {
-                this.richTextBox1.AppendText("["+type+"]:"+msg + "\r\n");
-                
-            }));
-        }
+      
 
         private void comboBox1_DropDown(object sender, EventArgs e)
         {

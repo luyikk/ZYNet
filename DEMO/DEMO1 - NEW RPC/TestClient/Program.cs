@@ -7,7 +7,7 @@ using ZYNet.CloudSystem;
 using ZYNet.CloudSystem.Client;
 using ZYNet.CloudSystem.Frame;
 using ZYNet.CloudSystem.SocketClient;
-
+using ZYNet.CloudSystem.Loggine;
 namespace TestClient
 {
     class Program
@@ -18,7 +18,7 @@ namespace TestClient
         /// <param name="args"></param>
         static void Main(string[] args)
         {
-            LogAction.LogOut += LogAction_LogOut;          
+            LogFactory.AddConsole();
             CloudClient client = new CloudClient(new SocketClient(), 500000, 1024 * 1024); //最大数据包能够接收 1M
             PackHander tmp = new PackHander();
             client.Install(tmp);
@@ -27,8 +27,7 @@ namespace TestClient
             if (client.Connect("127.0.0.1", 2285))
             {
             
-                var serverPacker = client.Sync.Get<IPacker>(); //获取一个 IPACKER 实例 用来调用服务器
-                
+                var serverPacker = client.Sync.Get<IPacker>(); //获取一个 IPACKER 实例 用来调用服务器               
 
 
                 var isSuccess = serverPacker.IsLogOn("123123", "3212312")?.First?.Value<bool>(); //调用服务器的isLOGON函数
@@ -75,10 +74,6 @@ namespace TestClient
         }
 
 
-        private static void LogAction_LogOut(object sender, string msg, LogType type)
-        {
-            Console.WriteLine(msg);
-        }
 
         private static void Client_Disconnect(string obj)
         {
