@@ -92,8 +92,9 @@ namespace ZYNet.CloudSystem.SocketClient
                 RemoteEndPoint = myEnd
             };
             e.Completed += new EventHandler<SocketAsyncEventArgs>(Completed);
+            AsynEvent = e;
 
-           
+
             if (!_sock.ConnectAsync(e))
             {
                 ECompleted(e);
@@ -246,10 +247,14 @@ namespace ZYNet.CloudSystem.SocketClient
             {
                 try
                 {
+                    wait.Dispose();
+                    AsynEvent.Dispose();
+
 #if !COREFX
                     _sock.Close();
 #endif
                     _sock.Dispose();
+                 
                 }
                 catch { }
 
@@ -274,6 +279,8 @@ namespace ZYNet.CloudSystem.SocketClient
 #endif
                 _sock.Dispose();
                 wait.Dispose();
+
+                AsynEvent.Dispose();
 
             }
             catch (ObjectDisposedException)

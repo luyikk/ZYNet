@@ -50,7 +50,16 @@ namespace ZYNet.CloudSystem.Client
 
         public ZYSync Sync { get; private set; }
 
-
+        public void Close()
+        {
+            Client.Close();
+            Module.ModuleDiy.Clear();
+            AsyncRunDiy.Clear();
+            CallBackDiy.Clear();
+            AsyncCallDiy.Clear();
+            SyncWaitDic.Clear();
+           
+        }
 
 
         public CloudClient(ISyncClient client, int millisecondsTimeout, int maxBufferLength)
@@ -68,7 +77,7 @@ namespace ZYNet.CloudSystem.Client
                 SyncSendAsWait = SendDataAsWait
             };
             Module = new ModuleDictionary();
-
+         
 
         }
 
@@ -163,6 +172,7 @@ namespace ZYNet.CloudSystem.Client
         private void Client_Disconnect(string obj)
         {
             Disconnect?.Invoke(obj);
+            RingBuffer = null;
         }
 
         private void Client_BinaryInput(byte[] data)
@@ -426,11 +436,7 @@ namespace ZYNet.CloudSystem.Client
         }
 
 
-        private void Close()
-        {
-            Client.Close();
-        }
-
+      
 
     }
 }
