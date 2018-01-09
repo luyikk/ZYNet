@@ -275,10 +275,12 @@ namespace ZYNet.CloudSystem.SocketClient
 #if !COREFX
                 _sock.Disconnect(false);
                 _sock.Close();
-                wait.Close();
+                if(wait!=null)
+                    wait.Close();
 #endif
                 _sock.Dispose();
-                wait.Dispose();
+                if (wait != null)
+                    wait.Dispose();
 
                 AsynEvent.Dispose();
 

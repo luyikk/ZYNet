@@ -153,7 +153,8 @@ namespace ZYNet.CloudSystem.Client
 
                 Client.Send(Data);
 
-                wait.WaitOne();
+                if (!wait.WaitOne())
+                    throw new TimeoutException("Call Time Out");
                 var value = wait.Result;
               
 

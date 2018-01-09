@@ -1,0 +1,43 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using ZYNet.CloudSystem;
+using ZYNet.CloudSystem.Frame;
+
+namespace FileServ.Client
+{
+    interface IServer
+    {
+        [TAG(1000)]
+        bool LogOn();
+
+        [TAG(1001)]
+        string CombinePath(string path1, string path2);
+
+        [TAG(10001)]
+        bool ExistsDir(string path);
+
+        [TAG(10002)]
+        ResultAwatier LsOrDir(string path);
+
+        [TAG(10003)]
+        ResultAwatier CreateFile(string path);
+
+        [TAG(10004)]
+        bool WriteFile(int fileID, byte[] data,long offset, uint crc);
+
+        [TAG(10005)]
+        void CloseFile(int fileID);
+
+        [TAG(10006)]
+        ResultAwatier GetFile(string path);
+
+
+        [TAG(10007)]
+        void CloseGetFile(int fileID);
+
+        [TAG(10008)]
+        ResultAwatier GetFileData(int fileId, long postion);
+    }
+}

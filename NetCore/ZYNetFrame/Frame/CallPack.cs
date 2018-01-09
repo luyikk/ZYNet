@@ -76,6 +76,8 @@ namespace ZYNet.CloudSystem.Frame
 
         public bool IsError => ErrorId != 0;
 
+        public bool IsHaveValue => Arguments != null && Arguments.Count > 0;
+
         public ResultValue this[int index]
         {            
             get

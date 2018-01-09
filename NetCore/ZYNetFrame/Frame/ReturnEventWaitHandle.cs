@@ -34,7 +34,7 @@ namespace ZYNet.CloudSystem.Frame
             if(!WaitHandle.WaitOne(MillisecondsTimeout))
             {
                 Log.Warn("Wait Result Time Out");
-
+                return false;
             }
             return true;
         }

@@ -148,12 +148,14 @@ namespace ZYNet.CloudSystem.Client
                 if (!SyncWaitDic.TryAdd(Id, wait))
                 {
                     Log.Error("Insert Wait Dic fail");
-                    return null;
+                   
                 }
 
                 Client.Send(Data);
 
-                wait.WaitOne();
+                if(!wait.WaitOne())
+                    throw new TimeoutException("Call Time Out");
+
                 var value = wait.Result;
               
 
