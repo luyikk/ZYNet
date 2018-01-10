@@ -38,6 +38,7 @@ namespace FileServ.Server
                         item.Dispose();
                     }
                 }
+                user.FilePushDictionary.Clear();
 
                 if (user != null && user.FileGetDictionary.Count > 0)
                 {
@@ -46,6 +47,8 @@ namespace FileServ.Server
                         item.Dispose();
                     }
                 }
+
+                user.FileGetDictionary.Clear();
             }
         }
 
@@ -162,7 +165,7 @@ namespace FileServ.Server
         }
 
         [TAG(10004)]
-        public static bool WriteFile(ASyncToken token, int fileID, byte[] data, long offset, uint crc)
+        public static bool WriteFile(ASyncToken token, int fileID, byte[] data, int count,long offset, uint crc)
         {
 
 
@@ -176,7 +179,7 @@ namespace FileServ.Server
 
                 var Stream = user.FilePushDictionary[fileID];
                 Stream.Position = offset;
-                Stream.Write(data, 0, data.Length);
+                Stream.Write(data, 0, count);
 
                 return true;
             }
@@ -192,8 +195,10 @@ namespace FileServ.Server
                 var user = token.Token<UserInfo>();
 
                 if (user.FilePushDictionary.ContainsKey(fileID))
-                    user.FilePushDictionary[fileID].Dispose();
-
+                {
+                    user.FilePushDictionary.TryRemove(fileID, out FileStream cc);
+                    cc.Dispose();
+                }
             }
         }
 
@@ -233,8 +238,13 @@ namespace FileServ.Server
             if (token.UserToken != null)
             {
                 var user = token.Token<UserInfo>();
+
+
                 if (user.FileGetDictionary.ContainsKey(fileID))
-                    user.FileGetDictionary[fileID].Dispose();
+                {
+                    user.FileGetDictionary.TryRemove(fileID, out FileStream cc);
+                    cc.Dispose();
+                }
 
             }
         }
@@ -260,6 +270,22 @@ namespace FileServ.Server
             }
 
             return async.RET();
+        }
+        [TAG(10009)]
+        public static bool CreateDirectory(ASyncToken async, string path)
+        {
+            if (async.UserToken is UserInfo user)
+            {
+                if (Directory.Exists(path))
+                    return true;
+                else
+                {
+                    Directory.CreateDirectory(path);
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

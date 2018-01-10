@@ -7,10 +7,13 @@ namespace FileServ
 {
     class Program
     {
-        static void Main(string[] args)
+        static  void Main(string[] args)
         {
+            RunCmd();
+        }
 
-           
+        static  void RunCmd()
+        {
             Top1:
             Console.WriteLine("Whether to open the file service ?\r\n1   Start(default)\r\n2   Skip");
 
@@ -24,7 +27,7 @@ namespace FileServ
             else if (!select.Equals("2", StringComparison.Ordinal))
                 goto Top1;
 
-         
+
             Top2:
 
             Console.WriteLine("Whether to open the Logging?\r\n 1   No(default)\r\n 2   Yes");
@@ -43,11 +46,11 @@ namespace FileServ
             Top3:
 
             Console.WriteLine("CMD：\r\n connect [IP]\t(Connect to the computer )\r\n    Example : connect 192.168.0.1 \r\n\r\n exit\t\t(exit the program)");
-            
+
 
             select = Console.ReadLine();
 
-            if (select==null||select.Equals("exit", StringComparison.Ordinal))
+            if (select == null || select.Equals("exit", StringComparison.Ordinal))
                 goto Exit;
             else if (select.ToLower().IndexOf("connect") == 0)
             {
@@ -57,7 +60,7 @@ namespace FileServ
                 {
                     FileClient fileClient = new FileClient();
 
-                    if(fileClient.Connect(sp[1]))
+                    if (fileClient.Connect(sp[1]))
                     {
                         Console.Clear();
                         Console.Clear();
@@ -68,8 +71,8 @@ namespace FileServ
                         while (true)
                         {
                             string cmd = Console.ReadLine().Trim();
-                          
-                            if(fileClient.Cmd(cmd))
+
+                            if (fileClient.Cmd(cmd))
                             {
                                 Console.Clear();
                                 goto Top3;
@@ -89,11 +92,10 @@ namespace FileServ
                 goto Top3;
 
 
-         
+
 
             Exit:
             Console.WriteLine("Exit ...");
-
         }
     }
 }

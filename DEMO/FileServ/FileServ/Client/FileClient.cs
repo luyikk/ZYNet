@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using ZYNet.CloudSystem.Client;
 using ZYNet.CloudSystem.SocketClient;
 
@@ -40,6 +41,7 @@ namespace FileServ.Client
             Console.WriteLine(" ls [path]\tor\tdir [path]\t(show path files)\r\n   Example: ls /\r\n   Example: dir c:\\\r\n   Example: ls (please use CD set current path)\r\n   Example: dir (please use CD set current path)");
             Console.WriteLine(" push [source] [target] \t (push file to path)\r\n   Example: push d:/a.txt /home/a.txt \r\n   Example: push d:/a.txt (please use CD set current path)");
             Console.WriteLine(" get [target] [source]\t (get file to path)\r\n   Example: get /home/a.txt d:/a.txt \r\n   Example: get a.txt d:/a.txt (please use CD set current path)");
+            Console.WriteLine(" img [source] [target]\t (img dir to path)\r\n   Example: img c:/abc /home/ \r\n   Example: img c:/abc (please use CD set current path)");
             Console.WriteLine(" close (close current connect)");
         }
 
@@ -100,9 +102,11 @@ namespace FileServ.Client
                             string[] uparg = cmd[1].Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
 
                             if (uparg.Length == 1)
-                                UpFile(uparg[0], Current + "/");
+                                 UpFile(uparg[0], Current + "/");
                             else if (uparg.Length == 2)
-                                UpFile(uparg[0], uparg[1]);
+                                 UpFile(uparg[0], uparg[1]);
+
+
                         }
                     }
                     break;
@@ -115,6 +119,19 @@ namespace FileServ.Client
                                 GetFile(uparg[0], uparg[1]);
                         }
 
+                    }
+                    break;
+                case "img":
+                    {
+                        if (cmd.Length == 2)
+                        {
+                            string[] uparg = cmd[1].Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+                            if (uparg.Length == 1)
+                                ImageDirectory(uparg[0], "");
+                            else if (uparg.Length == 2)
+                                ImageDirectory(uparg[0], uparg[1]);
+
+                        }
                     }
                     break;
                 case "close":
@@ -227,7 +244,7 @@ namespace FileServ.Client
             }
         }
 
-        protected async void UpFile(string source, string target)
+        protected async Task UpFile(string source, string target)
         {
             var sourceFileName = Path.GetFileName(source);
             var targetFileName = Path.GetFileName(target);
@@ -294,11 +311,11 @@ namespace FileServ.Client
                     Re:
                     try
                     {
-                        bool isOk = Sync.WriteFile(fileId, data, offset, CRC32.GetCRC32(data));
+                        bool isOk = Sync.WriteFile(fileId, data, count, offset,  CRC32.GetCRC32(data));
 
                         while (!isOk)
                         {
-                            isOk = Sync.WriteFile(fileId, data, offset, CRC32.GetCRC32(data));
+                            isOk = Sync.WriteFile(fileId, data, count, offset,  CRC32.GetCRC32(data));
                         }
 
                     }
@@ -493,5 +510,60 @@ namespace FileServ.Client
 
 
         }
+
+        protected  async void ImageDirectory(string source,string target)
+        {
+            if(string.IsNullOrEmpty(target))
+            {
+                if(!string.IsNullOrEmpty(Current))                
+                    target = Current;
+                else
+                {
+                    Console.WriteLine("please use CD set current path");
+                    return;
+                }
+
+            }
+            if(!Directory.Exists(source))
+            {
+                Console.WriteLine($"not find directory {source}");
+                return;
+            }
+            
+
+            await Img(new DirectoryInfo(source), target);
+            Console.WriteLine($"img {source} to {target} close");
+        }
+
+        protected async Task Img(DirectoryInfo dir,string target)
+        {
+            var Serv = client.NewAsync().Get<IServer>();
+            var Sync = client.Sync.Get<IServer>();
+
+            var dirname = dir.Name;
+            target = Path.Combine(target, dirname);
+            target = target.Replace("\\", "/");
+            var dirres = Sync.CreateDirectory(target);
+
+            if (dirres)
+            {
+
+                foreach (var item in dir.GetFileSystemInfos())
+                {
+                    if (item is DirectoryInfo diritem)
+                    {
+                        await Img(diritem, target);
+                    }
+                    else if (item is FileInfo fileitem)
+                    {
+                        var filepath = Path.Combine(target, item.Name);
+                        filepath = filepath.Replace("\\", "/");
+                        await UpFile(fileitem.FullName, filepath);
+                    }
+                }
+            }
+          
+        }
+
     }
 }

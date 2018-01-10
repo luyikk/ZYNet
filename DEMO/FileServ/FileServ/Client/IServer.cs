@@ -25,7 +25,7 @@ namespace FileServ.Client
         ResultAwatier CreateFile(string path);
 
         [TAG(10004)]
-        bool WriteFile(int fileID, byte[] data,long offset, uint crc);
+        bool WriteFile(int fileID, byte[] data,int count,long offset, uint crc);
 
         [TAG(10005)]
         void CloseFile(int fileID);
@@ -39,5 +39,8 @@ namespace FileServ.Client
 
         [TAG(10008)]
         ResultAwatier GetFileData(int fileId, long postion);
+
+        [TAG(10009)]
+        bool CreateDirectory(string path);
     }
 }
