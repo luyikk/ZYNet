@@ -160,7 +160,7 @@ namespace ZYNet.CloudSystem.Client
 
                 if (value != null)
                 {
-                    if (value.Arguments == null&&!value.IsError)
+                    if (value.Arguments is null &&!value.IsError)
                         return null;
                     else
                         return value;
@@ -309,7 +309,7 @@ namespace ZYNet.CloudSystem.Client
                     }
                 }
 
-                if (args == null)
+                if (args is null)
                 {
                     Log.ErrorFormat("Server Call To Me-> Cmd:{0} ArgsCount:{1} Args count is Error", pack.CmdTag, argcount);
                                  

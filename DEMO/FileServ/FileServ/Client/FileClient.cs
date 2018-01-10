@@ -257,7 +257,7 @@ namespace FileServ.Client
                  PrintDir(path);            
             else
             {
-                if (Current == null)
+                if (Current is null)
                     Console.WriteLine("please use CD set current path");
                 else
                      PrintDir(Current);
@@ -313,13 +313,13 @@ namespace FileServ.Client
 
             var res = await Serv.CreateFile(target);
 
-            if (res == null || res.IsError)
+            if (res is null || res.IsError)
             {
                 Console.WriteLine($"create {target} Error:{res.ErrorMsg}");
                 return;
             }
 
-            if (res == null || !res.IsHaveValue)
+            if (res is null || !res.IsHaveValue)
             {
                 Console.WriteLine($"create {target} faill");
                 return;
@@ -450,13 +450,13 @@ namespace FileServ.Client
 
             var res = await Serv.GetFile(target);
 
-            if (res == null || res.IsError)
+            if (res is null || res.IsError)
             {
                 Console.WriteLine($"Get {target} Error:{res.ErrorMsg}");
                 return;
             }
 
-            if (res == null || !res.IsHaveValue)
+            if (res is null || !res.IsHaveValue)
             {
                 Console.WriteLine($"Get {target} faill");
                 return;
@@ -477,7 +477,7 @@ namespace FileServ.Client
                         Re:
                         var resvalue = await Serv.GetFileData(fileId, stream.Position);
 
-                        if (resvalue==null)
+                        if (resvalue is null)
                         {
                             Console.WriteLine($"Get {target} faill");
                             break;
@@ -617,7 +617,7 @@ namespace FileServ.Client
             var res = await Async.MvFile(source, target);
 
             
-            if (res == null)
+            if (res is null)
             {
                 Console.WriteLine($"mv {source} {target} faill");
                 return;
@@ -651,7 +651,7 @@ namespace FileServ.Client
             var res = await Async.MkDir(file);
 
 
-            if (res == null)
+            if (res is null)
             {
                 Console.WriteLine($"mkdir {file} faill");
                 return;
@@ -684,7 +684,7 @@ namespace FileServ.Client
             var res = await Async.Rm(file);
 
 
-            if (res == null)
+            if (res is null)
             {
                 Console.WriteLine($"rm {file} faill");
                 return;

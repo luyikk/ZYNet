@@ -50,7 +50,7 @@ namespace FileServ
 
             select = Console.ReadLine();
 
-            if (select == null || select.Equals("exit", StringComparison.Ordinal))
+            if (select is null || select.Equals("exit", StringComparison.Ordinal))
                 goto Exit;
             else if (select.ToLower().IndexOf("connect") == 0)
             {

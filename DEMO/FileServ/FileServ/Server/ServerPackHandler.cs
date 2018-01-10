@@ -176,12 +176,16 @@ namespace FileServ.Server
 
                 if (CRC32.GetCRC32(data) != crc)
                     return false;
+                if (user.FilePushDictionary.ContainsKey(fileID))
+                {
+                    var Stream = user.FilePushDictionary[fileID];
+                    Stream.Position = offset;
+                    Stream.Write(data, 0, count);
 
-                var Stream = user.FilePushDictionary[fileID];
-                Stream.Position = offset;
-                Stream.Write(data, 0, count);
+                    return true;
+                }
 
-                return true;
+                return false;
             }
 
             return false;
