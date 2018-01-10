@@ -42,5 +42,14 @@ namespace FileServ.Client
 
         [TAG(10009)]
         bool CreateDirectory(string path);
+
+        [TAG(10010)]
+        ResultAwatier MvFile(string source, string target);
+
+        [TAG(10011)]
+        ResultAwatier MkDir(string path);
+
+        [TAG(10012)]
+        ResultAwatier Rm(string file);
     }
 }

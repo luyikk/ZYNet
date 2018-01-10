@@ -42,6 +42,9 @@ namespace FileServ.Client
             Console.WriteLine(" push [source] [target] \t (push file to path)\r\n   Example: push d:/a.txt /home/a.txt \r\n   Example: push d:/a.txt (please use CD set current path)");
             Console.WriteLine(" get [target] [source]\t (get file to path)\r\n   Example: get /home/a.txt d:/a.txt \r\n   Example: get a.txt d:/a.txt (please use CD set current path)");
             Console.WriteLine(" img [source] [target]\t (img dir to path)\r\n   Example: img c:/abc /home/ \r\n   Example: img c:/abc (please use CD set current path)");
+            Console.WriteLine(" mv [source] [target]\t (move file or rename file)\r\n   Example: mv /home/a.txt /home/b.txt \r\n   Example: mv a.txt b.txt (please use CD set current path)");
+            Console.WriteLine(" mkdir [path]\t (create directory to path)\r\n   Example: mkdir /home/ccc \r\n   Example: mkdir xxx(please use CD set current path)");
+            Console.WriteLine(" rm [file]\t (delete file)\r\n   Example: rm /home/ccc \r\n   Example: rm xxx.txt(please use CD set current path)");
             Console.WriteLine(" close (close current connect)");
         }
 
@@ -134,6 +137,39 @@ namespace FileServ.Client
                         }
                     }
                     break;
+                case "mv":
+                    {
+                        if (cmd.Length == 2)
+                        {
+                            string[] mvarg = cmd[1].Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+
+                            if (mvarg.Length == 2)
+                                MvFile(mvarg[0], mvarg[1]);
+                        }
+                    }
+                    break;
+                case "mkdir":
+                    {
+                        if (cmd.Length == 2)
+                        {
+                            string[] mkdirarg = cmd[1].Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+                            if (mkdirarg.Length == 1)
+                                Mkdir(mkdirarg[0]);
+
+                        }
+                    }
+                    break;
+                case "rm":
+                    {
+                        if (cmd.Length == 2)
+                        {
+                            string[] rmarg = cmd[1].Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+                            if (rmarg.Length == 1)
+                                Rm(rmarg[0]);
+
+                        }
+                    }
+                    break;
                 case "close":
                     {
                         client.Close();
@@ -147,6 +183,7 @@ namespace FileServ.Client
 
         }
 
+     
 
         protected void CurrentDir(string path=null)
         {
@@ -565,5 +602,107 @@ namespace FileServ.Client
           
         }
 
+        protected async void MvFile(string source, string target)
+        {
+            var a = Path.GetDirectoryName(source);
+            var b= Path.GetDirectoryName(target);
+            if (string.IsNullOrEmpty(a))            
+                source = Path.Combine(Current, source).Replace("\\","/");
+
+            if (string.IsNullOrEmpty(b))
+                target = Path.Combine(Current, target).Replace("\\", "/");
+
+
+            var Async = client.NewAsync().Get<IServer>();
+            var res = await Async.MvFile(source, target);
+
+            
+            if (res == null)
+            {
+                Console.WriteLine($"mv {source} {target} faill");
+                return;
+            }
+
+            if(res.IsError)
+            {
+                Console.WriteLine($"mv {source} {target} Is Error: {res.ErrorMsg}");
+                return;
+            }
+
+            if(!res.IsHaveValue)
+            {
+                Console.WriteLine($"mv {source} {target} faill");
+                return;
+            }
+
+            Console.WriteLine($"mv {source} {target} Close");
+
+
+        }
+
+        private async void Mkdir(string file)
+        {
+            var a = Path.GetDirectoryName(file);
+           
+            if (string.IsNullOrEmpty(a))
+                file = Path.Combine(Current, file).Replace("\\", "/");
+
+            var Async = client.NewAsync().Get<IServer>();
+            var res = await Async.MkDir(file);
+
+
+            if (res == null)
+            {
+                Console.WriteLine($"mkdir {file} faill");
+                return;
+            }
+
+            if (res.IsError)
+            {
+                Console.WriteLine($"mkdir {file} Is Error: {res.ErrorMsg}");
+                return;
+            }
+
+            if (!res.IsHaveValue)
+            {
+                Console.WriteLine($"mkdir {file} faill");
+                return;
+            }
+
+            Console.WriteLine($"mkdir {file} Close");
+        }
+
+
+        private async void Rm(string file)
+        {
+            var a = Path.GetDirectoryName(file);
+
+            if (string.IsNullOrEmpty(a))
+                file = Path.Combine(Current, file).Replace("\\", "/");
+
+            var Async = client.NewAsync().Get<IServer>();
+            var res = await Async.Rm(file);
+
+
+            if (res == null)
+            {
+                Console.WriteLine($"rm {file} faill");
+                return;
+            }
+
+            if (res.IsError)
+            {
+                Console.WriteLine($"rm {file} Is Error: {res.ErrorMsg}");
+                return;
+            }
+
+            if (!res.IsHaveValue)
+            {
+                Console.WriteLine($"rm {file} faill");
+                return;
+            }
+
+            Console.WriteLine($"rm {file} Close");
+        }
     }
 }

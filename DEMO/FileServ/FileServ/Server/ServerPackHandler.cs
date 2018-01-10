@@ -287,5 +287,51 @@ namespace FileServ.Server
 
             return false;
         }
+
+        [TAG(10010)]
+        public static Task<ReturnResult> MvFile(AsyncCalls async ,string source,string target)
+        {
+            if(File.Exists(source))
+            {
+                File.Move(source, target);
+                return Task.FromResult<ReturnResult>(async.RET(true));
+            }
+            else if(Directory.Exists(source))
+            {
+                Directory.Move(source, target);
+                return Task.FromResult<ReturnResult>(async.RET(true));
+            }
+
+            return Task.FromResult<ReturnResult>(async.RET(false));
+        }
+
+        [TAG(10011)]
+        public static Task<ReturnResult> MkDir(AsyncCalls async ,string path)
+        {
+            if(!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+                return Task.FromResult<ReturnResult>(async.RET(true));
+            }
+
+            return Task.FromResult<ReturnResult>(async.RET(false));
+        }
+
+        [TAG(10012)]
+        public static Task<ReturnResult> Rm(AsyncCalls async,string file)
+        {
+            if(File.Exists(file))
+            {
+                File.Delete(file);
+                return Task.FromResult<ReturnResult>(async.RET(true));
+            }
+            else if(Directory.Exists(file))
+            {
+                Directory.Delete(file);
+                return Task.FromResult<ReturnResult>(async.RET(true));
+            }
+
+            return Task.FromResult<ReturnResult>(async.RET(false));
+        }
     }
 }
