@@ -18,15 +18,18 @@ namespace TestClient
         /// <param name="args"></param>
         static void Main(string[] args)
         {
+
+           
+
             LogFactory.AddConsole();
             CloudClient client = new CloudClient(new SocketClient(), 500000, 1024 * 1024); //最大数据包能够接收 1M
             PackHander tmp = new PackHander();
             client.Install(tmp);
-            client.Disconnect += Client_Disconnect;           
-
+            client.Disconnect += Client_Disconnect;
+            client.CheckAsyncTimeOut = true;
             if (client.Connect("127.0.0.1", 2285))
             {
-            
+
                 var serverPacker = client.Sync.Get<IPacker>(); //获取一个 IPACKER 实例 用来调用服务器               
 
 
@@ -59,16 +62,24 @@ namespace TestClient
         public static async void RunTest(CloudClient client)
         {
             var server = client.NewAsync().Get<IPacker>();
-            
-            int? v = (await server.TestRecAsync(100))?[0]?.Value<int>();
+
+             int? v = (await server.TestRecAsync(2))?[0]?.Value<int>();
 
             System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch();
             stop.Start();
-            int? c = (await server.TestRecAsync(10000))?.First?.Value<int>();
+            var res = (await server.TestRecAsync(10000));
+
+            bool? isError = res?.IsError;
+            if(isError.HasValue&&isError.Value)
+            {
+                Console.WriteLine($"ERROR:{res.ErrorMsg}");
+                return;
+            }
+            int? c =res?.First?.Value<int>();
             stop.Stop();
 
-            if (c != null)
-                Console.WriteLine("Sync Rec:{0} time:{1} MS", c, stop.ElapsedMilliseconds);
+            if (c.HasValue)
+                Console.WriteLine("ASync Rec:{0} time:{1} MS", c, stop.ElapsedMilliseconds);
 
 
         }

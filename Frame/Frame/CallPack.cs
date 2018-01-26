@@ -87,7 +87,10 @@ namespace ZYNet.CloudSystem.Frame
         {            
             get
             {
-               
+
+                if (Arguments == null)
+                    return null;
+
                 if (index < Arguments.Count)
                 {
                     return new ResultValue(Arguments[index]);

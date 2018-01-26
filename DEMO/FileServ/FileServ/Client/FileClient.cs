@@ -16,10 +16,11 @@ namespace FileServ.Client
 
         public FileClient()
         {
-            client = new CloudClient(new SocketClient(), 10000, 1024 * 1024); //最大数据包能够接收 1M
+            client = new CloudClient(new SocketClient(), 1000000, 1024 * 1024); //最大数据包能够接收 1M
             ClientPackHander tmp = new ClientPackHander();
             client.Install(tmp);
-            client.Disconnect += Client_Disconnect;          
+            client.Disconnect += Client_Disconnect;
+            client.CheckAsyncTimeOut = true;
         }
 
         public bool Connect(string IP)
@@ -269,9 +270,10 @@ namespace FileServ.Client
         {
 
             var res = await client.NewAsync().Get<IServer>().LsOrDir(path);
-            if (res != null && res.Length > 0)
+
+            if (res != null && res.IsHaveValue)
             {
-                var filesystem = res.As<List<FileSysInfo>>(0);
+                var filesystem = res.First.Value<List<FileSysInfo>>();
 
                 if (filesystem != null && filesystem.Count > 0)
                     foreach (var item in filesystem)
@@ -281,7 +283,7 @@ namespace FileServ.Client
             }
         }
 
-        protected async Task UpFile(string source, string target)
+        protected async void UpFile(string source, string target)
         {
             var sourceFileName = Path.GetFileName(source);
             var targetFileName = Path.GetFileName(target);
@@ -293,12 +295,19 @@ namespace FileServ.Client
             }
             if (string.IsNullOrEmpty(targetFileName))
             {
-                if(string.IsNullOrEmpty(Current))
+                if (string.IsNullOrEmpty(target))
                 {
-                    Console.WriteLine("please use CD set current path");
-                    return;
+                    if (string.IsNullOrEmpty(Current))
+                    {
+                        Console.WriteLine("please use CD set current path");
+                        return;
+                    }else
+                        target = Path.Combine(Current, sourceFileName).Replace("\\", "/");
                 }
-                target += sourceFileName;
+                else
+                {
+                    target = Path.Combine(target, sourceFileName).Replace("\\", "/");                  
+                }
             }
             if (!File.Exists(source))
             {
@@ -339,7 +348,7 @@ namespace FileServ.Client
                 {
                     byte[] data = new byte[8192];
                     long offset = stream.Position;
-                    count = await stream.ReadAsync(data, 0, data.Length);
+                    count =  stream.Read(data, 0, data.Length);
 
                     if (count == 0)
                         break;
@@ -348,17 +357,9 @@ namespace FileServ.Client
                     Re:
                     try
                     {
-                        bool isOk = Sync.WriteFile(fileId, data, count, offset,  CRC32.GetCRC32(data));
+                        var returnResult = (await Serv.WriteFile(fileId, data, count, offset, CRC32.GetCRC32(data)));
 
-                        while (!isOk)
-                        {
-                            isOk = Sync.WriteFile(fileId, data, count, offset,  CRC32.GetCRC32(data));
-                        }
-
-                    }
-                    catch (Exception er)
-                    {
-                        if (er.InnerException != null && er.InnerException is TimeoutException)
+                        if (returnResult.IsError && returnResult.ErrorId == -101)
                         {
                             Console.WriteLine("write time out  retry write");
                             check--;
@@ -368,13 +369,28 @@ namespace FileServ.Client
                                 Console.WriteLine($"send file time Out {source}");
                                 break;
                             }
+                            await Task.Delay(2000);
                             goto Re;
                         }
-                        else
+                        else if (returnResult.IsError)
                         {
-                            Console.WriteLine($"send file Error {source} : {er.ToString()}");
-                            break;
+                            throw new Exception(returnResult.ErrorMsg);
                         }
+                        else if (returnResult.IsHaveValue && returnResult.First.Value<bool>() == false)
+                        {
+
+                            while (returnResult.IsHaveValue && !returnResult.First.Value<bool>())
+                            {
+                                returnResult = await Serv.WriteFile(fileId, data, count, offset, CRC32.GetCRC32(data));
+                                await Task.Delay(2000);
+                            }
+                        }
+
+                    }
+                    catch (Exception er)
+                    {
+                        Console.WriteLine($"send file Error {source} : {er.ToString()}");
+                        break;
                     }
 
                     check = 10;
@@ -399,6 +415,9 @@ namespace FileServ.Client
 
         protected async void GetFile(string target, string source)
         {
+            var sourceFileName = Path.GetFileName(source);
+            var targetFileName = Path.GetFileName(target);
+
             if (string.IsNullOrEmpty(target))
             {
                 Console.WriteLine($"1 Not Find {target}");
@@ -441,6 +460,15 @@ namespace FileServ.Client
                     }
                 }
             }
+            if(string.IsNullOrEmpty(sourceFileName)&& !string.IsNullOrEmpty(targetFileName))
+            {
+                source =  Path.Combine(source, targetFileName).Replace("\\", "/");
+            }
+            else if (string.IsNullOrEmpty(sourceFileName))
+            {
+                Console.WriteLine($"not filename dir:{sourcedir}");
+                return;
+            }
 
 
             var Async = client.NewAsync();
@@ -475,17 +503,35 @@ namespace FileServ.Client
                     {
                         int check = 10;
                         Re:
-                        var resvalue = await Serv.GetFileData(fileId, stream.Position);
 
+                        var resvalue = await Serv.GetFileData(fileId, stream.Position);
+                      
                         if (resvalue is null)
                         {
                             Console.WriteLine($"Get {target} faill");
                             break;
                         }
 
-                        if (resvalue.IsError)
+                        if (resvalue.IsError&&resvalue.ErrorId==-101)
                         {
-                            Console.WriteLine($"Get {target} Error:{res.ErrorMsg}");
+                            Console.WriteLine($"Get {target} Error:{resvalue.ErrorMsg}");
+
+                            check--;
+                            if (check <= 0)
+                            {
+                                Console.WriteLine($"Get {target} faill");
+                                break;
+                            }
+                            else
+                            {
+                                await Task.Delay(2000);
+                                goto Re;
+                            }
+                           
+                        }
+                        else if (resvalue.IsError)
+                        {
+                            Console.WriteLine($"Get {target} Error:{resvalue.ErrorMsg}");
                             break;
                         }
 
@@ -517,14 +563,15 @@ namespace FileServ.Client
                             }
                             else
                             {
+                                await Task.Delay(2000);
                                 Console.WriteLine($"Get file {source} Data CRC32 Error");
                                 goto Re;
                             }
                         }
 
-                        
-                        await stream.WriteAsync(data, 0, len);
-
+                      
+                         stream.Write(data, 0, len);
+                      
                         current += resvalue[1].Value<int>();
                         t++;
                         if (t >= 255)
@@ -548,7 +595,7 @@ namespace FileServ.Client
 
         }
 
-        protected  async void ImageDirectory(string source,string target)
+        protected  void ImageDirectory(string source,string target)
         {
             if(string.IsNullOrEmpty(target))
             {
@@ -566,13 +613,13 @@ namespace FileServ.Client
                 Console.WriteLine($"not find directory {source}");
                 return;
             }
-            
 
-            await Img(new DirectoryInfo(source), target);
-            Console.WriteLine($"img {source} to {target} close");
+            Console.WriteLine($"Start img {source} to {target} ");
+            Img(new DirectoryInfo(source), target);
+           
         }
 
-        protected async Task Img(DirectoryInfo dir,string target)
+        protected  void Img(DirectoryInfo dir,string target)
         {
             var Serv = client.NewAsync().Get<IServer>();
             var Sync = client.Sync.Get<IServer>();
@@ -580,7 +627,7 @@ namespace FileServ.Client
             var dirname = dir.Name;
             target = Path.Combine(target, dirname);
             target = target.Replace("\\", "/");
-            var dirres = Sync.CreateDirectory(target);
+            var dirres = client.Sync.CR(10009,target).First.Value<bool>();
 
             if (dirres)
             {
@@ -589,13 +636,13 @@ namespace FileServ.Client
                 {
                     if (item is DirectoryInfo diritem)
                     {
-                        await Img(diritem, target);
+                        Img(diritem, target);
                     }
                     else if (item is FileInfo fileitem)
                     {
                         var filepath = Path.Combine(target, item.Name);
                         filepath = filepath.Replace("\\", "/");
-                        await UpFile(fileitem.FullName, filepath);
+                        UpFile(fileitem.FullName, filepath);
                     }
                 }
             }

@@ -85,10 +85,18 @@ namespace TestServer
         [TAG(2500)]
         public static async Task<ReturnResult> TestRec(AsyncCalls async,int count)
         {
+            
             count--;
             if (count > 1)
             {
-                var x = (await async.Get<IClientPacker>().TestRec(count))?[0]?.Value<int>();  //返回一个IClientPacker 实例 调用客户端的TestRec函数
+                var res = (await async.Get<IClientPacker>().TestRec(count));
+
+                if(res!=null&&res.IsError)
+                {
+                    throw new Exception(res.ErrorMsg);
+                }
+
+                var x = res?[0]?.Value<int>();  //返回一个IClientPacker 实例 调用客户端的TestRec函数
 
                 if (x!=null&&x.HasValue)
                 {

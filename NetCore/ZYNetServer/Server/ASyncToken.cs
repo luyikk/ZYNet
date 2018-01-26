@@ -63,12 +63,41 @@ namespace ZYNet.CloudSystem.Server
         }
 
 
-        internal void AddAsyncCallBack(AsyncCalls asyncalls, long id)
+        internal async void AddAsyncCallBack(AsyncCalls asyncalls, long id)
         {
             if (CallBackDiy == null)
                 CallBackDiy = new ConcurrentDictionary<long, AsyncCalls>();
 
             CallBackDiy.AddOrUpdate(id, asyncalls, (a, b) => asyncalls);
+
+            if (asyncalls.CurrentServer.CheckTimeOut)
+            {
+
+                await Task.Delay(asyncalls.CurrentServer.ReadOutTime);
+
+                if (CallBackDiy.ContainsKey(id))
+                {
+                    if (CallBackDiy.TryRemove(id, out AsyncCalls value))
+                    {
+                        var timeout = new ReturnResult()
+                        {
+                            Id = id,
+                            ErrorMsg = "Server call client time out",
+                            ErrorId = -101
+                        };
+
+                        try
+                        {
+                            value.SetRet(timeout);
+                        }
+                        catch (Exception er)
+                        {
+                            Log.Error($"CMD:{value.Cmd} Id:{value.Id} ERROR:\r\n{er.Message}");
+                        }
+                    }
+                }
+            }
+
         }
 
 

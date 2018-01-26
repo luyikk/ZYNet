@@ -24,7 +24,8 @@ namespace ZYNet.CloudSystem.Server
         {
             get; set;
         }
-
+        
+        public bool CheckTimeOut { get; set; } = false;
 
 
         public int MaxBuffsize { get; set; }
@@ -74,7 +75,7 @@ namespace ZYNet.CloudSystem.Server
             Server.Connetions = ConnectionFilter;
             Server.MessageInput = MessageInputHandler;
             Server.IsOffsetInput = true;
-            ReadOutTime = 2000;
+            ReadOutTime = 5000;
         }
 
         
@@ -210,6 +211,7 @@ namespace ZYNet.CloudSystem.Server
             socketAsync.AcceptSocket.Close();
 #endif
             socketAsync.AcceptSocket.Dispose();
+
             Log.Trace(message);
         }
 

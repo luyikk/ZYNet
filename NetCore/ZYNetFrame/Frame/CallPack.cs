@@ -25,7 +25,7 @@ namespace ZYNet.CloudSystem.Frame
         public List<byte[]> Arguments { get; set; }
     }
 
-  
+   
     public class ZYNETException:Exception
     {
         public string ErrorMsg { get; set; }
@@ -82,7 +82,10 @@ namespace ZYNet.CloudSystem.Frame
         {            
             get
             {
-               
+
+                if (Arguments == null)
+                    return null;
+
                 if (index < Arguments.Count)
                 {
                     return new ResultValue(Arguments[index]);

@@ -21,7 +21,7 @@ namespace ZYNETClientForNetCore
             PackHander tmp = new PackHander();
             client.Install(tmp);
             client.Disconnect += Client_Disconnect;
-
+            client.CheckAsyncTimeOut = true;
             if (client.Connect("127.0.0.1", 2285))
             {
                 ZYSync sync = client.Sync;

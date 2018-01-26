@@ -5,6 +5,7 @@ using ZYNet.CloudSystem.Frame;
 using ZYSocket.share;
 using System.IO;
 using ZYNet.CloudSystem.Loggine;
+using System.Threading.Tasks;
 
 namespace ZYNet.CloudSystem.Client
 {
@@ -18,7 +19,8 @@ namespace ZYNet.CloudSystem.Client
         public string  Host { get; private set; }
 
         public int Port { get; private set; }
-        
+
+        public bool CheckAsyncTimeOut { get; set; }
         public int MillisecondsTimeout { get; private set; }
         public ConcurrentDictionary<long,ReturnEventWaitHandle> SyncWaitDic { get;  set; }
         public ConcurrentDictionary<long, AsyncCalls> AsyncCallDiy { get; private set; }
@@ -116,14 +118,42 @@ namespace ZYNet.CloudSystem.Client
         }
 
 
-        internal void AddAsyncRunBack(AsyncRun asyncalls, long id)
+        internal async void AddAsyncRunBack(AsyncRun asyncalls, long id)
         {
             AsyncRunDiy.AddOrUpdate(id, asyncalls, (a, b) => asyncalls);
+
+            if (CheckAsyncTimeOut)
+            {
+                await Task.Delay(MillisecondsTimeout);
+
+                if (AsyncRunDiy.ContainsKey(id))
+                {
+                    if (AsyncRunDiy.TryRemove(id, out AsyncRun value))
+                    {
+                        var timeout = new ReturnResult()
+                        {
+                            Id = id,
+                            ErrorMsg = "run time out",
+                            ErrorId = -101
+                        };
+
+                        try
+                        {
+                            value.SetRet(timeout);
+                        }
+                        catch (Exception er)
+                        {
+                            Log.Error($"Id:{value.Id} ERROR:\r\n{er.Message}");
+                        }
+                    }
+                }
+            }
         }
 
         internal void AddAsyncCallBack(AsyncCalls asyncalls,long id)
         {
             CallBackDiy.AddOrUpdate(id, asyncalls, (a, b) => asyncalls);
+            
         }
 
 
@@ -277,10 +307,7 @@ namespace ZYNet.CloudSystem.Client
                     wait.Set(result);
                 }
             }           
-            else
-            {
-                throw new InvalidOperationException("not call the Id");
-            }
+           
         }
 
 

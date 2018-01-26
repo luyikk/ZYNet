@@ -35,10 +35,10 @@ namespace ZYNet.CloudSystem.Frame
             {
                 d(state);
             }
-            else if (fiber.IsOver)
-            {
-                throw new InvalidOperationException("fiber is already completed but still posting continuations.");
-            }
+            //else if (fiber.IsOver)
+            //{
+            //   // throw new InvalidOperationException("fiber is already completed but still posting continuations.");
+            //}
             else
             {
 

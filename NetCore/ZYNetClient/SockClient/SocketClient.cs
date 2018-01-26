@@ -9,6 +9,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Collections.Generic;
 using ZYNet.CloudSystem.Client;
+using System.Threading;
 
 namespace ZYNet.CloudSystem.SocketClient
 {
@@ -53,6 +54,7 @@ namespace ZYNet.CloudSystem.SocketClient
         }
 
         private bool IsConn;
+
 
         public SocketAsyncEventArgs AsynEvent { get; private set; }
 
@@ -193,7 +195,7 @@ namespace ZYNet.CloudSystem.SocketClient
                         byte[] data = new byte[e.BytesTransferred];
                         Buffer.BlockCopy(e.Buffer, 0, data, 0, data.Length);
 
-
+                      
                         //byte[] dataLast = new byte[4098];
                         //e.SetBuffer(dataLast, 0, dataLast.Length);
 
@@ -201,8 +203,10 @@ namespace ZYNet.CloudSystem.SocketClient
 
                         try
                         {
+
                             if (!_sock.ReceiveAsync(e))
                                 ECompleted(e);
+
                         }
                         catch (ObjectDisposedException)
                         {

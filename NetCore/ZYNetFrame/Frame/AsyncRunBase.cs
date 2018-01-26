@@ -28,7 +28,6 @@ namespace ZYNet.CloudSystem.Frame
 
                 Action _Continuation = awaiter.Continuation;
                 awaiter = null;
-
                 _Continuation?.Invoke();
             }
         }
