@@ -20,6 +20,9 @@ namespace TestServer
         [TAG(3001)]
         void Message(string msg);
 
+        [TAG(3002)]
+        int Add(int a);
+
         [TAG(2500)]
         ResultAwatier TestRec(int count);
     }

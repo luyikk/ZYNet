@@ -41,7 +41,7 @@ namespace FileServ.Client
         ResultAwatier GetFileData(int fileId, long postion);
 
         [TAG(10009)]
-        bool CreateDirectory(string path);
+        ResultAwatier CreateDirectory(string path);
 
         [TAG(10010)]
         ResultAwatier MvFile(string source, string target);

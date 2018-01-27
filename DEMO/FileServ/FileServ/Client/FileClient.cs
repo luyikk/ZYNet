@@ -16,7 +16,7 @@ namespace FileServ.Client
 
         public FileClient()
         {
-            client = new CloudClient(new SocketClient(), 1000000, 1024 * 1024); //最大数据包能够接收 1M
+            client = new CloudClient(new SocketClient(), 1000, 1024 * 1024); //最大数据包能够接收 1M
             ClientPackHander tmp = new ClientPackHander();
             client.Install(tmp);
             client.Disconnect += Client_Disconnect;
@@ -595,7 +595,7 @@ namespace FileServ.Client
 
         }
 
-        protected  void ImageDirectory(string source,string target)
+        protected  async void ImageDirectory(string source,string target)
         {
             if(string.IsNullOrEmpty(target))
             {
@@ -615,11 +615,12 @@ namespace FileServ.Client
             }
 
             Console.WriteLine($"Start img {source} to {target} ");
-            Img(new DirectoryInfo(source), target);
-           
+            await Img(new DirectoryInfo(source), target);
+
+            Console.WriteLine($"img {source} to {target}  Close");
         }
 
-        protected  void Img(DirectoryInfo dir,string target)
+        protected async  Task Img(DirectoryInfo dir,string target)
         {
             var Serv = client.NewAsync().Get<IServer>();
             var Sync = client.Sync.Get<IServer>();
@@ -627,27 +628,159 @@ namespace FileServ.Client
             var dirname = dir.Name;
             target = Path.Combine(target, dirname);
             target = target.Replace("\\", "/");
-            var dirres = client.Sync.CR(10009,target).First.Value<bool>();
+            var dirres = (await client.NewAsync().Get<IServer>().CreateDirectory(target))?.First?.Value<bool>();
 
-            if (dirres)
+            if (dirres.HasValue&&dirres.Value)
             {
 
                 foreach (var item in dir.GetFileSystemInfos())
                 {
                     if (item is DirectoryInfo diritem)
                     {
-                        Img(diritem, target);
+                        await Img(diritem, target);
                     }
                     else if (item is FileInfo fileitem)
                     {
                         var filepath = Path.Combine(target, item.Name);
                         filepath = filepath.Replace("\\", "/");
-                        UpFile(fileitem.FullName, filepath);
+                        await AsynUpFile(fileitem.FullName, filepath);
                     }
                 }
             }
           
         }
+
+        protected async Task AsynUpFile(string source, string target)
+        {
+            var sourceFileName = Path.GetFileName(source);
+            var targetFileName = Path.GetFileName(target);
+
+            if (string.IsNullOrEmpty(sourceFileName))
+            {
+                Console.WriteLine($"1 Not Find {sourceFileName}");
+                return;
+            }
+            if (string.IsNullOrEmpty(targetFileName))
+            {
+                if (string.IsNullOrEmpty(target))
+                {
+                    if (string.IsNullOrEmpty(Current))
+                    {
+                        Console.WriteLine("please use CD set current path");
+                        return;
+                    }
+                    else
+                        target = Path.Combine(Current, sourceFileName).Replace("\\", "/");
+                }
+                else
+                {
+                    target = Path.Combine(target, sourceFileName).Replace("\\", "/");
+                }
+            }
+            if (!File.Exists(source))
+            {
+                Console.WriteLine($"2 not find {sourceFileName}");
+                return;
+            }
+
+            var Async = client.NewAsync();
+            var Sync = client.Sync.Get<IServer>();
+
+            var Serv = Async.Get<IServer>();
+
+            var res = await Serv.CreateFile(target);
+
+            if (res is null || res.IsError)
+            {
+                Console.WriteLine($"create {target} Error:{res.ErrorMsg}");
+                return;
+            }
+
+            if (res is null || !res.IsHaveValue)
+            {
+                Console.WriteLine($"create {target} faill");
+                return;
+            }
+            int fileId = res.As<int>(0);
+
+            using (FileStream stream = File.OpenRead(source))
+            {
+                int count;
+                int check = 10;
+
+                double lengt = stream.Length;
+                double current = 0;
+                byte t = 0;
+
+                do
+                {
+                    byte[] data = new byte[8192];
+                    long offset = stream.Position;
+                    count = stream.Read(data, 0, data.Length);
+
+                    if (count == 0)
+                        break;
+
+
+                    Re:
+                    try
+                    {
+                        var returnResult = (await Serv.WriteFile(fileId, data, count, offset, CRC32.GetCRC32(data)));
+
+                        if (returnResult.IsError && returnResult.ErrorId == -101)
+                        {
+                            Console.WriteLine("write time out  retry write");
+                            check--;
+
+                            if (check <= 0)
+                            {
+                                Console.WriteLine($"send file time Out {source}");
+                                break;
+                            }
+                            await Task.Delay(2000);
+                            goto Re;
+                        }
+                        else if (returnResult.IsError)
+                        {
+                            throw new Exception(returnResult.ErrorMsg);
+                        }
+                        else if (returnResult.IsHaveValue && returnResult.First.Value<bool>() == false)
+                        {
+
+                            while (returnResult.IsHaveValue && !returnResult.First.Value<bool>())
+                            {
+                                returnResult = await Serv.WriteFile(fileId, data, count, offset, CRC32.GetCRC32(data));
+                                await Task.Delay(2000);
+                            }
+                        }
+
+                    }
+                    catch (Exception er)
+                    {
+                        Console.WriteLine($"send file Error {source} : {er.ToString()}");
+                        break;
+                    }
+
+                    check = 10;
+                    current += count;
+
+                    t++;
+                    if (t >= 255)
+                    {
+                        Console.CursorLeft = 0;
+                        Console.Write($"{source} Send: {current} { Math.Round(current / lengt * 100.0, 0)}%");
+                    }
+
+                } while (count > 0);
+                Console.CursorLeft = 0;
+                Console.Write($"{source} Send: {current} 100%");
+
+                Sync.CloseFile(fileId);
+
+                Console.WriteLine($"\r\n{source} push close");
+            }
+        }
+
 
         protected async void MvFile(string source, string target)
         {

@@ -17,12 +17,24 @@ namespace ZYNet.CloudSystem.Server
 
         public ZYSocketSuper Server { get; private set; }
 
+
+        int readOutTime;
         /// <summary>
         /// 设置超时时间
         /// </summary>
         public int ReadOutTime
         {
-            get; set;
+            get
+            {
+                return readOutTime;
+            }
+            set
+            {
+                if (value > 30000)
+                    readOutTime = 30000;
+                else
+                    readOutTime = value;
+            }
         }
         
         public bool CheckTimeOut { get; set; } = false;

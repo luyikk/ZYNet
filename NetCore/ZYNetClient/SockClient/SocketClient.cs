@@ -54,7 +54,8 @@ namespace ZYNet.CloudSystem.SocketClient
         }
 
         private bool IsConn;
-
+        private int isR = 0;
+       
 
         public SocketAsyncEventArgs AsynEvent { get; private set; }
 
@@ -134,6 +135,7 @@ namespace ZYNet.CloudSystem.SocketClient
             };
 
             e.Completed += new EventHandler<SocketAsyncEventArgs>(Completed);
+            AsynEvent = e;
             if (!_sock.ConnectAsync(e))
             {
                 ECompleted(e);
@@ -161,7 +163,7 @@ namespace ZYNet.CloudSystem.SocketClient
 
                     if (e.SocketError == SocketError.Success)
                     {
-
+                        Interlocked.Exchange(ref isR, 0);
                         IsConn = true;
                         wait.Set();
 
@@ -192,6 +194,8 @@ namespace ZYNet.CloudSystem.SocketClient
                 case SocketAsyncOperation.Receive:
                     if (e.SocketError == SocketError.Success && e.BytesTransferred > 0)
                     {
+                        Interlocked.Exchange(ref isR, 0);
+
                         byte[] data = new byte[e.BytesTransferred];
                         Buffer.BlockCopy(e.Buffer, 0, data, 0, data.Length);
 

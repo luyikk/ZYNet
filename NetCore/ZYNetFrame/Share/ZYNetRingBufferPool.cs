@@ -11,7 +11,7 @@ namespace ZYSocket.share
     public class ZYNetRingBufferPool
     {
 
-        
+
 
         protected object lockobj = new object();
         /// <summary>
@@ -59,7 +59,7 @@ namespace ZYSocket.share
         public int Length { get { return _length; } protected set { _length = value; } }
 
 
-        public ZYNetRingBufferPool():this(1024*1024,4,false)
+        public ZYNetRingBufferPool() : this(1024 * 1024, 4, false)
         {
 
         }
@@ -68,7 +68,7 @@ namespace ZYSocket.share
         /// 初始化
         /// </summary>
         /// <param name="MaxSize">内存环大小</param>
-        public ZYNetRingBufferPool(int MaxSize):this(MaxSize,4,false)
+        public ZYNetRingBufferPool(int MaxSize) : this(MaxSize, 4, false)
         {
 
         }
@@ -88,7 +88,7 @@ namespace ZYSocket.share
         /// </summary>
         /// <param name="MaxSize">内存环大小</param>
         /// <param name="hiB">数据包长度占用位数</param>
-        public ZYNetRingBufferPool(int MaxSize, byte hiB):this(MaxSize,hiB,false)
+        public ZYNetRingBufferPool(int MaxSize, byte hiB) : this(MaxSize, hiB, false)
         {
 
         }
@@ -108,14 +108,14 @@ namespace ZYSocket.share
         }
 
 
-         /// <summary>
-         /// 写入数据
-         /// </summary>
-         /// <param name="data">数据</param>
-         /// <param name="offset">偏移</param>
-         /// <param name="count">数量</param>
-         /// <returns></returns>
-        public bool Write(byte[] data,int offset,int count)
+        /// <summary>
+        /// 写入数据
+        /// </summary>
+        /// <param name="data">数据</param>
+        /// <param name="offset">偏移</param>
+        /// <param name="count">数量</param>
+        /// <returns></returns>
+        public bool Write(byte[] data, int offset, int count)
         {
 
             System.Threading.Monitor.Enter(lockobj);
@@ -131,7 +131,7 @@ namespace ZYSocket.share
                 {
                     throw new ArgumentOutOfRangeException("count", "写入数量不能小于0");
                 }
-            
+
 
                 int lengt = count;
 
@@ -182,7 +182,7 @@ namespace ZYSocket.share
                 if (have > 0)
                 {
                     savepos = (_current + Length) % MAXSIZE;
-                    Buffer.BlockCopy(data, offset+(lengt - have), Data, savepos, have);
+                    Buffer.BlockCopy(data, offset + (lengt - have), Data, savepos, have);
                     Length += have;
                 }
 
@@ -221,7 +221,7 @@ namespace ZYSocket.share
 
                 if (Length + data.Length > MAXSIZE)
                 {
-                     return false;
+                    return false;
                 }
 
 
@@ -268,76 +268,70 @@ namespace ZYSocket.share
 
         public byte[] Read(int lengt)
         {
-            System.Threading.Monitor.Enter(lockobj);
-            try
-            {
 
-                if (lengt > MAXSIZE)
-                {
+
+            if (lengt > MAXSIZE)
+            {
 #if DEBUG
-                    throw new Exception("读取的数据包长度数超出环总长度");
+                throw new Exception("读取的数据包长度数超出环总长度");
 #else
                   return null;
 #endif
 
-                }
+            }
 
 
-                if (lengt > Length)
+            if (lengt > Length)
+            {
+                return null;
+            }
+
+            if (lengt < 0)
+            {
+                return null;
+            }
+
+
+            byte[] data = new byte[lengt];
+
+            // 复制出一个消息
+            if (_current + lengt > MAXSIZE)
+            {
+                // 如果一个消息有回卷（被拆成两份在环形缓冲区的头尾）
+                // 先拷贝环形缓冲区末尾的数据
+                int copylen = MAXSIZE - _current;
+
+                Buffer.BlockCopy(Data, _current, data, 0, copylen);
+
+                // 再拷贝环形缓冲区头部的剩余部分              
+                Buffer.BlockCopy(Data, 0, data, copylen, lengt - copylen);
+
+            }
+            else
+            {
+                // 消息没有回卷，可以一次拷贝出去
+
+                if (lengt < 8) //小于8 使用whlie COPY
                 {
-                    return null;
-                }
-
-                if (lengt < 0)
-                {
-                    return null;
-                }
-
-
-                byte[] data = new byte[lengt];
-
-                // 复制出一个消息
-                if (_current + lengt > MAXSIZE)
-                {
-                    // 如果一个消息有回卷（被拆成两份在环形缓冲区的头尾）
-                    // 先拷贝环形缓冲区末尾的数据
-                    int copylen = MAXSIZE - _current;
-
-                    Buffer.BlockCopy(Data, _current, data, 0, copylen);
-
-                    // 再拷贝环形缓冲区头部的剩余部分              
-                    Buffer.BlockCopy(Data, 0, data, copylen, lengt - copylen);
-
+                    int num2 = lengt;
+                    while (--num2 >= 0)
+                    {
+                        data[num2] = this.Data[this._current + num2];
+                    }
                 }
                 else
                 {
-                    // 消息没有回卷，可以一次拷贝出去
-
-                    if (lengt < 8) //小于8 使用whlie COPY
-                    {
-                        int num2 = lengt;
-                        while (--num2 >= 0)
-                        {
-                            data[num2] = this.Data[this._current + num2];
-                        }
-                    }
-                    else
-                    {
-                        Buffer.BlockCopy(Data, _current, data, 0, lengt);
-                    }
+                    Buffer.BlockCopy(Data, _current, data, 0, lengt);
                 }
-
-                // 重新计算环形缓冲区头部位置
-                Current = (_current + lengt) % MAXSIZE;
-                Length -= lengt;
-
-                return data;
             }
-            finally
-            {
-                System.Threading.Monitor.Exit(lockobj);
-            }
-            
+
+            // 重新计算环形缓冲区头部位置
+            Current = (_current + lengt) % MAXSIZE;
+            Length -= lengt;
+
+            return data;
+
+
         }
 
         /// <summary>
@@ -411,8 +405,8 @@ namespace ZYSocket.share
             {
                 System.Threading.Monitor.Exit(lockobj);
             }
-            
-         
+
+
         }
 
         /// <summary>
@@ -421,11 +415,14 @@ namespace ZYSocket.share
         /// <returns></returns>
         protected virtual int GetHeadLengt()
         {
+
+
+
             if (Length < Hib)
-            {               
+            {
                 return 0;
             }
-                      
+
 
             int res = 0;
 
@@ -442,13 +439,14 @@ namespace ZYSocket.share
             {
                 for (int i = 0; i < Hib; i++)
                 {
-                    int temp = ((int)Data[(_current+i)%MAXSIZE]) & 0xff;
+                    int temp = ((int)Data[(_current + i) % MAXSIZE]) & 0xff;
                     temp <<= i * 8;
                     res = temp + res;
                 }
             }
 
             return res;
+
         }
 
 
@@ -470,38 +468,49 @@ namespace ZYSocket.share
 
         public virtual bool Read(out byte[] data)
         {
-            int count = GetHeadLengt();
+            System.Threading.Monitor.Enter(lockobj);
 
-            if (count == 0)
+            try
             {
-                data = null;
-                return false;
-            }
+                int count = GetHeadLengt();
 
-            if (count > MAXSIZE)
+                if (count == 0)
+                {
+                    data = null;
+                    return false;
+                }
+
+                if (count > MAXSIZE)
+                {
+                    Flush();
+                    data = null;
+                    return false;
+                }
+
+                if (count > _length)
+                {
+                    data = null;
+                    return false;
+                }
+
+                if (count < 0)
+                {
+                    this.Flush();
+                    data = null;
+                    return false;
+                }
+
+
+                data = Read(count);
+
+
+
+                return true;
+            }
+            finally
             {
-                Flush();
-                data = null;
-                return false;
+                System.Threading.Monitor.Exit(lockobj);
             }
-
-            if (count > _length)
-            {
-                data = null;
-                return false;
-            }
-
-            if (count < 0)
-            {
-                this.Flush();
-                data = null;
-                return false;
-            }
-
-
-            data= Read(count);
-
-            return true;
         }
     }
 }

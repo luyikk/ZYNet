@@ -165,7 +165,7 @@ namespace FileServ.Server
         }
 
         [TAG(10004)]
-        public static Task<ReturnResult> WriteFile(AsyncCalls async, int fileID, byte[] data, int count,long offset, uint crc)
+        public static async Task<ReturnResult> WriteFile(AsyncCalls async, int fileID, byte[] data, int count,long offset, uint crc)
         {
 
 
@@ -175,20 +175,21 @@ namespace FileServ.Server
                 var user = async.Token<UserInfo>();
 
                 if (CRC32.GetCRC32(data) != crc)
-                    return Task.FromResult< ReturnResult >(async.RET(false));
+                    return async.RET(false);
                 if (user.FilePushDictionary.ContainsKey(fileID))
                 {
                     var Stream = user.FilePushDictionary[fileID];
                     Stream.Position = offset;
-                     Stream.Write(data, 0, count);
 
-                    return Task.FromResult<ReturnResult>(async.RET(true));
+                    await Stream.WriteAsync(data, 0, count);
+
+                    return async.RET(true);
                 }
 
-                return Task.FromResult<ReturnResult>(async.RET(false));
+                return async.RET(false);
             }
 
-            return Task.FromResult<ReturnResult>(async.RET(false));
+            return async.RET(false);
         }
 
         [TAG(10005)]
@@ -255,7 +256,7 @@ namespace FileServ.Server
 
 
         [TAG(10008)]
-        public static  Task<ReturnResult> GetFileData(AsyncCalls async, int fileId, long postion)
+        public static async  Task<ReturnResult> GetFileData(AsyncCalls async, int fileId, long postion)
         {
             if (async.UserToken is UserInfo user)
             {
@@ -267,13 +268,13 @@ namespace FileServ.Server
 
                     byte[] data = new byte[4096];
 
-                    int count = stream.Read(data, 0, data.Length);
+                    int count = await stream.ReadAsync(data, 0, data.Length);
 
-                    return Task.FromResult<ReturnResult>(async.RET(data, count, CRC32.GetCRC32(data)));
+                    return async.RET(data, count, CRC32.GetCRC32(data));
                 }
             }
 
-            return   Task.FromResult<ReturnResult>(async.RET());
+            return  async.RET();
         }
         [TAG(10009)]
         public static bool CreateDirectory(ASyncToken async, string path)

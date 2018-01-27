@@ -42,17 +42,21 @@ namespace TestServer
 
         }
 
+      
+
         [TAG(2001)]
-        public static async Task<ReturnResult> StartDown(AsyncCalls async, string url)
+        public static async  Task<ReturnResult> StartDown(AsyncCalls async, string url)
         {
             
+           
+
             var htmldata = (await async.Get<IClientPacker>().DownHtml(url))?[0]?.Value<byte[]>();  //返回一个IClientPacker 实例 调用客户端的DownHtml函数
 
             if (htmldata != null)
             {               
                 string html = Encoding.UTF8.GetString(htmldata);
 
-                return async.RET(html);
+                return  async.RET(html);
 
             }
 
@@ -65,12 +69,16 @@ namespace TestServer
         [TAG(2002)]
         public static Task<ReturnResult> GetTime(AsyncCalls async)
         {
+
             return Task.FromResult<ReturnResult>(async.RET(DateTime.Now));
         }
 
         [TAG(2003)]
         public static void SetPassWord(ASyncToken token,string password)
         {
+
+
+
             UserInfo user= token.UserToken as UserInfo;
 
             if (user != null)
@@ -78,6 +86,7 @@ namespace TestServer
                 user.PassWord = password;
                 Console.WriteLine(user.UserName + " Set PassWord:" + password);
             }
+
 
            
         }

@@ -32,6 +32,13 @@ namespace TestClient
             Console.WriteLine(msg);
         }
 
+        [TAG(3002)]
+        public Task<ReturnResult> Add(AsyncCalls async,int  a)
+        {
+            a++;
+            return Task.FromResult<ReturnResult>(async.RET(a));
+        }
+
 
         [TAG(2500)]
         public  async Task<ReturnResult> TestRec(AsyncCalls async, int count)

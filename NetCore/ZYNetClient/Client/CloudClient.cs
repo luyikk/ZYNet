@@ -71,6 +71,8 @@ namespace ZYNet.CloudSystem.Client
             CallBackDiy = new ConcurrentDictionary<long, AsyncCalls>();
             AsyncRunDiy = new ConcurrentDictionary<long, AsyncRun>();
             Client = client;
+            if (millisecondsTimeout > 30000)
+                millisecondsTimeout = 30000;
             MillisecondsTimeout = millisecondsTimeout;
             RingBuffer = new ZYNetRingBufferPool(maxBufferLength);
             Sync = new ZYSync()

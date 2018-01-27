@@ -132,6 +132,7 @@ namespace ZYNet.CloudSystem.SocketClient
             };
 
             e.Completed += new EventHandler<SocketAsyncEventArgs>(Completed);
+            AsynEvent = e;
             if (!_sock.ConnectAsync(e))
             {
                 ECompleted(e);
