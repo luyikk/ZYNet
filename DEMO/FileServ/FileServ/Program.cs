@@ -9,6 +9,10 @@ namespace FileServ
     {
         static  void Main(string[] args)
         {
+            var driveinfos = DriveInfo.GetDrives();
+
+          
+
             RunCmd();
         }
 

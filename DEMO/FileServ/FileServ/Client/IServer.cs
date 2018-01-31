@@ -51,5 +51,8 @@ namespace FileServ.Client
 
         [TAG(10012)]
         ResultAwatier Rm(string file);
+
+        [TAG(10013)]
+        ResultAwatier GetDriveInfo();
     }
 }

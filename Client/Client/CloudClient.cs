@@ -22,6 +22,7 @@ namespace ZYNet.CloudSystem.Client
 
         public bool CheckAsyncTimeOut { get; set; }
         public int MillisecondsTimeout { get; private set; }
+        public int MaxBufferLength { get; private set; }
         public ConcurrentDictionary<long,ReturnEventWaitHandle> SyncWaitDic { get;  set; }
         public ConcurrentDictionary<long, AsyncCalls> AsyncCallDiy { get; private set; }
 
@@ -72,14 +73,13 @@ namespace ZYNet.CloudSystem.Client
             AsyncRunDiy = new ConcurrentDictionary<long, AsyncRun>();
             Client = client;
             MillisecondsTimeout = millisecondsTimeout;
-            RingBuffer = new ZYNetRingBufferPool(maxBufferLength);
+            MaxBufferLength = maxBufferLength;
             Sync = new ZYSync()
             {
                 SyncSend = SendData,
                 SyncSendAsWait = SendDataAsWait
             };
             Module = new ModuleDictionary();
-         
 
         }
 
@@ -91,6 +91,7 @@ namespace ZYNet.CloudSystem.Client
 
             if (Client.Connect(Host, port))
             {
+                RingBuffer = new ZYNetRingBufferPool(MaxBufferLength); 
                 Client.BinaryInput += Client_BinaryInput;
                 Client.Disconnect += Client_Disconnect;
 
@@ -103,6 +104,32 @@ namespace ZYNet.CloudSystem.Client
             }
             else
                 return false;
+        }
+
+        public async Task<bool> ConnectAsync(string host,int port)
+        {
+            this.Host = host;
+            this.Port = port;
+
+            TaskFactory taskFactory = new TaskFactory();
+            return await taskFactory.StartNew<bool>(() =>
+            {
+                if (Client.Connect(Host, port))
+                {
+                    RingBuffer = new ZYNetRingBufferPool(MaxBufferLength); 
+                    Client.BinaryInput += Client_BinaryInput;
+                    Client.Disconnect += Client_Disconnect;
+
+                    byte[] data = { 0xFF, 0xFE, 0x00, 0x00, 0x00, 0xCE, 0x00, 0xED };
+
+                    SendData(data);
+
+                    return true;
+                }
+                else
+                    return false;
+
+            });
         }
 
 

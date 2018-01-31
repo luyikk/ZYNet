@@ -46,7 +46,10 @@ namespace FileServ.Client
             Console.WriteLine(" mv [source] [target]\t (move file or rename file)\r\n   Example: mv /home/a.txt /home/b.txt \r\n   Example: mv a.txt b.txt (please use CD set current path)");
             Console.WriteLine(" mkdir [path]\t (create directory to path)\r\n   Example: mkdir /home/ccc \r\n   Example: mkdir xxx(please use CD set current path)");
             Console.WriteLine(" rm [file]\t (delete file)\r\n   Example: rm /home/ccc \r\n   Example: rm xxx.txt(please use CD set current path)");
+            Console.WriteLine(" driveinfo \t (show driveinfo)\r\n   Example: driveinfo");
             Console.WriteLine(" close (close current connect)");
+
+            
         }
 
         public  bool  Cmd(string cmdarg)
@@ -171,6 +174,11 @@ namespace FileServ.Client
                         }
                     }
                     break;
+                case "driveinfo":
+                    {
+                        ShowDriveInfo();
+                    }
+                    break;
                 case "close":
                     {
                         client.Close();
@@ -184,7 +192,33 @@ namespace FileServ.Client
 
         }
 
-     
+
+        protected async void ShowDriveInfo()
+        {
+            var res = await client.NewAsync().Get<IServer>().GetDriveInfo();
+            Console.WriteLine("Name\tVolumeLabel\t\tTotalFreeSpace\tTotalSize\tDriveFormat");
+            if (res.IsError)
+            {
+                Console.WriteLine(res.ErrorMsg);
+                return;
+            }
+            if(res.IsHaveValue)
+            {
+                var driveinfos = res.First.Value<List<Drive_Info>>();
+                driveinfos.Sort((a, b) =>
+                {
+                    if (a.TotalSize != b.TotalSize)
+                        return a.TotalSize.CompareTo(b.TotalSize);
+                    else
+                        return a.Name.CompareTo(b.Name);
+                });
+                foreach (var item in driveinfos)
+                {
+                    Console.WriteLine(item);
+                }
+
+            }
+        }
 
         protected void CurrentDir(string path=null)
         {

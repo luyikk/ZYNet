@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace FileServ
@@ -28,12 +29,38 @@ namespace FileServ
         public override string ToString()
         {
             if (fileType == FileType.Dir)
-                return LastWriteTime.ToString() + "\t<DIR>\t\t" + Name;
+                return LastWriteTime + "\t<DIR>\t\t"+ Name;
             else
-                return LastWriteTime.ToString() + "\t\t" + Length + "\t" + Name;
+                return LastWriteTime + "\t\t" + Length + "\t" + Name;
 
 
         }
 
+    }
+
+    public class Drive_Info
+    {
+      
+        public long AvailableFreeSpace { get; set; }
+      
+        public string DriveFormat { get; set; }
+      
+        public DriveType DriveType { get; set; }
+      
+        public bool IsReady { get; set; }
+       
+        public string Name { get; set; }
+       
+        public FileSysInfo RootDirectory { get; set; }
+      
+        public long TotalFreeSpace { get; set; }
+       
+        public long TotalSize { get; set; }       
+        public string VolumeLabel { get; set; }
+
+        public override string ToString()
+        {
+            return Name + "\t" + VolumeLabel + "\t\t" + TotalFreeSpace/ 1024/1024/1024 + "G\t" + TotalSize / 1024/1024/1024 + "G\t" + DriveFormat;
+        }
     }
 }

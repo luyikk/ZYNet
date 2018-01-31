@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.3
+VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZYNetServer", "ZYNetServer\ZYNetServer.csproj", "{AC25FA41-87CC-4D7E-800A-F1275F405B7C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZYNetServer", "ZYNetServer\ZYNetServer.csproj", "{AC25FA41-87CC-4D7E-800A-F1275F405B7C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZYNetFrame", "ZYNetFrame\ZYNetFrame.csproj", "{351DCB3D-A1E1-4E9D-94A9-B9F4BE4E3DB7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZYNetFrame", "ZYNetFrame\ZYNetFrame.csproj", "{351DCB3D-A1E1-4E9D-94A9-B9F4BE4E3DB7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZYNetClient", "ZYNetClient\ZYNetClient.csproj", "{05E815ED-1867-4BEE-A4D1-97B075301E1D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZYNetClient", "ZYNetClient\ZYNetClient.csproj", "{05E815ED-1867-4BEE-A4D1-97B075301E1D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -70,7 +70,7 @@ namespace ZYNETClientForNetCore
 
             System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch();
             stop.Start();
-            var rec = await Server.TestRecAsync(1000);
+            var rec = await Server.TestRecAsync(10000);
             stop.Stop();
 
             Console.WriteLine("Async Rec:{0} time:{1} MS", rec.First.Value<int>(), stop.ElapsedMilliseconds);

@@ -338,5 +338,48 @@ namespace FileServ.Server
 
             return Task.FromResult<ReturnResult>(async.RET(false));
         }
+
+        [TAG(10013)]
+        public static Task<ReturnResult> GetDriveInfo(AsyncCalls async)
+        {
+            var driveinfos = DriveInfo.GetDrives();
+            var drivelist = new List<Drive_Info>();
+            foreach (var item in driveinfos)
+            {
+                Drive_Info tmp = new Drive_Info();
+
+                try
+                {
+                    tmp.AvailableFreeSpace = item.AvailableFreeSpace;
+                }
+                catch { }
+                try { tmp.DriveFormat = item.DriveFormat; } catch { }
+                try { tmp.DriveType = item.DriveType; } catch { }
+                try { tmp.IsReady = item.IsReady; } catch { }
+                try { tmp.Name = item.Name; } catch { }
+                try { tmp.TotalFreeSpace = item.TotalFreeSpace; } catch { }
+                try { tmp.TotalSize = item.TotalSize; } catch { }
+                try { tmp.VolumeLabel = item.VolumeLabel; } catch { }
+                tmp.RootDirectory = item.RootDirectory == null ? null : new FileSysInfo();
+
+                if (tmp.RootDirectory != null)
+                {
+
+                    try { tmp.RootDirectory.CreateTime = item.RootDirectory.CreationTime; } catch { }
+                    tmp.RootDirectory.fileType = FileType.Dir;
+                    tmp.RootDirectory.FullName = item.RootDirectory.FullName;
+                    try { tmp.RootDirectory.LastAccessTime = item.RootDirectory.LastAccessTime; } catch { }
+                    try { tmp.RootDirectory.LastWriteTime = item.RootDirectory.LastWriteTime; } catch { }
+
+                    tmp.RootDirectory.Name = item.RootDirectory.Name;
+
+                }
+
+                drivelist.Add(tmp);
+            }               
+            
+
+            return Task.FromResult<ReturnResult>(async.RET(drivelist));
+        }
     }
 }
