@@ -114,8 +114,8 @@ namespace ZYNet.CloudSystem.Client
             this.Host = host;
             this.Port = port;
 
-            TaskFactory taskFactory = new TaskFactory();
-            return await taskFactory.StartNew<bool>(() =>
+           
+            return await Task.Run(() =>
             {
                 if (Client.Connect(Host, port))
                 {
