@@ -9,9 +9,7 @@ namespace FileServ
     {
         static  void Main(string[] args)
         {
-            var driveinfos = DriveInfo.GetDrives();
-
-          
+                    
 
             RunCmd();
         }
@@ -65,7 +63,7 @@ namespace FileServ
                     FileClient fileClient = new FileClient();
 
                     if (fileClient.Connect(sp[1]))
-                    {
+                    {                        
                         Console.Clear();
                         Console.Clear();
                         Console.WriteLine($"Connect {sp[1]} OK");

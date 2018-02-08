@@ -16,7 +16,7 @@ namespace FileServ.Client
 
         public FileClient()
         {
-            client = new CloudClient(new SocketClient(), 1000, 1024 * 1024); //最大数据包能够接收 1M
+            client = new CloudClient(new SocketClient(), 10000, 1024 * 1024); //最大数据包能够接收 1M
             ClientPackHander tmp = new ClientPackHander();
             client.Install(tmp);
             client.Disconnect += Client_Disconnect;
@@ -45,6 +45,7 @@ namespace FileServ.Client
             Console.WriteLine(" img [source] [target]\t (img dir to path)\r\n   Example: img c:/abc /home/ \r\n   Example: img c:/abc (please use CD set current path)");
             Console.WriteLine(" mv [source] [target]\t (move file or rename file)\r\n   Example: mv /home/a.txt /home/b.txt \r\n   Example: mv a.txt b.txt (please use CD set current path)");
             Console.WriteLine(" mkdir [path]\t (create directory to path)\r\n   Example: mkdir /home/ccc \r\n   Example: mkdir xxx(please use CD set current path)");
+            Console.WriteLine(" copy [source] [target]\t (copy filesystem to path)\r\n   Example: copy a.txt b.txt (please use CD set current path)");
             Console.WriteLine(" rm [file]\t (delete file)\r\n   Example: rm /home/ccc \r\n   Example: rm xxx.txt(please use CD set current path)");
             Console.WriteLine(" driveinfo \t (show driveinfo)\r\n   Example: driveinfo");
             Console.WriteLine(" close (close current connect)");
@@ -159,6 +160,19 @@ namespace FileServ.Client
                             string[] mkdirarg = cmd[1].Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
                             if (mkdirarg.Length == 1)
                                 Mkdir(mkdirarg[0]);
+
+                        }
+                    }
+                    break;
+                case "copy":
+                    {
+                        
+
+                        if (cmd.Length == 2)
+                        {
+                            string[] copyarg = cmd[1].Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+                            if (copyarg.Length == 2)
+                                Copy(copyarg[0], copyarg[1]);
 
                         }
                     }
@@ -820,11 +834,11 @@ namespace FileServ.Client
         {
             var a = Path.GetDirectoryName(source);
             var b= Path.GetDirectoryName(target);
-            if (string.IsNullOrEmpty(a))            
-                source = Path.Combine(Current, source).Replace("\\","/");
+            if (string.IsNullOrEmpty(a))
+                try { source = Path.Combine(Current, source).Replace("\\", "/"); } catch { }
 
             if (string.IsNullOrEmpty(b))
-                target = Path.Combine(Current, target).Replace("\\", "/");
+                try { target = Path.Combine(Current, target).Replace("\\", "/"); } catch { }
 
 
             var Async = client.NewAsync().Get<IServer>();
@@ -852,6 +866,42 @@ namespace FileServ.Client
             Console.WriteLine($"mv {source} {target} Close");
 
 
+        }
+
+        protected async void Copy(string source,string target)
+        {
+            var a = Path.GetDirectoryName(source);
+            var b = Path.GetDirectoryName(target);
+            if (string.IsNullOrEmpty(a))            
+                try { source = Path.Combine(Current, source).Replace("\\", "/"); } catch { }
+
+            if (string.IsNullOrEmpty(b))
+                try { target = Path.Combine(Current, target).Replace("\\", "/"); } catch { }
+               
+
+            var Async = client.NewAsync().Get<IServer>();
+            var res = await Async.Copy(source, target);
+
+
+            if (res is null)
+            {
+                Console.WriteLine($"copy {source} {target} faill");
+                return;
+            }
+
+            if (res.IsError)
+            {
+                Console.WriteLine($"copy {source} {target} Is Error: {res.ErrorMsg}");
+                return;
+            }
+
+            if (!res.IsHaveValue)
+            {
+                Console.WriteLine($"copy {source} {target} faill");
+                return;
+            }
+
+            Console.WriteLine($"copy {source} {target} Close");
         }
 
         private async void Mkdir(string file)

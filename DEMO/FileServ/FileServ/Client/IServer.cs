@@ -54,5 +54,8 @@ namespace FileServ.Client
 
         [TAG(10013)]
         ResultAwatier GetDriveInfo();
+
+        [TAG(10014)]
+        ResultAwatier Copy(string source, string target);
     }
 }

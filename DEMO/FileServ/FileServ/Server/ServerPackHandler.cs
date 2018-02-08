@@ -339,6 +339,8 @@ namespace FileServ.Server
             return Task.FromResult<ReturnResult>(async.RET(false));
         }
 
+       
+
         [TAG(10013)]
         public static Task<ReturnResult> GetDriveInfo(AsyncCalls async)
         {
@@ -380,6 +382,55 @@ namespace FileServ.Server
             
 
             return Task.FromResult<ReturnResult>(async.RET(drivelist));
+        }
+
+        [TAG(10014)]
+        public static Task<ReturnResult> Copy(AsyncCalls async, string source, string target)
+        {
+            if (File.Exists(source))
+            {
+                File.Copy(source, target,true);
+                return Task.FromResult<ReturnResult>(async.RET(true));
+            }
+            else if (Directory.Exists(source))
+            {
+
+                return Task.Run(() =>
+                {
+                    CopyDirectory(async,new DirectoryInfo(source), target);
+                    return Task.FromResult<ReturnResult>(async.RET(true));
+                });
+                                              
+            }
+
+            return Task.FromResult<ReturnResult>(async.RET(false));
+        }
+
+        public static void CopyDirectory(AsyncCalls async, DirectoryInfo dir,string target)
+        {
+            DirectoryInfo targetdir = null;            
+
+            string targetpath = Path.Combine(target, dir.Name).Replace("\\", "/");
+
+            if (!Directory.Exists(path: targetpath))
+                targetdir = Directory.CreateDirectory(path: targetpath);
+            else
+                targetdir = new DirectoryInfo(targetpath);
+
+
+            foreach (var item in dir.GetFileSystemInfos())
+            {
+                if(item is DirectoryInfo p)
+                {
+                    CopyDirectory(async,p, targetdir.FullName);
+                }
+                else if(item is FileInfo x)
+                {
+                    var file = Path.Combine(targetdir.FullName, x.Name).Replace("\\", "/");
+                    x.CopyTo(file,true);
+                    async.CV(20000, file + " Copy OK!");
+                }
+            }
         }
     }
 }
