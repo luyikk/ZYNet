@@ -13,12 +13,12 @@ namespace ZYNet.CloudSystem.Frame
 
         public long Id { get; protected set; }
 
-        public abstract void CV(int cmdTag, params object[] args);
+        public abstract void Action(int cmdTag, params object[] args);
 
-        public abstract ResultAwatier CR(int cmdTag, params object[] args);
+        public abstract ResultAwatier Func(int cmdTag, params object[] args);
        
 
-        public void SetRet(ReturnResult result)
+        public void SetRet(Result result)
         {
             if (awaiter != null)
             {
@@ -32,9 +32,9 @@ namespace ZYNet.CloudSystem.Frame
             }
         }
 
-        public ReturnResult RET(params object[] args)
+        public Result RET(params object[] args)
         {
-            ReturnResult tmp = new ReturnResult(args)
+            Result tmp = new Result(args)
             {
                 Id = this.Id
             };

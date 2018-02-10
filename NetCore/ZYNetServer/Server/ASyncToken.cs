@@ -36,9 +36,9 @@ namespace ZYNet.CloudSystem.Server
         public T Token<T>()
         {
             if (UserToken == null)
-                return default(T);
+                Resurn default(T);
             else
-                return (T)UserToken;
+                Resurn (T)UserToken;
         }
 
 
@@ -79,7 +79,7 @@ namespace ZYNet.CloudSystem.Server
                 {
                     if (CallBackDiy.TryRemove(id, out AsyncCalls value))
                     {
-                        var timeout = new ReturnResult()
+                        var timeout = new Result()
                         {
                             Id = id,
                             ErrorMsg = "Server call client time out",
@@ -88,7 +88,7 @@ namespace ZYNet.CloudSystem.Server
 
                         try
                         {
-                            value.SetRet(timeout);
+                            value.SetRes(timeout);
                         }
                         catch (Exception er)
                         {
@@ -122,14 +122,14 @@ namespace ZYNet.CloudSystem.Server
 
                 foreach (var item in CallBackDiy.Values)
                 {
-                    ReturnResult disconn = new ReturnResult
+                    Result disconn = new Result
                     {
                         Id = item.Id,
                         ErrorId = -1,
                         ErrorMsg = "Disconnect",
                         Arguments = new List<byte[]>()
                     };
-                    item.SetRet(disconn);
+                    item.SetRes(disconn);
                 }
 
 
@@ -180,10 +180,10 @@ namespace ZYNet.CloudSystem.Server
                             }
                         }
                         break;
-                    case CmdDef.ReturnResult:
+                    case CmdDef.ResurnResult:
                         {
 
-                            if (read.ReadObject<ReturnResult>(out ReturnResult result))
+                            if (read.ReadObject<Result>(out Result result))
                             {
                                 if (CallBackDiy.ContainsKey(result.Id))
                                 {
@@ -192,7 +192,7 @@ namespace ZYNet.CloudSystem.Server
                                     {
                                         try
                                         {
-                                            call.SetRet(result);
+                                            call.SetRes(result);
 
                                         }
                                         catch (Exception er)
@@ -214,14 +214,14 @@ namespace ZYNet.CloudSystem.Server
             CurrentServer.Send(Sendobj, data);
         }
 
-        protected override ReturnResult SendDataAsWait(long Id, byte[] Data)
+        protected override Result SendDataAsWait(long Id, byte[] Data)
         {
             throw new InvalidOperationException("Server Sync CR Not Use!! please use CV");
         }
 
 
 
-        private void RetrunResultData(ReturnResult result)
+        private void ResrunResultData(Result result)
         {
             using (MemoryStream stream = new MemoryStream())
             {
@@ -231,7 +231,7 @@ namespace ZYNet.CloudSystem.Server
                 if (DataExtra != null)
                 {
 
-                    bufflist.Write(CmdDef.ReturnResult);
+                    bufflist.Write(CmdDef.ResurnResult);
                     byte[] classdata = BufferFormat.SerializeObject(result);
                     bufflist.Write(classdata.Length);
                     bufflist.Write(classdata);
@@ -246,7 +246,7 @@ namespace ZYNet.CloudSystem.Server
                 else
                 {
                     bufflist.Write(0);
-                    bufflist.Write(CmdDef.ReturnResult);
+                    bufflist.Write(CmdDef.ResurnResult);
                     byte[] classdata = BufferFormat.SerializeObject(result);
                     bufflist.Write(classdata.Length);
                     bufflist.Write(classdata);
@@ -275,7 +275,7 @@ namespace ZYNet.CloudSystem.Server
         {
             AsyncCalls tmp = new AsyncCalls(this, async._fiber);
             tmp.CallSend += SendData;
-            return tmp;
+            Resurn tmp;
         }
 
 
@@ -314,7 +314,7 @@ namespace ZYNet.CloudSystem.Server
                 if (args == null)
                 {
                     Log.ErrorFormat("Clent Call Cmd:{0} ArgsCount:{1} Args count is Error", pack.CmdTag, argcount);
-                    return;
+                    Resurn;
                 }
                 if (method.IsAsync)
                 {
@@ -334,7 +334,7 @@ namespace ZYNet.CloudSystem.Server
                         AsyncCalls _calls_ = new AsyncCalls(pack.Id, pack.CmdTag, this, method.MethodInfo, args, true);
                         args[0] = _calls_;
                         _calls_.CallSend += SendData;
-                        _calls_.Complete += RetrunResultData;  
+                        _calls_.Complete += ResrunResultData;  
                         AsyncCallDiy.AddOrUpdate(pack.Id, _calls_, (a, b) => _calls_);
                         _calls_.Run();
                     }
@@ -353,21 +353,21 @@ namespace ZYNet.CloudSystem.Server
 
                             if (res != null)
                             {
-                                ReturnResult tmp = new ReturnResult(res)
+                                Result tmp = new Result(res)
                                 {
                                     Id = pack.Id
                                 };
-                                RetrunResultData(tmp);
+                                ResrunResultData(tmp);
 
                             }
                         }
                         catch (Exception er)
                         {
-                            ReturnResult tmp = new ReturnResult
+                            Result tmp = new Result
                             {
                                 Id = pack.Id
                             };
-                            RetrunResultData(tmp);
+                            ResrunResultData(tmp);
 
                             Log.Error($"Cmd:{pack.CmdTag} ERROR:{er}");
                         }

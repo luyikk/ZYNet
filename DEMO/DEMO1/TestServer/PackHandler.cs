@@ -58,10 +58,10 @@ namespace TestServer
         /// <param name="url"></param>
         /// <returns></returns>
         [TAG(2001)]
-        public static async Task<ReturnResult> StartDown(AsyncCalls async, string url)
+        public static async Task<Result> StartDown(AsyncCalls async, string url)
         {
 
-            var callback = await async.CR(2001, url); //调用客户端的2001函数 让客户端去下载,PS 老子才不下
+            var callback = await async.Func(2001, url); //调用客户端的2001函数 让客户端去下载,PS 老子才不下
 
             if (callback != null && !callback.IsError) //如果下载成功
             {
@@ -72,7 +72,7 @@ namespace TestServer
 
                     string html = Encoding.UTF8.GetString(htmldata);
 
-                    return async.RET(html); //返回HTML
+                    return async.Res(html); //返回HTML
 
                 }
             }
@@ -81,7 +81,7 @@ namespace TestServer
                 Console.WriteLine(callback.ErrorMsg); //打印错误
             }
 
-            return async.RET();// or async.RET(null); 返回NULL
+            return async.Res();// or async.RET(null); 返回NULL
             
         }
 
@@ -92,9 +92,9 @@ namespace TestServer
         /// <param name="async"></param>
         /// <returns></returns>
         [TAG(2002)]
-        public static Task<ReturnResult> GetTime(AsyncCalls async)
+        public static Task<Result> GetTime(AsyncCalls async)
         {           
-            return Task.FromResult<ReturnResult>(async.RET(DateTime.Now)); //返回当前服务器时间
+            return Task.FromResult<Result>(async.Res(DateTime.Now)); //返回当前服务器时间
         }
 
         /// <summary>
@@ -123,12 +123,12 @@ namespace TestServer
         /// <param name="count"></param>
         /// <returns></returns>
         [TAG(2500)]
-        public static async Task<ReturnResult> TestRec(AsyncCalls async,int count)
+        public static async Task<Result> TestRec(AsyncCalls async,int count)
         {
             count--;
             if (count > 1) //如果大于1 那么调用客户端的 2005 获取结果 返回
             {
-                var x = (await async.CR(2500, count))?[0]?.Value<int>();
+                var x = (await async.Func(2500, count))?[0]?.Value<int>();
 
                 if(x!=null&&x.HasValue)
                 {
@@ -136,7 +136,7 @@ namespace TestServer
                 }
             }
             
-            return async.RET(count);
+            return async.Res(count);
         }
 
         /// <summary>
@@ -146,7 +146,7 @@ namespace TestServer
         /// <param name="c"></param>
         /// <returns></returns>
         [TAG(2600)]
-        public static  Task<ReturnResult> TestError(AsyncCalls async, int c)
+        public static  Task<Result> TestError(AsyncCalls async, int c)
         {
             throw new Exception("EEEE");
         }

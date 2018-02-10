@@ -43,29 +43,29 @@ namespace ZYNETServerForNetCore
         }
 
         [TAG(2001)]
-        public static async Task<ReturnResult> StartDown(AsyncCalls async, string url)
+        public static async Task<Result> StartDown(AsyncCalls async, string url)
         {
 
-            var htmldata = (await async.CR(2001, url))?[0]?.Value<byte[]>();
+            var htmldata = (await async.Func(2001, url))?[0]?.Value<byte[]>();
 
             if (htmldata != null)
             {
                 string html = Encoding.UTF8.GetString(htmldata);
 
-                return async.RET(html);
+                return async.Res(html);
 
             }
 
 
-            return async.RET();// or async.RET(null);
+            return async.Res();// or async.RET(null);
         }
 
 
 
         [TAG(2002)]
-        public static Task<ReturnResult> GetTime(AsyncCalls async)
+        public static Task<Result> GetTime(AsyncCalls async)
         {
-            return Task.FromResult<ReturnResult>(async.RET(DateTime.Now));
+            return Task.FromResult<Result>(async.Res(DateTime.Now));
         }
 
 
@@ -84,12 +84,12 @@ namespace ZYNETServerForNetCore
         }
 
         [TAG(2500)]
-        public static async Task<ReturnResult> TestRec(AsyncCalls async, int count)
+        public static async Task<Result> TestRec(AsyncCalls async, int count)
         {
             count--;
             if (count > 1)
             {
-                var x = (await async.CR(2500, count))?[0]?.Value<int>();
+                var x = (await async.Func(2500, count))?[0]?.Value<int>();
 
                 if (x != null && x.HasValue)
                 {
@@ -97,7 +97,7 @@ namespace ZYNETServerForNetCore
                 }
             }
 
-            return async.RET(count);
+            return async.Res(count);
         }
 
 

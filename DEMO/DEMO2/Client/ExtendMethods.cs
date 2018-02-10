@@ -23,24 +23,24 @@ namespace Client
         /// <param name="sync"></param>
         /// <param name="username"></param>
         /// <returns></returns>
-        public static ReturnResult LogOn(this ZYSync sync,string username)
+        public static Result LogOn(this ZYSync sync,string username)
         {
-            return sync.CR((int)Cmdtype.LogOn, username);
+            return sync.Func((int)Cmdtype.LogOn, username);
         }
 
-        public static FiberThreadAwaiter<ReturnResult> LogOn(this AsyncRun async, string username)
+        public static FiberThreadAwaiter<Result> LogOn(this AsyncRun async, string username)
         {
-            return async.CR((int)Cmdtype.LogOn, username);
+            return async.Func((int)Cmdtype.LogOn, username);
         }
 
         public static void SendMessageToAllUser(this ZYSync sync,string msg)
         {
-            sync.CV((int)Cmdtype.SendAll, msg);
+            sync.Action((int)Cmdtype.SendAll, msg);
         }
         
         public static string SendMsgToUser(this ZYSync sync,string account, string msg)
         {
-            return sync.CR((int)Cmdtype.SendTo,account,msg)?.First?.Value<string>();
+            return sync.Func((int)Cmdtype.SendTo,account,msg)?.First?.Value<string>();
         }
 
     }

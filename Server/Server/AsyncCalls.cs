@@ -16,7 +16,7 @@ namespace ZYNet.CloudSystem.Server
     {
         protected static readonly ILog Log = LogFactory.ForContext<AsyncCalls>();
 
-        public ReturnResult Result { get; private set; }
+        public Result Result { get; private set; }
 
         public ASyncToken AsyncUser { get; private set; }
 
@@ -24,7 +24,7 @@ namespace ZYNet.CloudSystem.Server
         public bool IsError { get; private set; }
         public Exception Error { get; private set; }
 
-        internal event Action<ReturnResult> Complete;
+        internal event Action<Result> Complete;
 
         internal event Action<byte[]> CallSend;
 
@@ -91,7 +91,7 @@ namespace ZYNet.CloudSystem.Server
                 {
                     if (IsHaveReturn)
                     {
-                        Result = await (Task<ReturnResult>)Method.Invoke(null, Args);
+                        Result = await (Task<Result>)Method.Invoke(null, Args);
 
                         Complete?.Invoke(Result);
                     }
@@ -108,7 +108,7 @@ namespace ZYNet.CloudSystem.Server
 
                     if (IsHaveReturn)
                     {
-                        var nullx = new ReturnResult()
+                        var nullx = new Result()
                         {
                             Id = this.Id,
                             ErrorMsg = er.ToString(),
@@ -169,12 +169,12 @@ namespace ZYNet.CloudSystem.Server
                     }
                     else
                     {
-                        return CR(cmd, args);
+                        return Func(cmd, args);
                     }
                 }
                 else
                 {
-                    CV(cmd, args);
+                    Action(cmd, args);
 
                     return null;
                 }
@@ -191,9 +191,9 @@ namespace ZYNet.CloudSystem.Server
         /// </summary>
         /// <param name="cmdTag"></param>
         /// <param name="args"></param>
-        public void CV(int cmdTag, params object[] args)
+        public void Action(int cmdTag, params object[] args)
         {
-            AsyncUser.CV(cmdTag, args);
+            AsyncUser.Action(cmdTag, args);
         }
 
         /// <summary>
@@ -202,7 +202,7 @@ namespace ZYNet.CloudSystem.Server
         /// <param name="cmdTag"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        public ResultAwatier CR(int cmdTag, params object[] args)
+        public ResultAwatier Func(int cmdTag, params object[] args)
         {
             CallPack buffer = new CallPack()
             {
@@ -270,14 +270,14 @@ namespace ZYNet.CloudSystem.Server
         }
 
 
-        public void SetRet(ReturnResult result)
+        public void SetRes(Result result)
         {
             _fiber.Set(result);
         }
 
-        public ReturnResult RET(params object[] args)
+        public Result Res(params object[] args)
         {
-            ReturnResult tmp = new ReturnResult(args)
+            Result tmp = new Result(args)
             {
                 Id = this.Id
             };

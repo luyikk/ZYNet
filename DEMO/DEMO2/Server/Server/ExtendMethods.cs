@@ -22,32 +22,32 @@ namespace Server
     {
         public static async Task<string> GetNick(this AsyncCalls async)
         {
-            return (await async.CR((int)Cmdtype.GetNick))?.First?.Value<string>();
+            return (await async.Func((int)Cmdtype.GetNick))?.First?.Value<string>();
         }
 
         public static void SetUserList(this AsyncCalls async,List<UserInfo> userlist)
         {
-            async.CV((int)Cmdtype.SetAllUser, userlist);
+            async.Action((int)Cmdtype.SetAllUser, userlist);
         }
 
         public static void AddUser(this ASyncToken token, UserInfo user)
         {
-            token.CV((int)Cmdtype.AddUser, user);
+            token.Action((int)Cmdtype.AddUser, user);
         }
 
         public static void RemoveUser(this ASyncToken token, UserInfo user)
         {
-            token.CV((int)Cmdtype.RemoveUser, user.UserName);
+            token.Action((int)Cmdtype.RemoveUser, user.UserName);
         }
 
         public static void MessageTo(this ASyncToken token, string username,string msg)
         {
-            token.CV((int)Cmdtype.MessageTo, username, msg);
+            token.Action((int)Cmdtype.MessageTo, username, msg);
         }
 
         public static async Task<string> MsgToUser(this AsyncCalls async,string username,string msg)
         {
-            return (await async.CR((int)Cmdtype.MsgToUser, username, msg))?.First?.Value<string>();
+            return (await async.Func((int)Cmdtype.MsgToUser, username, msg))?.First?.Value<string>();
         }
     }
 }

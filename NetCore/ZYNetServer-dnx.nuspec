@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>ZYNetServer-dnx</id>
-        <version>1.1.4.3</version>
+        <version>1.1.4.7</version>
         <title>ZYNetServer dnx</title>
         <authors>luyikk</authors>
         <owners>luyikk</owners>
@@ -20,6 +20,7 @@ Fiber Socket</summary>
             <dependency id="ZYSOCKET-protobuf-net" version="4.3.2" />
             <dependency id="Microsoft.Extensions.Logging" version="1.1.2" />
             <dependency id="Microsoft.Extensions.Logging.Console" version="1.1.2" />
+            <dependency id="Microsoft.Extensions.Logging.Debug" version="1.1.2" />
         </dependencies>
     </metadata>
     <files>

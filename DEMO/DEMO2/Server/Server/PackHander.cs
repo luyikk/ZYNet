@@ -15,7 +15,7 @@ namespace Server
 
 
         [TAG(1000)]
-        public static async Task<ReturnResult> IsLogOn(AsyncCalls async,string username)
+        public static async Task<Result> IsLogOn(AsyncCalls async,string username)
         {
             if (UserList.Find(p => p.UserName == username) == null)
             {
@@ -42,10 +42,10 @@ namespace Server
 
                 UserList.Add(user);
 
-                return async.RET(true);
+                return async.Res(true);
             }
             else
-                return async.RET(false,"username not use");
+                return async.Res(false,"username not use");
         }
 
 
@@ -64,7 +64,7 @@ namespace Server
         }
 
         [TAG(2002)]
-        public static async Task<ReturnResult> ToMessage(AsyncCalls async,string account,string msg)
+        public static async Task<Result> ToMessage(AsyncCalls async,string account,string msg)
         {
             var userinfo = async.Token<UserInfo>();
 
@@ -78,12 +78,12 @@ namespace Server
 
                     if(ret!=null)
                     {
-                        return async.RET(ret);
+                        return async.Res(ret);
                     }
                 }
             }
 
-            return async.RET();           
+            return async.Res();           
         }
 
 

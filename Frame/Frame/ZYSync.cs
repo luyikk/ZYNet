@@ -12,7 +12,7 @@ namespace ZYNet.CloudSystem.Frame
     {
         public Action<byte[]> SyncSend { get; set; }
 
-        public Func<long, byte[], ReturnResult> SyncSendAsWait { get; set; }
+        public Func<long, byte[], Result> SyncSendAsWait { get; set; }
 
     
         public ZYSync()
@@ -49,15 +49,15 @@ namespace ZYNet.CloudSystem.Frame
 
                     if (!Common.IsTypeOfBaseTypeIs(method.ReturnType, typeof(FiberThreadAwaiterBase)))
                     {
-                        if (method.ReturnType == typeof(ReturnResult))
+                        if (method.ReturnType == typeof(Result))
                         {
-                            return CR(cmd, args);
+                            return Func(cmd, args);
                         }
                         else
                         {
                             try
                             {
-                                return CR(cmd, args)?.First?.Value(method.ReturnType);
+                                return Func(cmd, args)?.First?.Value(method.ReturnType);
                             }
                             catch (Exception er)
                             {
@@ -72,7 +72,7 @@ namespace ZYNet.CloudSystem.Frame
                 }
                 else
                 {
-                    CV(cmd, args);
+                    Action(cmd, args);
 
                     return null;
                 }               
@@ -100,7 +100,7 @@ namespace ZYNet.CloudSystem.Frame
       
 
         
-        protected override ReturnResult SendDataAsWait(long Id, byte[] Data)
+        protected override Result SendDataAsWait(long Id, byte[] Data)
         {
             if (SyncSend != null)
             {

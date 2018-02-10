@@ -43,23 +43,23 @@ namespace IOSTest
 
                 var ServerPacker = client.Sync;
 
-                var isSuccess = ServerPacker.CR(1000, "123123", "3212312")?.First?.Value<bool>();
+                var isSuccess = ServerPacker.Func(1000, "123123", "3212312")?.First?.Value<bool>();
 
-                var html = ServerPacker.CR(2001, "http://www.baidu.com").First?.Value<string>();
+                var html = ServerPacker.Func(2001, "http://www.baidu.com").First?.Value<string>();
 
                 AddText("BaiduHtml:" + html.Length);
 
-                var time = ServerPacker.CR(2002)?.First?.Value<DateTime>();
+                var time = ServerPacker.Func(2002)?.First?.Value<DateTime>();
 
                 AddText("ServerTime:" + time);
 
-                ServerPacker.CV(2003, "3123123");
+                ServerPacker.Action(2003, "3123123");
 
 
              
                 System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch();
                 stop.Start();
-                int? c = ServerPacker.CR(2500, 1000)?.First?.Value<int>();
+                int? c = ServerPacker.Func(2500, 1000)?.First?.Value<int>();
                 stop.Stop();
                 AddText(string.Format("Rec:{0} time:{1} MS", c, stop.ElapsedMilliseconds));
 

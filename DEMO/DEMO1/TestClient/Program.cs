@@ -26,32 +26,32 @@ namespace TestClient
             {
                 ZYSync sync = client.Sync; //返回同步回调
 
-                var res= sync.CR(1000, "AAA", "BBB")?[0]?.Value<bool>(); //调用服务器函数1000，穿入AAA BBB 返回一个布尔值
+                var res= sync.Func(1000, "AAA", "BBB")?[0]?.Value<bool>(); //调用服务器函数1000，穿入AAA BBB 返回一个布尔值
 
                 if(res!=null&&res==true) //如果结果不等于NULL 并且登入成功
                 {
                     
 
-                    var html= sync.CR(2001, "http://www.baidu.com")?[0]?.Value<string>();//调用服务器2001函数 输入一个URL 返回HTML 内容
+                    var html= sync.Func(2001, "http://www.baidu.com")?[0]?.Value<string>();//调用服务器2001函数 输入一个URL 返回HTML 内容
                     if (html != null) //如果HTML 不等于NULL
                     {
                         Console.WriteLine("BaiduHtml:" + html.Length); //输出HTML长度
 
-                        var time = sync.CR(2002)?.First?.Value<DateTime>(); //调用2002函数 获取当前时间
+                        var time = sync.Func(2002)?.First?.Value<DateTime>(); //调用2002函数 获取当前时间
 
                         Console.WriteLine("ServerTime:" + time); //打印时间
 
-                        sync.CV(2003, "123123"); //调用2003函数 穿入123123
+                        sync.Action(2003, "123123"); //调用2003函数 穿入123123
 
-                        var x = sync.CR(2001, "http://www.qq.com");  //调用服务器2001函数 输入一个URL 返回HTML 内容
+                        var x = sync.Func(2001, "http://www.qq.com");  //调用服务器2001函数 输入一个URL 返回HTML 内容
 
                         Console.WriteLine("QQHtml:" + x.First.Value<string>().Length); //输出HTML长度
 
-                        var recx = sync.CR(2500, 100)?.First?.Value<int>(); //调用2500递归函数 输入100 返回1
+                        var recx = sync.Func(2500, 100)?.First?.Value<int>(); //调用2500递归函数 输入100 返回1
 
                         System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch(); //测试调用时间
                         stop.Start();
-                        var rec = sync.CR(2500, 10000)?.First?.Value<int>();  // 调用2500递归函数 输入10000 返回1
+                        var rec = sync.Func(2500, 10000)?.First?.Value<int>();  // 调用2500递归函数 输入10000 返回1
                         stop.Stop();
                         if (rec != null)
                         {
@@ -76,7 +76,7 @@ namespace TestClient
 
             System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch();
             stop.Start();
-            var rec = (await client.NewAsync().CR(2500, 10000))?.First?.Value<int>(); //异步调用2500  输入10000 返回1
+            var rec = (await client.NewAsync().Func(2500, 10000))?.First?.Value<int>(); //异步调用2500  输入10000 返回1
             stop.Stop();
             if (rec != null)
             {
@@ -87,7 +87,7 @@ namespace TestClient
 
         public static async void RunTestError(CloudClient client)
         {
-            var rec = (await client.NewAsync().CR(2600, 10000)); //测试异常处理函数
+            var rec = (await client.NewAsync().Func(2600, 10000)); //测试异常处理函数
 
             if (rec.ErrorId!=0)
             {

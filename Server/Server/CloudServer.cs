@@ -79,7 +79,7 @@ namespace ZYNet.CloudSystem.Server
         }
 
         
-        public void Install(Type packHandlerType)
+        public CloudServer Install(Type packHandlerType)
         {
           
 
@@ -97,7 +97,7 @@ namespace ZYNet.CloudSystem.Server
                     if (att is TAG attrcmdtype)
                     {
 
-                        if ((method.ReturnType == tasktype || (Common.IsTypeOfBaseTypeIs(method.ReturnType, tasktype) && method.ReturnType.IsConstructedGenericType && method.ReturnType.GenericTypeArguments[0] == typeof(ReturnResult))))
+                        if ((method.ReturnType == tasktype || (Common.IsTypeOfBaseTypeIs(method.ReturnType, tasktype) && method.ReturnType.IsConstructedGenericType && method.ReturnType.GenericTypeArguments[0] == typeof(Result))))
                         {
                             if (method.GetParameters().Length > 0 && method.GetParameters()[0].ParameterType == typeof(AsyncCalls))
                             {
@@ -125,19 +125,23 @@ namespace ZYNet.CloudSystem.Server
                 }
 
             }
+
+            return this;
         }
        
 
-        public void Start()
+        public CloudServer Start()
         {
             Server.Start();
             Log.Info("Server is Start");
+            return this;
         }
 
-        public void Pause()
+        public CloudServer Pause()
         {
             Server.Stop();
             Log.Info("Server is Pause");
+            return this;
         }
 
 

@@ -12,7 +12,7 @@ namespace ZYNet.CloudSystem.Frame
     {
         protected static readonly ILog Log = LogFactory.ForContext<ReturnEventWaitHandle>();
 
-        public ReturnResult Result { get; private set; }
+        public Result Result { get; private set; }
 
         public EventWaitHandle WaitHandle { get; }
 
@@ -39,7 +39,7 @@ namespace ZYNet.CloudSystem.Frame
             return true;
         }
 
-        public void Set(ReturnResult result)
+        public void Set(Result result)
         {
             this.Result = result;
             if (!IsClose)

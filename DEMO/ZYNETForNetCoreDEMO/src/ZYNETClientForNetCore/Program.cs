@@ -73,7 +73,7 @@ namespace ZYNETClientForNetCore
 
             System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch();
             stop.Start();
-            var rec = (await client.NewAsync().CR(2500, 10000))?.First?.Value<int>();
+            var rec = (await client.NewAsync().Func(2500, 10000))?.First?.Value<int>();
             stop.Stop();
             if (rec != null)
             {

@@ -16,12 +16,12 @@ namespace TestClient
     public class PackHander
     {
         [TAG(2001)]
-        public async Task<ReturnResult> DownHtml(AsyncCalls async,string url)
+        public async Task<Result> DownHtml(AsyncCalls async,string url)
         {
             WebClient client = new WebClient();
             byte[] html=  await client.DownloadDataTaskAsync(url);        
 
-            return async.RET(html);
+            return async.Res(html);
         }
 
         [TAG(3001)]
@@ -33,15 +33,15 @@ namespace TestClient
         }
 
         [TAG(3002)]
-        public Task<ReturnResult> Add(AsyncCalls async,int  a)
+        public Task<Result> Add(AsyncCalls async,int  a)
         {
             a++;
-            return Task.FromResult<ReturnResult>(async.RET(a));
+            return Task.FromResult<Result>(async.Res(a));
         }
 
 
         [TAG(2500)]
-        public  async Task<ReturnResult> TestRec(AsyncCalls async, int count)
+        public  async Task<Result> TestRec(AsyncCalls async, int count)
         {
            
             count--;
@@ -57,7 +57,7 @@ namespace TestClient
                 }
             }
 
-            return async.RET(count);
+            return async.Res(count);
         }
     }
 }

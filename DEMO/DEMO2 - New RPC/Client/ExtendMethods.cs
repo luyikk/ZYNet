@@ -22,13 +22,13 @@ namespace Client
     public interface ServerMethods
     {
         [TAG((int)Cmdtype.LogOn)]
-        FiberThreadAwaiter<ReturnResult> LogOn(string username);
+        FiberThreadAwaiter<Result> LogOn(string username);
 
         [TAG((int)Cmdtype.SendAll)]
         void SendMessageToAllUser(string msg);
 
         [TAG((int)Cmdtype.SendTo)]
-        FiberThreadAwaiter<ReturnResult> SendMsgToUser(string account, string msg);
+        FiberThreadAwaiter<Result> SendMsgToUser(string account, string msg);
 
     }
 }

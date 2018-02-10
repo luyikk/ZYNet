@@ -132,9 +132,10 @@ namespace ZYNet.CloudSystem.Client
         }
 
 
-        public void Install(object packhandler)
+        public CloudClient Install(object packhandler)
         {
             Module.Install(packhandler);
+            return this;
         }
 
         internal void RemoveAsyncCall(long id)
@@ -156,7 +157,7 @@ namespace ZYNet.CloudSystem.Client
                 {
                     if (AsyncRunDiy.TryRemove(id, out AsyncRun value))
                     {
-                        var timeout = new ReturnResult()
+                        var timeout = new Result()
                         {
                             Id = id,
                             ErrorMsg = "run time out",
@@ -196,7 +197,7 @@ namespace ZYNet.CloudSystem.Client
             Client.Send(data);
         }
 
-        private ReturnResult SendDataAsWait(long Id, byte[] Data)
+        private Result SendDataAsWait(long Id, byte[] Data)
         {
 
             using (ReturnEventWaitHandle wait = new ReturnEventWaitHandle(MillisecondsTimeout, false, EventResetMode.AutoReset))
@@ -281,7 +282,7 @@ namespace ZYNet.CloudSystem.Client
                     case CmdDef.ReturnResult:
                         {
                           
-                            if (read.ReadObject<ReturnResult>(out ReturnResult result))
+                            if (read.ReadObject<Result>(out Result result))
                             {
                                 SetReturnValue(result);
                             }
@@ -293,7 +294,7 @@ namespace ZYNet.CloudSystem.Client
 
         }
 
-        private void SetReturnValue(ReturnResult result)
+        private void SetReturnValue(Result result)
         {
             long idx = result.Id;
 
@@ -410,7 +411,7 @@ namespace ZYNet.CloudSystem.Client
 
                             if (res != null)
                             {
-                                var tmp = new ReturnResult(res)
+                                var tmp = new Result(res)
                                 {
                                     Id = pack.Id
                                 };
@@ -420,7 +421,7 @@ namespace ZYNet.CloudSystem.Client
                         }
                         catch (Exception er)
                         {
-                            var tmp = new ReturnResult()
+                            var tmp = new Result()
                             {
                                 Id = pack.Id
                             };
@@ -440,7 +441,7 @@ namespace ZYNet.CloudSystem.Client
 
 
 
-        private void RetrunResultData(ReturnResult result)
+        private void RetrunResultData(Result result)
         {
             using (MemoryStream stream = new MemoryStream())
             {

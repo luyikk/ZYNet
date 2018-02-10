@@ -11,13 +11,13 @@ namespace ZYNETClientForNetCore
     public interface IPacker
     {
         [TAG(1000)]
-        ReturnResult IsLogOn(string username, string password);
+        Result IsLogOn(string username, string password);
 
         [TAG(2001)]
         ResultAwatier StartDownAsync(string url);
 
         [TAG(2001)]
-        ReturnResult StartDown(string url);
+        Result StartDown(string url);
         
         /// <summary>
         /// 同步调用返回DateTime 注意：如果你写的CMD 服务器返回类型和此DateTime类型有出入或者无法返回，以及返回超时，此函数将抛出异常
@@ -31,7 +31,7 @@ namespace ZYNETClientForNetCore
         /// </summary>
         /// <returns></returns>
         [TAG(2002)]
-        ReturnResult GetTimer();
+        Result GetTimer();
 
         /// <summary>
         /// 异步调用版本，只能在异步数据包处理时才能使用，无法在主线程同步方法中使用
@@ -46,7 +46,7 @@ namespace ZYNETClientForNetCore
         void SetPassWord(string password);
 
         [TAG(2500)]
-        ReturnResult TestRec(int count);
+        Result TestRec(int count);
 
         [TAG(2500)]
         ResultAwatier TestRecAsync(int count);

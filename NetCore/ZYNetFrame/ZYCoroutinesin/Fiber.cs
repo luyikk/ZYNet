@@ -84,7 +84,7 @@ namespace ZYNet.CloudSystem.Frame
         }
 
 
-        public ResultAwatier Set(ReturnResult data)
+        public ResultAwatier Set(Result data)
         {
             if (receivers.Count == 0)
             {
@@ -213,7 +213,7 @@ namespace ZYNet.CloudSystem.Frame
                 return null;
         }
 
-        public ResultAwatier Send(ReturnResult data)
+        public ResultAwatier Send(Result data)
         {
            
             var GhostThread = Fiber.Current;

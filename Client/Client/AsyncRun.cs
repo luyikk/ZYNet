@@ -57,12 +57,12 @@ namespace ZYNet.CloudSystem.Client
                     }
                     else
                     {
-                        return CR(cmd, args);
+                        return Func(cmd, args);
                     }
                 }
                 else
                 {
-                    CV(cmd, args);
+                    Action(cmd, args);
 
                     return null;
                 }
@@ -81,7 +81,7 @@ namespace ZYNet.CloudSystem.Client
         /// <param name="args"></param>
         /// <returns></returns>
 
-        public override ResultAwatier CR(int cmdTag, params object[] args)
+        public override ResultAwatier Func(int cmdTag, params object[] args)
         {
             CallPack buffer = new CallPack()
             {
@@ -160,9 +160,9 @@ namespace ZYNet.CloudSystem.Client
         /// </summary>
         /// <param name="cmdTag"></param>
         /// <param name="args"></param>
-        public override void CV(int cmdTag, params object[] args)
+        public override void Action(int cmdTag, params object[] args)
         {
-            CCloudClient.Sync.CV(cmdTag, args);
+            CCloudClient.Sync.Action(cmdTag, args);
         }
     }
 }

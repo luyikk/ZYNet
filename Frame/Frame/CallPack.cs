@@ -69,7 +69,7 @@ namespace ZYNet.CloudSystem.Frame
     }
 
 
-    public class ReturnResult
+    public class Result
     {
         public long Id { get; set; }
 
@@ -115,12 +115,12 @@ namespace ZYNet.CloudSystem.Frame
         public int? Length => Arguments?.Count;
 
 
-        public ReturnResult()
+        public Result()
         {
 
         }
 
-        public ReturnResult(params object[] args)
+        public Result(params object[] args)
         {
             if (args != null)
             {
@@ -148,7 +148,7 @@ namespace ZYNet.CloudSystem.Frame
 
     }
 
-    public class ResultAwatier : FiberThreadAwaiter<ReturnResult>
+    public class ResultAwatier : FiberThreadAwaiter<Result>
     {
         public ResultAwatier(Fiber GhostThread):base(GhostThread)
         {

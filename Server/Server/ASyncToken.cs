@@ -79,7 +79,7 @@ namespace ZYNet.CloudSystem.Server
                 {
                     if (CallBackDiy.TryRemove(id, out AsyncCalls value))
                     {
-                        var timeout = new ReturnResult()
+                        var timeout = new Result()
                         {
                             Id = id,
                             ErrorMsg = "Server call client time out",
@@ -88,7 +88,7 @@ namespace ZYNet.CloudSystem.Server
 
                         try
                         {
-                            value.SetRet(timeout);
+                            value.SetRes(timeout);
                         }
                         catch (Exception er)
                         {
@@ -122,14 +122,14 @@ namespace ZYNet.CloudSystem.Server
 
                 foreach (var item in CallBackDiy.Values)
                 {
-                    ReturnResult disconn = new ReturnResult
+                    Result disconn = new Result
                     {
                         Id = item.Id,
                         ErrorId = -1,
                         ErrorMsg = "Disconnect",
                         Arguments = new List<byte[]>()
                     };
-                    item.SetRet(disconn);
+                    item.SetRes(disconn);
                 }
 
 
@@ -183,7 +183,7 @@ namespace ZYNet.CloudSystem.Server
                     case CmdDef.ReturnResult:
                         {
 
-                            if (read.ReadObject<ReturnResult>(out ReturnResult result))
+                            if (read.ReadObject<Result>(out Result result))
                             {
                                 if (CallBackDiy.ContainsKey(result.Id))
                                 {
@@ -192,7 +192,7 @@ namespace ZYNet.CloudSystem.Server
                                     {
                                         try
                                         {
-                                            call.SetRet(result);
+                                            call.SetRes(result);
 
                                         }
                                         catch (Exception er)
@@ -214,14 +214,14 @@ namespace ZYNet.CloudSystem.Server
             CurrentServer.Send(Sendobj, data);
         }
 
-        protected override ReturnResult SendDataAsWait(long Id, byte[] Data)
+        protected override Result SendDataAsWait(long Id, byte[] Data)
         {
             throw new InvalidOperationException("Server Sync CR Not Use!! please use CV");
         }
 
 
 
-        private void RetrunResultData(ReturnResult result)
+        private void RetrunResultData(Result result)
         {
             using (MemoryStream stream = new MemoryStream())
             {
@@ -353,7 +353,7 @@ namespace ZYNet.CloudSystem.Server
 
                             if (res != null)
                             {
-                                ReturnResult tmp = new ReturnResult(res)
+                                Result tmp = new Result(res)
                                 {
                                     Id = pack.Id
                                 };
@@ -363,7 +363,7 @@ namespace ZYNet.CloudSystem.Server
                         }
                         catch (Exception er)
                         {
-                            ReturnResult tmp = new ReturnResult
+                            Result tmp = new Result
                             {
                                 Id = pack.Id
                             };

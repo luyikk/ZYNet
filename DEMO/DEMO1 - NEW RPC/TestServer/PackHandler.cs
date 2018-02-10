@@ -45,7 +45,7 @@ namespace TestServer
       
 
         [TAG(2001)]
-        public static async  Task<ReturnResult> StartDown(AsyncCalls async, string url)
+        public static async  Task<Result> StartDown(AsyncCalls async, string url)
         {
             
            
@@ -56,21 +56,21 @@ namespace TestServer
             {               
                 string html = Encoding.UTF8.GetString(htmldata);
 
-                return  async.RET(html);
+                return  async.Res(html);
 
             }
 
 
-            return async.RET();// or async.RET(null);
+            return async.Res();// or async.RET(null);
         }
 
 
 
         [TAG(2002)]
-        public static Task<ReturnResult> GetTime(AsyncCalls async)
+        public static Task<Result> GetTime(AsyncCalls async)
         {
 
-            return Task.FromResult<ReturnResult>(async.RET(DateTime.Now));
+            return Task.FromResult<Result>(async.Res(DateTime.Now));
         }
 
         [TAG(2003)]
@@ -92,7 +92,7 @@ namespace TestServer
         }
 
         [TAG(2500)]
-        public static async Task<ReturnResult> TestRec(AsyncCalls async,int count)
+        public static async Task<Result> TestRec(AsyncCalls async,int count)
         {
             
             count--;
@@ -113,7 +113,7 @@ namespace TestServer
                 }
             }
 
-            return async.RET(count);
+            return async.Res(count);
         }
 
 

@@ -78,7 +78,7 @@ namespace ZYNet.CloudSystem.Frame
             }
         }        
 
-        public ReturnResult CR(int cmdTag,params object[] args)
+        public Result CR(int cmdTag,params object[] args)
         {
             CallPack buffer = new CallPack()
             {
@@ -143,7 +143,7 @@ namespace ZYNet.CloudSystem.Frame
             }
         }
 
-        protected abstract ReturnResult SendDataAsWait(long Id, byte[] Data);
+        protected abstract Result SendDataAsWait(long Id, byte[] Data);
 
         protected abstract void SendData(byte[] Data);      
 

@@ -23,7 +23,7 @@ namespace Server
     public interface ClientMethods
     {
         [TAG((int)Cmdtype.GetNick)] 
-        FiberThreadAwaiter<ReturnResult> GetNick();
+        FiberThreadAwaiter<Result> GetNick();
 
         [TAG((int)Cmdtype.SetAllUser)]
         void SetUserList(List<UserInfo> userlist);
@@ -38,6 +38,6 @@ namespace Server
         void MessageTo(string username, string msg);
 
         [TAG((int)Cmdtype.MsgToUser)]
-        FiberThreadAwaiter<ReturnResult> MsgToUser(string username, string msg);
+        FiberThreadAwaiter<Result> MsgToUser(string username, string msg);
     }
 }
