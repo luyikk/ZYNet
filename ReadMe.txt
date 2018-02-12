@@ -1,5 +1,5 @@
-ZYNET 是一款跨平台的 基于 fiber 的网络框架。
-他采用RPC+CMD 访问方式
-性能优异，跨平台，稳定性强
+ZYNET is a cross platform fiber based network framework.
+He uses RPC+CMD access 
+Excellent performance, cross platform, strong stability 
 
-使用的时候注意:IOS平台是无法使用 Emit的，所以也就表示RPC方式无法使用，只能使用CMD方式，详细请看DEMO
+Attention when using: IOS platform is unable to use Emit, so it also means that the RPC way can not be used, the only use of CMD, in detail, please see DEMO 
