@@ -480,12 +480,11 @@ namespace FileServ.Client
                 return;
             }
             target = target.Replace("\\", "/");
-            var targetdir = Path.GetDirectoryName(target);
-
-            if (string.IsNullOrEmpty(targetdir))
+          
+            if (!Path.IsPathRooted(target))
                 if (!string.IsNullOrEmpty(Current))
                 {
-                    target =Path.Combine( Current , target);
+                    target =Path.Combine(Current , target);
                     target = target.Replace("\\", "/");
                 }
                 else
@@ -832,12 +831,12 @@ namespace FileServ.Client
 
         protected async void MvFile(string source, string target)
         {
-            var a = Path.GetDirectoryName(source);
-            var b= Path.GetDirectoryName(target);
-            if (string.IsNullOrEmpty(a))
+            
+          
+            if (!Path.IsPathRooted(source))
                 try { source = Path.Combine(Current, source).Replace("\\", "/"); } catch { }
 
-            if (string.IsNullOrEmpty(b))
+            if (!Path.IsPathRooted(target))
                 try { target = Path.Combine(Current, target).Replace("\\", "/"); } catch { }
 
 
@@ -869,13 +868,12 @@ namespace FileServ.Client
         }
 
         protected async void Copy(string source,string target)
-        {
-            var a = Path.GetDirectoryName(source);
-            var b = Path.GetDirectoryName(target);
-            if (string.IsNullOrEmpty(a))            
+        {          
+            
+            if (!Path.IsPathRooted(source))
                 try { source = Path.Combine(Current, source).Replace("\\", "/"); } catch { }
 
-            if (string.IsNullOrEmpty(b))
+            if (!Path.IsPathRooted(target))
                 try { target = Path.Combine(Current, target).Replace("\\", "/"); } catch { }
                
 
@@ -905,10 +903,8 @@ namespace FileServ.Client
         }
 
         private async void Mkdir(string file)
-        {
-            var a = Path.GetDirectoryName(file);
-           
-            if (string.IsNullOrEmpty(a))
+        {          
+            if (!Path.IsPathRooted(file))
                 file = Path.Combine(Current, file).Replace("\\", "/");
 
             var Async = client.NewAsync().Get<IServer>();
@@ -939,9 +935,8 @@ namespace FileServ.Client
 
         private async void Rm(string file)
         {
-            var a = Path.GetDirectoryName(file);
-
-            if (string.IsNullOrEmpty(a))
+          
+            if (!Path.IsPathRooted(file))
                 file = Path.Combine(Current, file).Replace("\\", "/");
 
             var Async = client.NewAsync().Get<IServer>();

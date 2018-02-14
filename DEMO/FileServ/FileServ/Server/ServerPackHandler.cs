@@ -397,7 +397,7 @@ namespace FileServ.Server
 
                 return Task.Run(() =>
                 {
-                    CopyDirectory(async,new DirectoryInfo(source), target);
+                    CopyDirectory(async,new DirectoryInfo(source), new DirectoryInfo(target));
                     return Task.FromResult<Result>(async.Res(true));
                 });
                                               
@@ -406,11 +406,14 @@ namespace FileServ.Server
             return Task.FromResult<Result>(async.Res(false));
         }
 
-        public static void CopyDirectory(AsyncCalls async, DirectoryInfo dir,string target)
+        public static bool CopyDirectory(AsyncCalls async, DirectoryInfo dir, DirectoryInfo target)
         {
+            if (target.FullName.IndexOf(dir.FullName) == 0)
+                return false;
+
             DirectoryInfo targetdir = null;            
 
-            string targetpath = Path.Combine(target, dir.Name).Replace("\\", "/");
+            string targetpath = Path.Combine(target.FullName, dir.Name).Replace("\\", "/");
 
             if (!Directory.Exists(path: targetpath))
                 targetdir = Directory.CreateDirectory(path: targetpath);
@@ -422,7 +425,7 @@ namespace FileServ.Server
             {
                 if(item is DirectoryInfo p)
                 {
-                    CopyDirectory(async,p, targetdir.FullName);
+                    CopyDirectory(async,p, new DirectoryInfo(targetdir.FullName));
                 }
                 else if(item is FileInfo x)
                 {
@@ -431,6 +434,8 @@ namespace FileServ.Server
                     async.Action(20000, file + " Copy OK!");
                 }
             }
+
+            return true;
         }
     }
 }
