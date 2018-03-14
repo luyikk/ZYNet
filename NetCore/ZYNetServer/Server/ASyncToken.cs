@@ -36,9 +36,9 @@ namespace ZYNet.CloudSystem.Server
         public T Token<T>()
         {
             if (UserToken == null)
-                Resurn default(T);
+                return default(T);
             else
-                Resurn (T)UserToken;
+                return (T)UserToken;
         }
 
 
@@ -180,7 +180,7 @@ namespace ZYNet.CloudSystem.Server
                             }
                         }
                         break;
-                    case CmdDef.ResurnResult:
+                    case CmdDef.ReturnResult:
                         {
 
                             if (read.ReadObject<Result>(out Result result))
@@ -231,7 +231,7 @@ namespace ZYNet.CloudSystem.Server
                 if (DataExtra != null)
                 {
 
-                    bufflist.Write(CmdDef.ResurnResult);
+                    bufflist.Write(CmdDef.ReturnResult);
                     byte[] classdata = BufferFormat.SerializeObject(result);
                     bufflist.Write(classdata.Length);
                     bufflist.Write(classdata);
@@ -246,7 +246,7 @@ namespace ZYNet.CloudSystem.Server
                 else
                 {
                     bufflist.Write(0);
-                    bufflist.Write(CmdDef.ResurnResult);
+                    bufflist.Write(CmdDef.ReturnResult);
                     byte[] classdata = BufferFormat.SerializeObject(result);
                     bufflist.Write(classdata.Length);
                     bufflist.Write(classdata);
@@ -275,7 +275,7 @@ namespace ZYNet.CloudSystem.Server
         {
             AsyncCalls tmp = new AsyncCalls(this, async._fiber);
             tmp.CallSend += SendData;
-            Resurn tmp;
+            return tmp;
         }
 
 
@@ -314,7 +314,7 @@ namespace ZYNet.CloudSystem.Server
                 if (args == null)
                 {
                     Log.ErrorFormat("Clent Call Cmd:{0} ArgsCount:{1} Args count is Error", pack.CmdTag, argcount);
-                    Resurn;
+                    return;
                 }
                 if (method.IsAsync)
                 {
