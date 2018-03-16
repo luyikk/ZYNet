@@ -216,7 +216,7 @@ namespace ZYNet.CloudSystem.Server
 
         protected override Result SendDataAsWait(long Id, byte[] Data)
         {
-            throw new InvalidOperationException("Server Sync CR Not Use!! please use CV");
+            throw new InvalidOperationException("Server Sync Func Not Use!! please use Action");
         }
 
 
