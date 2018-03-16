@@ -170,7 +170,7 @@ namespace ZYNet.CloudSystem.Client
         /// <param name="args"></param>
         public void Action(int cmdTag, params object[] args)
         {
-            Sync.CV(cmdTag, args);
+            Sync.Action(cmdTag, args);
         }
 
         /// <summary>

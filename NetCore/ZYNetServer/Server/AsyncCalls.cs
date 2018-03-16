@@ -193,7 +193,7 @@ namespace ZYNet.CloudSystem.Server
         /// <param name="args"></param>
         public void Action(int cmdTag, params object[] args)
         {
-            AsyncUser.CV(cmdTag, args);
+            AsyncUser.Action(cmdTag, args);
         }
 
         /// <summary>

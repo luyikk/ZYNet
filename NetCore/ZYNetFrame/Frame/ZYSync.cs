@@ -51,13 +51,13 @@ namespace ZYNet.CloudSystem.Frame
                     {
                         if (method.ReturnType == typeof(Result))
                         {
-                            return CR(cmd, args);
+                            return Func(cmd, args);
                         }
                         else
                         {
                             try
                             {
-                                return CR(cmd, args)?.First?.Value(method.ReturnType);
+                                return Func(cmd, args)?.First?.Value(method.ReturnType);
                             }
                             catch (Exception er)
                             {
@@ -72,7 +72,7 @@ namespace ZYNet.CloudSystem.Frame
                 }
                 else
                 {
-                    CV(cmd, args);
+                    Action(cmd, args);
 
                     return null;
                 }               

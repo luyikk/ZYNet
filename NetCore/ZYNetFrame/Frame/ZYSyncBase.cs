@@ -13,7 +13,7 @@ namespace ZYNet.CloudSystem.Frame
 
         public Func<byte[],byte[]> DataExtra { get; set; }
 
-        public void CV(int cmdTag, params object[] args )
+        public void Action(int cmdTag, params object[] args )
         {
             CallPack buffer = new CallPack()
             {
@@ -78,7 +78,7 @@ namespace ZYNet.CloudSystem.Frame
             }
         }        
 
-        public Result CR(int cmdTag,params object[] args)
+        public Result Func(int cmdTag,params object[] args)
         {
             CallPack buffer = new CallPack()
             {

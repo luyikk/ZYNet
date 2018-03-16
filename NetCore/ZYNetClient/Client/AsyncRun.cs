@@ -162,7 +162,7 @@ namespace ZYNet.CloudSystem.Client
         /// <param name="args"></param>
         public override void Action(int cmdTag, params object[] args)
         {
-            CCloudClient.Sync.CV(cmdTag, args);
+            CCloudClient.Sync.Action(cmdTag, args);
         }
     }
 }
