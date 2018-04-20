@@ -56,7 +56,7 @@ namespace TestServer
             {               
                 string html = Encoding.UTF8.GetString(htmldata);
 
-                return  async.Res(html);
+                return async.Res(html);
 
             }
 
@@ -69,7 +69,7 @@ namespace TestServer
         [TAG(2002)]
         public static Task<Result> GetTime(AsyncCalls async)
         {
-
+          
             return Task.FromResult<Result>(async.Res(DateTime.Now));
         }
 

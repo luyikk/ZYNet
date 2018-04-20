@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Threading;
 using ZYNet.CloudSystem.Frame;
@@ -11,7 +12,12 @@ namespace ZYNet.CloudSystem.Client
 {
     public class CloudClient
     {
+      
+
         protected static readonly ILog Log = LogFactory.ForContext<CloudClient>();
+
+        protected WaitHandle _ReadWaitCheck = new EventWaitHandle(false, EventResetMode.AutoReset);
+
         public ZYNetRingBufferPool RingBuffer { get; private set; }
 
         public ISyncClient Client { get; private set; }
@@ -20,7 +26,22 @@ namespace ZYNet.CloudSystem.Client
 
         public int Port { get; private set; }
 
-        public bool CheckAsyncTimeOut { get; set; }
+
+        private bool _checkAasyncTimeOut;
+        public bool CheckAsyncTimeOut {
+            get
+            {
+                return _checkAasyncTimeOut;
+            }
+            set
+            {
+                if (!value)
+                    AsyncWaitTimeOut.Clear();
+
+                _checkAasyncTimeOut = value;
+            }
+        }
+
         public int MillisecondsTimeout { get; private set; }
         public int MaxBufferLength { get; private set; }
         public ConcurrentDictionary<long,ReturnEventWaitHandle> SyncWaitDic { get;  set; }
@@ -30,9 +51,10 @@ namespace ZYNet.CloudSystem.Client
 
         public ConcurrentDictionary<long, AsyncRun> AsyncRunDiy { get; private set; }
 
+        public List<KeyValuePair<long,DateTime>> AsyncWaitTimeOut { get; private set; }
+
         public ModuleDictionary Module { get; private set; }
-
-
+        public bool IsClose { get; private set; }
         public Func<byte[],byte[]> DecodingHandler { get; set; }
 
         private Func<byte[], byte[]> encodingHandler;
@@ -55,6 +77,8 @@ namespace ZYNet.CloudSystem.Client
 
         public void Close()
         {
+            IsClose = true;
+            AsyncWaitTimeOut.Clear();
             Client.Close();
             Module.ModuleDiy.Clear();
             AsyncRunDiy.Clear();
@@ -71,6 +95,7 @@ namespace ZYNet.CloudSystem.Client
             AsyncCallDiy = new ConcurrentDictionary<long, AsyncCalls>();
             CallBackDiy = new ConcurrentDictionary<long, AsyncCalls>();
             AsyncRunDiy = new ConcurrentDictionary<long, AsyncRun>();
+            AsyncWaitTimeOut = new List<KeyValuePair<long, DateTime>>();
             Client = client;
             MillisecondsTimeout = millisecondsTimeout;
             MaxBufferLength = maxBufferLength;
@@ -80,6 +105,71 @@ namespace ZYNet.CloudSystem.Client
                 SyncSendAsWait = SendDataAsWait
             };
             Module = new ModuleDictionary();
+            IsClose = false;
+            ThreadPool.RegisterWaitForSingleObject(_ReadWaitCheck, new WaitOrTimerCallback(checkAsyncTimeOut), null, 100, true);
+        }
+
+        private void checkAsyncTimeOut(object o,bool b)
+        {
+            int timeSleep = 1;
+
+            try
+            {
+                if (!CheckAsyncTimeOut || AsyncWaitTimeOut.Count == 0)
+                    timeSleep = 1000;
+                else
+                {
+                    var res = AsyncWaitTimeOut.FindAll(p => p.Value < DateTime.Now);
+
+                    if (res.Count == 0)
+                        timeSleep = 200;
+                    else
+                    {
+                        foreach (var item in res)
+                        {
+                            long id = item.Key;
+                            if (AsyncRunDiy.ContainsKey(id))
+                            {
+                                if (AsyncRunDiy.TryRemove(id, out AsyncRun value))
+                                {
+                                    Task.Run(() =>
+                                        {
+
+                                            var timeout = new Result()
+                                            {
+                                                Id = id,
+                                                ErrorMsg = "run time out",
+                                                ErrorId = -101
+                                            };
+
+                                            try
+                                            {
+                                                value.SetRet(timeout);
+                                            }
+                                            catch (Exception er)
+                                            {
+                                                Log.Error($"Id:{value.Id} ERROR:\r\n{er.Message}");
+                                            }
+
+                                        });
+                                }
+                            }
+
+                            AsyncWaitTimeOut.Remove(item);
+                        }
+                    }
+                }
+
+            }
+            catch(Exception er)
+            {
+                Log.Error($"ERROR:\r\n{er.ToString()}");
+            }
+            finally
+            {
+                if(!IsClose)
+                    ThreadPool.RegisterWaitForSingleObject(_ReadWaitCheck, new WaitOrTimerCallback(checkAsyncTimeOut), null, timeSleep, true);
+            }
 
         }
 
@@ -145,35 +235,14 @@ namespace ZYNet.CloudSystem.Client
         }
 
 
-        internal async void AddAsyncRunBack(AsyncRun asyncalls, long id)
+        internal void AddAsyncRunBack(AsyncRun asyncalls, long id)
         {
             AsyncRunDiy.AddOrUpdate(id, asyncalls, (a, b) => asyncalls);
 
             if (CheckAsyncTimeOut)
             {
-                await Task.Delay(MillisecondsTimeout);
-                
-                if (AsyncRunDiy.ContainsKey(id))
-                {
-                    if (AsyncRunDiy.TryRemove(id, out AsyncRun value))
-                    {
-                        var timeout = new Result()
-                        {
-                            Id = id,
-                            ErrorMsg = "run time out",
-                            ErrorId = -101
-                        };
-
-                        try
-                        {
-                            value.SetRet(timeout);
-                        }
-                        catch (Exception er)
-                        {
-                            Log.Error($"Id:{value.Id} ERROR:\r\n{er.Message}");
-                        }
-                    }
-                }
+                KeyValuePair<long, DateTime> tot = new KeyValuePair<long, DateTime>(id, DateTime.Now.AddMilliseconds(MillisecondsTimeout));
+                AsyncWaitTimeOut.Add(tot);
             }
         }
 

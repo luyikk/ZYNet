@@ -21,6 +21,7 @@ namespace ZYNETClientForNetCore
             HttpClient  client = new HttpClient();
             byte[] html = await client.GetByteArrayAsync(url);
 
+           
             return async.Res(html);
         }
 

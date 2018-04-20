@@ -18,14 +18,14 @@ namespace ZYNETServerForNetCore
             tmp.Install(typeof(PackHandler));
             tmp.Start();
             tmp.CheckTimeOut = true;
-            tmp.ReadOutTime = 5000;
+            tmp.ReadOutTime = 10000;
             while (true)
             {
                 string msg = Console.ReadLine();
 
                 foreach (var item in PackHandler.UserList)
                 {
-                    item.token.CV(3001, msg);
+                    item.token.Action(3001, msg);
 
                 }
             }

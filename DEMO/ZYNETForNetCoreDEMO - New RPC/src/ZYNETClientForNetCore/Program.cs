@@ -16,12 +16,12 @@ namespace ZYNETClientForNetCore
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
             LogFactory.AddConsole();
-            CloudClient client = new CloudClient(new SocketClient(), 500000, 1024 * 1024); //最大数据包能够接收 1M
+            CloudClient client = new CloudClient(new SocketClient(), 6000, 1024 * 1024); //最大数据包能够接收 1M
             PackHander tmp = new PackHander();
             client.Install(tmp);
             client.Disconnect += Client_Disconnect;
             client.CheckAsyncTimeOut = true;
-            
+           
             if (client.Connect("127.0.0.1", 2285))
             {
                 ZYSync Sync = client.Sync;
@@ -37,9 +37,9 @@ namespace ZYNETClientForNetCore
                     {
                         Console.WriteLine("BaiduHtml:" + html.Length);
 
-                        var time = ServerPack.GetTime();
+                       // var time = ServerPack.GetTime();
 
-                        Console.WriteLine("ServerTime:" + time);
+                      //  Console.WriteLine("ServerTime:" + time);
 
                         ServerPack.SetPassWord("123123");
 
@@ -49,7 +49,7 @@ namespace ZYNETClientForNetCore
 
                         System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch();
                         stop.Start();
-                        var rec = ServerPack.TestRec2(1000);
+                        var rec = ServerPack.TestRec2(10000);
                         stop.Stop();
 
                         Console.WriteLine("Rec:{0} time:{1} MS", rec, stop.ElapsedMilliseconds);
@@ -65,6 +65,7 @@ namespace ZYNETClientForNetCore
         public static async void TestRun(CloudClient client)
         {
             var Server = client.NewAsync().Get<IPacker>();
+
             var test = (await Server.TestRecAsync(10))?[0]?.Value<int>();
             Console.WriteLine(test);
 

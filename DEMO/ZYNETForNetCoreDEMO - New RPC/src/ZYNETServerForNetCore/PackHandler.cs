@@ -65,6 +65,7 @@ namespace ZYNETServerForNetCore
         [TAG(2002)]
         public static Task<Result> GetTime(AsyncCalls async)
         {
+           
             return Task.FromResult<Result>(async.Res(DateTime.Now));
         }
 

@@ -6,12 +6,14 @@ using ZYSocket.share;
 using System.IO;
 using ZYNet.CloudSystem.Loggine;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace ZYNet.CloudSystem.Client
 {
     public class CloudClient
     {
         protected static readonly ILog Log = LogFactory.ForContext<CloudClient>();
+      
         public ZYNetRingBufferPool RingBuffer { get; private set; }
 
         public ISyncClient Client { get; private set; }
@@ -31,8 +33,11 @@ namespace ZYNet.CloudSystem.Client
 
         public ConcurrentDictionary<long, AsyncRun> AsyncRunDiy { get; private set; }
 
+        public List<KeyValuePair<long, DateTime>> AsyncWaitTimeOut { get; private set; }
+
         public ModuleDictionary Module { get; private set; }
 
+        public bool IsClose { get; private set; }
 
         public Func<byte[],byte[]> DecodingHandler { get; set; }
 
@@ -56,6 +61,8 @@ namespace ZYNet.CloudSystem.Client
 
         public void Close()
         {
+            IsClose = true;
+            AsyncWaitTimeOut.Clear();
             Client.Close();
             Module.ModuleDiy.Clear();
             AsyncRunDiy.Clear();
@@ -72,9 +79,8 @@ namespace ZYNet.CloudSystem.Client
             AsyncCallDiy = new ConcurrentDictionary<long, AsyncCalls>();
             CallBackDiy = new ConcurrentDictionary<long, AsyncCalls>();
             AsyncRunDiy = new ConcurrentDictionary<long, AsyncRun>();
-            Client = client;
-            if (millisecondsTimeout > 30000)
-                millisecondsTimeout = 30000;
+            AsyncWaitTimeOut = new List<KeyValuePair<long, DateTime>>();
+            Client = client;         
             MillisecondsTimeout = millisecondsTimeout;
             MaxBufferLength = maxBufferLength;
             Sync = new ZYSync()
@@ -83,6 +89,78 @@ namespace ZYNet.CloudSystem.Client
                 SyncSendAsWait = SendDataAsWait
             };
             Module = new ModuleDictionary();
+            IsClose = false;
+            Task.Run(new Action(checkAsyncTimeOut));
+        }
+
+
+
+        private async void checkAsyncTimeOut()
+        {
+            while (true)
+            {
+                if (IsClose)
+                    break;
+
+                int timeSleep = 1;
+
+                try
+                {
+                    if (!CheckAsyncTimeOut || AsyncWaitTimeOut.Count == 0)
+                        timeSleep = 1000;
+                    else
+                    {
+                        var res = AsyncWaitTimeOut.FindAll(p => p.Value < DateTime.Now);
+
+                        if (res.Count == 0)
+                            timeSleep = 200;
+                        else
+                        {
+                            foreach (var item in res)
+                            {
+                                long id = item.Key;
+                                if (AsyncRunDiy.ContainsKey(id))
+                                {
+                                    if (AsyncRunDiy.TryRemove(id, out AsyncRun value))
+                                    {
+                                        await Task.Run(() =>
+                                        {
+
+                                            var timeout = new Result()
+                                            {
+                                                Id = id,
+                                                ErrorMsg = "run time out",
+                                                ErrorId = -101
+                                            };
+
+                                            try
+                                            {
+                                                value.SetRet(timeout);
+                                            }
+                                            catch (Exception er)
+                                            {
+                                                Log.Error($"Id:{value.Id} ERROR:\r\n{er.Message}");
+                                            }
+
+                                        });
+                                    }
+                                }
+
+                                AsyncWaitTimeOut.Remove(item);
+                            }
+                        }
+                    }
+
+                }
+                catch (Exception er)
+                {
+                    Log.Error($"ERROR:\r\n{er.ToString()}");
+                }
+                finally
+                {
+                    await Task.Delay(timeSleep);
+                }
+            }
         }
 
 
@@ -149,35 +227,14 @@ namespace ZYNet.CloudSystem.Client
         }
 
 
-        internal async void AddAsyncRunBack(AsyncRun asyncalls, long id)
+        internal void AddAsyncRunBack(AsyncRun asyncalls, long id)
         {
             AsyncRunDiy.AddOrUpdate(id, asyncalls, (a, b) => asyncalls);
 
             if (CheckAsyncTimeOut)
             {
-                await Task.Delay(MillisecondsTimeout);
-
-                if (AsyncRunDiy.ContainsKey(id))
-                {
-                    if (AsyncRunDiy.TryRemove(id, out AsyncRun value))
-                    {
-                        var timeout = new Result()
-                        {
-                            Id = id,
-                            ErrorMsg = "run time out",
-                            ErrorId = -101
-                        };
-
-                        try
-                        {
-                            value.SetRet(timeout);
-                        }
-                        catch (Exception er)
-                        {
-                            Log.Error($"Id:{value.Id} ERROR:\r\n{er.Message}");
-                        }
-                    }
-                }
+                KeyValuePair<long, DateTime> tot = new KeyValuePair<long, DateTime>(id, DateTime.Now.AddMilliseconds(MillisecondsTimeout));
+                AsyncWaitTimeOut.Add(tot);
             }
         }
 

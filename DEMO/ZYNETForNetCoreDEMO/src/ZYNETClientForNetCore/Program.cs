@@ -26,29 +26,29 @@ namespace ZYNETClientForNetCore
             {
                 ZYSync sync = client.Sync;
 
-                var res = sync.CR(1000, "AAA", "BBB")?[0]?.Value<bool>();
+                var res = sync.Func(1000, "AAA", "BBB")?[0]?.Value<bool>();
 
                 if (res != null && res == true)
                 {
 
-                    var html = sync.CR(2001, "http://www.baidu.com")?[0]?.Value<string>();
+                    var html = sync.Func(2001, "http://www.baidu.com")?[0]?.Value<string>();
                     if (html != null)
                     {
                         Console.WriteLine("BaiduHtml:" + html.Length);
 
-                        var time = sync.CR(2002)?.First?.Value<DateTime>();
+                        var time = sync.Func(2002)?.First?.Value<DateTime>();
 
                         Console.WriteLine("ServerTime:" + time);
 
-                        sync.CV(2003, "123123");
+                        sync.Action(2003, "123123");
 
-                        var x = sync.CR(2001, "http://www.qq.com");
+                        var x = sync.Func(2001, "http://www.qq.com");
 
                         Console.WriteLine("QQHtml:" + x.First.Value<string>().Length);
 
                         System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch();
                         stop.Start();
-                        var rec = sync.CR(2500, 10000)?.First?.Value<int>();
+                        var rec = sync.Func(2500, 10000)?.First?.Value<int>();
                         stop.Stop();
                         if (rec != null)
                         {

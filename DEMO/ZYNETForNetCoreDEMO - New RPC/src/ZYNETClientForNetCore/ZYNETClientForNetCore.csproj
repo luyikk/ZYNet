@@ -11,12 +11,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ZYSOCKET-protobuf-net" Version="4.3.2" />
-    <PackageReference Include="ZYNetClient-dnx" Version="1.1.4.7" />
+    <Folder Include="Properties\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Properties\" />
+    <PackageReference Include="ZYNetClient-dnx" Version="1.1.5" />
   </ItemGroup>
 
 </Project>

@@ -22,7 +22,7 @@ namespace TestClient
            
 
             LogFactory.AddConsole();
-            CloudClient client = new CloudClient(new SocketClient(), 30000, 1024 * 1024); //最大数据包能够接收 1M
+            CloudClient client = new CloudClient(new SocketClient(), 10000, 1024 * 1024); //最大数据包能够接收 1M
             PackHander tmp = new PackHander();
             client.Install(tmp);
             client.Disconnect += Client_Disconnect;
@@ -63,19 +63,20 @@ namespace TestClient
         {
             var server = client.NewAsync().Get<IPacker>();
 
-             int? v = (await server.TestRecAsync(100))?[0]?.Value<int>();
+
+            int? v = (await server.TestRecAsync(100))?[0]?.Value<int>();
 
             System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch();
             stop.Start();
             var res = (await server.TestRecAsync(10000));
 
             bool? isError = res?.IsError;
-            if(isError.HasValue&&isError.Value)
+            if (isError.HasValue && isError.Value)
             {
                 Console.WriteLine($"ERROR:{res.ErrorMsg}");
                 return;
             }
-            int? c =res?.First?.Value<int>();
+            int? c = res?.First?.Value<int>();
             stop.Stop();
 
             if (c.HasValue)

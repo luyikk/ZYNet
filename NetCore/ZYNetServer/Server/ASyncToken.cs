@@ -21,7 +21,7 @@ namespace ZYNet.CloudSystem.Server
         public ZYNetRingBufferPool Stream { get; private set; }
 
         public CloudServer CurrentServer { get;  private set; }
-
+        public List<KeyValuePair<long, DateTime>> AsyncWaitTimeOut { get; private set; }
         public ConcurrentDictionary<long, AsyncCalls> AsyncCallDiy { get; private set; }
         public ConcurrentDictionary<long, AsyncCalls> CallBackDiy { get; private set; }
 
@@ -50,6 +50,7 @@ namespace ZYNet.CloudSystem.Server
             CurrentServer = server;
             this.DataExtra = server.EcodeingHandler;
             Sendobj = new AsyncSend(asynca.AcceptSocket);
+            AsyncWaitTimeOut = new List<KeyValuePair<long, DateTime>>();
         }
 
         internal void RemoveAsyncCall(long id)
@@ -57,13 +58,63 @@ namespace ZYNet.CloudSystem.Server
 
             if(!AsyncCallDiy.TryRemove(id, out AsyncCalls call))
             {
-               
+                Log.Error($"Id:{id} ERROR:\r\nNot TryRemove AsyncCall");
             }          
          
         }
 
+        internal bool CheckTimeOut()
+        {
+            if (CallBackDiy == null || CallBackDiy.Count == 0)
+                return false;
+            else
+            {
+                var res = AsyncWaitTimeOut.FindAll(p => p.Value < DateTime.Now);
 
-        internal async void AddAsyncCallBack(AsyncCalls asyncalls, long id)
+                if (res.Count == 0)
+                    return false;
+                else
+                {
+                    foreach (var item in res)
+                    {
+                        long id = item.Key;
+                        if (CallBackDiy.ContainsKey(id))
+                        {
+                            if (CallBackDiy.TryRemove(id, out AsyncCalls value))
+                            {
+                                Task.Run(() =>
+                                {
+
+                                    var timeout = new Result()
+                                    {
+                                        Id = id,
+                                        ErrorMsg = "Server call client time out",
+                                        ErrorId = -101
+                                    };
+
+                                    try
+                                    {
+                                        value.SetRes(timeout);
+                                    }
+                                    catch (Exception er)
+                                    {
+                                        Log.Error($"CMD:{value.Cmd} Id:{value.Id} ERROR:\r\n{er.Message}");
+                                    }
+
+                                });
+                            }
+                        }
+
+                        AsyncWaitTimeOut.Remove(item);
+                    }
+
+                    return true;
+                }
+            }
+        }
+
+
+        internal  void AddAsyncCallBack(AsyncCalls asyncalls, long id)
         {
             if (CallBackDiy == null)
                 CallBackDiy = new ConcurrentDictionary<long, AsyncCalls>();
@@ -72,34 +123,13 @@ namespace ZYNet.CloudSystem.Server
 
             if (asyncalls.CurrentServer.CheckTimeOut)
             {
-
-                await Task.Delay(asyncalls.CurrentServer.ReadOutTime);
-
-                if (CallBackDiy.ContainsKey(id))
-                {
-                    if (CallBackDiy.TryRemove(id, out AsyncCalls value))
-                    {
-                        var timeout = new Result()
-                        {
-                            Id = id,
-                            ErrorMsg = "Server call client time out",
-                            ErrorId = -101
-                        };
-
-                        try
-                        {
-                            value.SetRes(timeout);
-                        }
-                        catch (Exception er)
-                        {
-                            Log.Error($"CMD:{value.Cmd} Id:{value.Id} ERROR:\r\n{er.Message}");
-                        }
-                    }
-                }
+                KeyValuePair<long, DateTime> tot = new KeyValuePair<long, DateTime>(id, DateTime.Now.AddMilliseconds(asyncalls.CurrentServer.ReadOutTime));
+                AsyncWaitTimeOut.Add(tot);
             }
 
         }
 
+      
 
         internal void Write(byte[] data,int offset,int count)
         {

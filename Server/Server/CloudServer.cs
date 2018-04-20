@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using ZYNet.CloudSystem.Frame;
 using ZYNet.CloudSystem.Loggine;
@@ -15,6 +16,8 @@ namespace ZYNet.CloudSystem.Server
     {
         protected static readonly ILog Log = LogFactory.ForContext<CloudServer>();
 
+        protected WaitHandle _ReadWaitCheck = new EventWaitHandle(false, EventResetMode.AutoReset);
+
         public ZYSocketSuper Server { get; private set; }
 
         /// <summary>
@@ -24,7 +27,7 @@ namespace ZYNet.CloudSystem.Server
         {
             get; set;
         }
-        
+
         public bool CheckTimeOut { get; set; } = false;
 
 
@@ -36,16 +39,16 @@ namespace ZYNet.CloudSystem.Server
         /// </summary>
         public event IsCanConnHandler IsCanConn;
 
-        
+
         public Dictionary<int, AsyncStaticMethodDef> CallsMethods { get; private set; }
 
+        public List<ASyncToken> TokenList { get; private set; }
 
-
-        public Func<byte[],byte[]> DecodeingHandler { get; set; }
+        public Func<byte[], byte[]> DecodeingHandler { get; set; }
 
         public Func<byte[], byte[]> EcodeingHandler { get; set; }
 
- #if !COREFX
+#if !COREFX
         public CloudServer()
         {
             Server = new ZYSocketSuper();
@@ -71,17 +74,49 @@ namespace ZYNet.CloudSystem.Server
         private void Init()
         {
             CallsMethods = new Dictionary<int, AsyncStaticMethodDef>();
+            TokenList = new List<ASyncToken>();
             Server.BinaryOffsetInput = BinaryInputOffsetHandler;
             Server.Connetions = ConnectionFilter;
             Server.MessageInput = MessageInputHandler;
             Server.IsOffsetInput = true;
             ReadOutTime = 5000;
+            ThreadPool.RegisterWaitForSingleObject(_ReadWaitCheck, new WaitOrTimerCallback(checkAsyncTimeOut), null, 100, true);
         }
 
-        
-        public CloudServer Install(Type packHandlerType)
+        private void checkAsyncTimeOut(object o, bool b)
         {
-          
+            int timeSleep = 1;
+
+            try
+            {
+                bool isWaitlong = true;
+                if (CheckTimeOut)
+                {
+                    for (int i = 0; i < TokenList.Count; i++)
+                    {
+                        var token = TokenList[i];
+                        var t = token.CheckTimeOut();
+                        if (t)
+                            isWaitlong = false;
+                    }
+                    if (isWaitlong)
+                        timeSleep = 500;
+                }else                
+                    timeSleep = 1000;               
+
+            }
+            catch (Exception er)
+            {
+                Log.Error($"ERROR:\r\n{er.ToString()}");
+            }
+            finally
+            {
+                ThreadPool.RegisterWaitForSingleObject(_ReadWaitCheck, new WaitOrTimerCallback(checkAsyncTimeOut), null, timeSleep, true);
+            }
+        }
+
+        public CloudServer Install(Type packHandlerType)
+        {           
 
             var methods = packHandlerType.GetMethods(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
 
@@ -162,7 +197,6 @@ namespace ZYNet.CloudSystem.Server
         private ASyncToken NewASyncToken(SocketAsyncEventArgs socketAsync)
         {
             ASyncToken tmp = new ASyncToken(socketAsync, this, MaxBuffsize);
-
             return tmp;
         }
 
@@ -179,6 +213,7 @@ namespace ZYNet.CloudSystem.Server
                 {
                     var token = NewASyncToken(socketAsync);
                     socketAsync.UserToken = token;
+                    TokenList.Add(token);
 
                     if (count > 8)
                     {
@@ -204,9 +239,12 @@ namespace ZYNet.CloudSystem.Server
         private void MessageInputHandler(string message, SocketAsyncEventArgs socketAsync, int erorr)
         {
             if (socketAsync.UserToken != null)
-            {             
+            {
                 if (socketAsync.UserToken is ASyncToken tmp)
+                {
                     tmp.Disconnect(message);
+                    TokenList.Remove(tmp);
+                }
 
             }
 

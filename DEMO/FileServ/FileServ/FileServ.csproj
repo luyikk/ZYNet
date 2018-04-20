@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ZYNetClient-dnx" Version="1.1.4.7" />
-    <PackageReference Include="ZYNetServer-dnx" Version="1.1.4.7" />
+    <PackageReference Include="ZYNetClient-dnx" Version="1.1.4.8" />
+    <PackageReference Include="ZYNetServer-dnx" Version="1.1.4.8" />
   </ItemGroup>
 
 </Project>

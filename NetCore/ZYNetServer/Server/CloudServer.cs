@@ -30,10 +30,7 @@ namespace ZYNet.CloudSystem.Server
             }
             set
             {
-                if (value > 30000)
-                    readOutTime = 30000;
-                else
-                    readOutTime = value;
+                readOutTime = value;
             }
         }
         
@@ -51,7 +48,7 @@ namespace ZYNet.CloudSystem.Server
         
         public Dictionary<int, AsyncStaticMethodDef> CallsMethods { get; private set; }
 
-
+        public List<ASyncToken> TokenList { get; private set; }
 
         public Func<byte[],byte[]> DecodeingHandler { get; set; }
 
@@ -83,14 +80,51 @@ namespace ZYNet.CloudSystem.Server
         private void Init()
         {
             CallsMethods = new Dictionary<int, AsyncStaticMethodDef>();
+            TokenList = new List<ASyncToken>();
             Server.BinaryOffsetInput = BinaryInputOffsetHandler;
             Server.Connetions = ConnectionFilter;
             Server.MessageInput = MessageInputHandler;
             Server.IsOffsetInput = true;
             ReadOutTime = 5000;
+            Task.Run(new Action(checkAsyncTimeOut));
         }
 
-        
+        private async void checkAsyncTimeOut()
+        {
+            while (true)
+            {
+                int timeSleep = 1;
+
+                try
+                {
+                    bool isWaitlong = true;
+                    if (CheckTimeOut)
+                    {
+                        for (int i = 0; i < TokenList.Count; i++)
+                        {
+                            var token = TokenList[i];
+                            var t = token.CheckTimeOut();
+                            if (t)
+                                isWaitlong = false;
+                        }
+                        if (isWaitlong)
+                            timeSleep = 500;
+                    }
+                    else
+                        timeSleep = 1000;
+
+                }
+                catch (Exception er)
+                {
+                    Log.Error($"ERROR:\r\n{er.ToString()}");
+                }
+                finally
+                {
+                    await Task.Delay(timeSleep);
+                }
+            }
+        }
+
         public CloudServer Install(Type packHandlerType)
         {
           
@@ -191,7 +225,7 @@ namespace ZYNet.CloudSystem.Server
                 {
                     var token = NewASyncToken(socketAsync);
                     socketAsync.UserToken = token;
-
+                    TokenList.Add(token);
                     if (count > 8)
                     {
                         byte[] bakdata = new byte[count - 8];
@@ -216,10 +250,12 @@ namespace ZYNet.CloudSystem.Server
         private void MessageInputHandler(string message, SocketAsyncEventArgs socketAsync, int erorr)
         {
             if (socketAsync.UserToken != null)
-            {             
+            {
                 if (socketAsync.UserToken is ASyncToken tmp)
+                {
                     tmp.Disconnect(message);
-
+                    TokenList.Remove(tmp);
+                }
             }
 
             socketAsync.UserToken = null;
