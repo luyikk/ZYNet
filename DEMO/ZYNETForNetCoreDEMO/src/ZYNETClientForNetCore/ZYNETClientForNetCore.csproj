@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NETStandard.Library" Version="2.0.1" />
-    <PackageReference Include="ZYNetClient-dnx" Version="1.1.4.8" />
+    <PackageReference Include="NETStandard.Library" Version="2.0.2" />
+    <PackageReference Include="ZYNetClient-dnx" Version="1.1.5" />
     <PackageReference Include="ZYSOCKET-protobuf-net" Version="4.3.2" />
   </ItemGroup>
 

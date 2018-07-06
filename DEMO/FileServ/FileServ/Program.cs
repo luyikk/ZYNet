@@ -9,9 +9,15 @@ namespace FileServ
     {
         static  void Main(string[] args)
         {
-                    
-
-            RunCmd();
+            if(args.Length==0)
+                RunCmd();
+            else if(args[0].Equals("SERVER",StringComparison.OrdinalIgnoreCase))
+            {
+                LogFactory.AddConsole();
+                FileServ.Server.FileServer.Server.Start();
+                while (true)
+                    Console.ReadLine();
+            }
         }
 
         static  void RunCmd()
