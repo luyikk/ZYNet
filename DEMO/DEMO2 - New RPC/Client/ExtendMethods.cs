@@ -17,8 +17,8 @@ namespace Client
         SendTo= 2002,
     }
 
-    
 
+    [Build]
     public interface ServerMethods
     {
         [TAG((int)Cmdtype.LogOn)]

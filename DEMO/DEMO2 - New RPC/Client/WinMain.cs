@@ -9,7 +9,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using ZYNet.CloudSystem;
 using ZYNet.CloudSystem.Client;
-
+using ZYNet.CloudSystem.SocketClient;
+using Autofac;
 namespace Client
 {
     public partial class WinMain : Form
@@ -17,7 +18,11 @@ namespace Client
         public WinMain()
         {
             InitializeComponent();
+
+            Dependency.Register();
         }
+
+      
 
         public List<UserInfo> AllUser { get; set; }
 
@@ -47,9 +52,9 @@ namespace Client
         }
 
         [TAG(1004)]
-        public void RemoveUser(CloudClient client,string username)
+        public void RemoveUser(CloudClient client, UserInfo user)
         {
-            AllUser.RemoveAll(p => p.UserName == username);
+            AllUser.RemoveAll(p => p.UserName == user.UserName);
 
             this.BeginInvoke(new EventHandler(delegate
             {
@@ -86,14 +91,16 @@ namespace Client
         }
 
 
-        private void WinMain_Load(object sender, EventArgs e)
+        private async void WinMain_Load(object sender, EventArgs e)
         {
-           
-            if (ClientManager.Connect("127.0.0.1", 3775))
+
+            var client = Dependency.Container.Resolve<CloudClient>(new NamedParameter("millisecondsTimeout", 60000), new NamedParameter("maxBufferLength", 1024*1024));
+
+            if (await client.InitAsync("127.0.0.1", 3775))
             {
-                ClientManager.Client.Install(this);
+                client.Install(this);
                 LogOn tmp = new LogOn();
-                tmp.ShowDialog();              
+                tmp.ShowDialog();
 
             }
             else
@@ -101,6 +108,7 @@ namespace Client
                 MessageBox.Show("Not Connect Server");
                 this.Close();
             }
+
 
         }
 
@@ -114,19 +122,22 @@ namespace Client
 
         private async void button1_Click(object sender, EventArgs e)
         {
-            if(this.comboBox1.SelectedIndex==0)
+
+            var client = Dependency.Container.Resolve<CloudClient>();
+
+            if (this.comboBox1.SelectedIndex == 0)
             {
-                ClientManager.Sync.Get<ServerMethods>().SendMessageToAllUser(this.textBox1.Text);
+                client.Sync.Get<ServerMethods>().SendMessageToAllUser(this.textBox1.Text);
             }
             else
             {
-                var userinfo= this.comboBox1.SelectedItem as UserInfo;
+                var userinfo = this.comboBox1.SelectedItem as UserInfo;
 
                 if (userinfo != null)
                 {
                     try
                     {
-                        var msgres = await ClientManager.NewAsync().Get<ServerMethods>().SendMsgToUser(userinfo.UserName, this.textBox1.Text);
+                        var msgres = await client.NewAsync().Get<ServerMethods>().SendMsgToUser(userinfo.UserName, this.textBox1.Text);
 
                         var msg = msgres?.First?.Value<string>();
 
@@ -136,7 +147,8 @@ namespace Client
                             this.richTextBox1.AppendText((userinfo.UserName + ":" + msg ?? "发送失败") + "\r\n");
                         }));
 
-                    }catch(Exception er)
+                    }
+                    catch (Exception er)
                     {
                         this.BeginInvoke(new EventHandler(delegate
                         {
@@ -145,6 +157,7 @@ namespace Client
                     }
                 }
             }
+
         }
     }
 }

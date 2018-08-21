@@ -7,6 +7,7 @@ using ZYNet.CloudSystem.Frame;
 
 namespace FileServ.Client
 {
+    [Build]
     interface IServer
     {
         [TAG(1000)]

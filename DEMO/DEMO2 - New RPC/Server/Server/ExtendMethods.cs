@@ -19,7 +19,7 @@ namespace Server
         MsgToUser=2002,
     }
     
-
+    [Build]
     public interface ClientMethods
     {
         [TAG((int)Cmdtype.GetNick)] 

@@ -74,7 +74,9 @@ namespace Server
 
                 if(touser!=null)
                 {
-                    var ret = (await touser.token.MakeAsync(async).Get<ClientMethods>().MsgToUser(userinfo.UserName, msg))?.First?.Value<string>();
+
+                    var cx = touser.token.MakeAsync(async).Get<ClientMethods>();
+                    var ret = (await cx.MsgToUser(userinfo.UserName, msg))?.First?.Value<string>();
 
                     if(ret!=null)
                     {

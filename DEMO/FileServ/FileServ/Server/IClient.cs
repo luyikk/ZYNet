@@ -5,6 +5,7 @@ using ZYNet.CloudSystem;
 
 namespace FileServ.Server
 {
+    [Build]
     public interface IClient
     {
         [TAG(20000)]

@@ -16,7 +16,7 @@ namespace FileServ.Client
 
         public FileClient()
         {
-            client = new CloudClient(new SocketClient(), 10000, 1024 * 1024); //最大数据包能够接收 1M
+            client = new CloudClient(new ConnectionManager(), 10000, 1024 * 1024); //最大数据包能够接收 1M
             ClientPackHander tmp = new ClientPackHander();
             client.Install(tmp);
             client.Disconnect += Client_Disconnect;
@@ -25,7 +25,7 @@ namespace FileServ.Client
 
         public bool Connect(string IP)
         {
-            return client.Connect(IP, 9557);
+            return client.Init(IP, 9557);
         }
      
 
@@ -48,6 +48,7 @@ namespace FileServ.Client
             Console.WriteLine(" copy [source] [target]\t (copy filesystem to path)\r\n   Example: copy a.txt b.txt (please use CD set current path)");
             Console.WriteLine(" rm [file]\t (delete file)\r\n   Example: rm /home/ccc \r\n   Example: rm xxx.txt(please use CD set current path)");
             Console.WriteLine(" driveinfo \t (show driveinfo)\r\n   Example: driveinfo");
+            Console.WriteLine(" cmd  show cmd");
             Console.WriteLine(" close (close current connect)");
 
             
@@ -193,11 +194,21 @@ namespace FileServ.Client
                         ShowDriveInfo();
                     }
                     break;
+                case "cmd":
+                    {
+                        PrintCmd();
+                    }
+                    break;
                 case "close":
                     {
                         client.Close();
                         return true;
                     }
+                default:
+                    {
+                        Console.WriteLine($"not command {cmdarg}");
+                    }
+                    break;
 
 
             }

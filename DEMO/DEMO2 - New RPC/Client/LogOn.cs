@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using ZYNet.CloudSystem;
 using ZYNet.CloudSystem.Client;
-
+using Autofac;
 namespace Client
 {
     public partial class LogOn : Form
@@ -31,18 +31,20 @@ namespace Client
         private async void button1_Click(object sender, EventArgs e)
         {
 
-            var res = await ClientManager.NewAsync().Get<ServerMethods>().LogOn(this.textBox1.Text);
+            var client = Dependency.Container.Resolve<CloudClient>();
+
+            var res = await client.NewAsync().Get<ServerMethods>().LogOn(this.textBox1.Text);
 
             var isOK = res?.First?.Value<bool>();
 
-            if(isOK!=null)
+            if (isOK != null)
             {
-                if(isOK.Value)
+                if (isOK.Value)
                 {
                     this.BeginInvoke(new EventHandler(delegate
                     {
                         this.Close();
-                    }));                   
+                    }));
                 }
                 else
                 {
@@ -50,13 +52,16 @@ namespace Client
                 }
             }
 
-         
+
         }
 
 
         private void LogOn_Load(object sender, EventArgs e)
         {
-            ClientManager.Client.Install(this);
+           
+                var client = Dependency.Container.Resolve<CloudClient>();
+                client.Install(this);
+            
         }
     }
 }

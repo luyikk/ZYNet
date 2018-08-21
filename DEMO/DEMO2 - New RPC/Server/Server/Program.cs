@@ -15,7 +15,7 @@ namespace Server
         static void Main(string[] args)
         {
             LogFactory.AddConsole();
-            CloudServer tmp = new CloudServer(1024 * 1024);//没个SocketAsync对象缓冲区128k,最大能接收1M长度的数据包
+            CloudServer tmp = new CloudServer("127.0.0.1",3775,1000,1024 * 1024, 1024 * 1024);//没个SocketAsync对象缓冲区128k,最大能接收1M长度的数据包
             tmp.Install(typeof(PackHandler));
             tmp.Start();
             while (true)

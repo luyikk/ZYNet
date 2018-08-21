@@ -16,48 +16,58 @@ namespace ZYNETClientForNetCore
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
             LogFactory.AddConsole();
-            CloudClient client = new CloudClient(new SocketClient(), 6000, 1024 * 1024); //最大数据包能够接收 1M
+            CloudClient client = new CloudClient(new ConnectionManager(), 60000, 1024 * 1024); //最大数据包能够接收 1M
             PackHander tmp = new PackHander();
             client.Install(tmp);
             client.Disconnect += Client_Disconnect;
             client.CheckAsyncTimeOut = true;
-           
-            if (client.Connect("127.0.0.1", 2285))
+
+            if (client.Init("127.0.0.1", 2285))
             {
-                ZYSync Sync = client.Sync;
+                var Sync = client.Sync;
                 IPacker ServerPack = Sync.Get<IPacker>();
-
-                var res = ServerPack.IsLogOn("AAA", "BBB")?[0]?.Value<bool>();
-
-                if (res != null && res == true)
+                re:
+                try
                 {
+                    var res = ServerPack.IsLogOn("AAA", "BBB")?[0]?.Value<bool>();
 
-                    var html = ServerPack.StartDown("http://www.baidu.com")?[0]?.Value<string>();
-                    if (html != null)
+                    if (res != null && res == true)
                     {
-                        Console.WriteLine("BaiduHtml:" + html.Length);
 
-                       // var time = ServerPack.GetTime();
+                        var html = ServerPack.StartDown("http://www.baidu.com")?[0]?.Value<string>();
+                        if (html != null)
+                        {
+                            Console.WriteLine("BaiduHtml:" + html.Length);
 
-                      //  Console.WriteLine("ServerTime:" + time);
+                            // var time = ServerPack.GetTime();
 
-                        ServerPack.SetPassWord("123123");
+                            //  Console.WriteLine("ServerTime:" + time);
 
-                        var x = ServerPack.StartDown("http://www.qq.com");
+                            ServerPack.SetPassWord("123123");
 
-                        Console.WriteLine("QQHtml:" + x.First.Value<string>().Length);
+                            var x = ServerPack.StartDown("http://www.qq.com");
 
-                        System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch();
-                        stop.Start();
-                        var rec = ServerPack.TestRec2(10000);
-                        stop.Stop();
+                            Console.WriteLine("QQHtml:" + x.First.Value<string>().Length);
 
-                        Console.WriteLine("Rec:{0} time:{1} MS", rec, stop.ElapsedMilliseconds);
-                        TestRun(client);
+                            System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch();
+                            stop.Start();
+                            var rec = ServerPack.TestRec2(10000);
+                            stop.Stop();
+
+                            Console.WriteLine("Rec:{0} time:{1} MS", rec, stop.ElapsedMilliseconds);
+                            TestRun(client);
+                        }
                     }
                 }
+                catch (TimeoutException er)
+                {
+                    Console.WriteLine(er.ToString());
+                }
+
                 Console.WriteLine("Close");
                 Console.ReadLine();
+                goto re;
+
             }
 
         }
