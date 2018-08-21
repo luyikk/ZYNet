@@ -8,14 +8,14 @@ using ZYNet.CloudSystem.Client;
 using ZYNet.CloudSystem.Frame;
 using ZYNet.CloudSystem.SocketClient;
 using ZYNETClientForNetCore;
+using Autofac;
 
 namespace TestApp
 {
 	public partial class MainPage : ContentPage
 	{
 
-        CloudClient client;
-
+      
         public MainPage()
 		{
 			InitializeComponent();
@@ -25,7 +25,7 @@ namespace TestApp
 
         private async void Init()
         {
-            client = new CloudClient(new ConnectionManager(), 600000, 1024 * 1024); //最大数据包能够接收 1M
+            var client = Dependency.Container.Resolve<CloudClient>(new NamedParameter("millisecondsTimeout",60000),new NamedParameter("maxBufferLength",1024*1024)); 
             PackHander tmp = new PackHander();
             client.Install(tmp);
             client.Disconnect += Client_Disconnect;
@@ -56,7 +56,7 @@ namespace TestApp
 
         private void Button_Clicked(object sender, EventArgs e)
         {
-            var Sync = client.Sync;
+            var Sync = Dependency.Container.Resolve<CloudClient>().Sync;
             IPacker ServerPack = Sync.Get<IPacker>();
 
             try
@@ -101,7 +101,7 @@ namespace TestApp
         {
             try
             {
-                var Server = client.NewAsync();
+                var Server = Dependency.Container.Resolve<CloudClient>().NewAsync();
                 var sync = Server.Get<IPacker>();
 
                 var html = await sync.StartDownAsync("http://www.baidu.com");
@@ -123,6 +123,45 @@ namespace TestApp
             catch (TimeoutException er)
             {
                 OutMessage(er.Message);
+            }
+        }
+
+        public bool  IsStart { get; set; }
+        private long bp;
+        private long Ticks;
+        private async void Button_Clicked_2(object sender, EventArgs e)
+        {
+            Button buttion = sender as Button;
+            if(!IsStart)
+            {
+                buttion.Text = "STOP";
+                Ticks = 0L;
+                bp = 0L;
+                IsStart = true;
+
+                Device.StartTimer(TimeSpan.FromSeconds(1), () =>
+                {
+
+                    OutMessage((Ticks - bp).ToString());
+                    bp = Ticks;
+                    return IsStart;
+                });
+
+
+                var Server = Dependency.Container.Resolve<CloudClient>().NewAsync().Get<IPacker>();
+
+                while(IsStart)
+                {
+                    Ticks= (await Server.Add(Ticks)).As<long>();
+                }
+
+               
+
+            }
+            else
+            {
+                buttion.Text = "StartQPS";
+                IsStart = false;                
             }
         }
     }

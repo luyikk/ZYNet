@@ -20,12 +20,15 @@ namespace ZYNETClientForNetCore
             PackHander tmp = new PackHander();
             client.Install(tmp);
             client.Disconnect += Client_Disconnect;
-            client.CheckAsyncTimeOut = true;
+            client.CheckAsyncTimeOut = false;   
 
             if (client.Init("127.0.0.1", 2285))
             {
+               
                 var Sync = client.Sync;
                 IPacker ServerPack = Sync.Get<IPacker>();
+             
+
                 re:
                 try
                 {
@@ -56,6 +59,7 @@ namespace ZYNETClientForNetCore
 
                             Console.WriteLine("Rec:{0} time:{1} MS", rec, stop.ElapsedMilliseconds);
                             TestRun(client);
+                          
                         }
                     }
                 }
@@ -72,6 +76,7 @@ namespace ZYNETClientForNetCore
 
         }
 
+
         public static async void TestRun(CloudClient client)
         {
             var Server = client.NewAsync().Get<IPacker>();
@@ -82,12 +87,14 @@ namespace ZYNETClientForNetCore
             System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch();
             stop.Start();
             var rec = await Server.TestRecAsync(10000);
-            stop.Stop();
+            stop.Stop();            
 
             Console.WriteLine("Async Rec:{0} time:{1} MS", rec.First.Value<int>(), stop.ElapsedMilliseconds);
+
         }
 
-    
+
+
 
         private static void Client_Disconnect(string obj)
         {

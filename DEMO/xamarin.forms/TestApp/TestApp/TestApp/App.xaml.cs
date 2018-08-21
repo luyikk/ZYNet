@@ -1,6 +1,8 @@
 using System;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
+using ZYNet.CloudSystem.Client;
+using Autofac;
 
 [assembly: XamlCompilation (XamlCompilationOptions.Compile)]
 namespace TestApp
@@ -10,8 +12,9 @@ namespace TestApp
 		public App ()
 		{
 			InitializeComponent();
-
-			MainPage = new NavigationPage(new MainPage());
+            Dependency.Init();
+            MainPage = new NavigationPage(new MainPage());
+           
 		}
 
 		protected override void OnStart ()

@@ -55,5 +55,8 @@ namespace ZYNETClientForNetCore
         [TAG(2500)]
         int TestRec2(int count);
 
+        [TAG(3000)]
+        ResultAwatier Add(long p);
+
     }
 }

@@ -101,14 +101,19 @@ namespace ZYNETServerForNetCore
             return async.Res(count);
         }
 
+        [TAG(3000)]
+        public static int Add(ASyncToken token, int count)
+        {
+            return count + 1;
 
+        }
 
-        /// <summary>
-        /// USER DISCONNECT
-        /// </summary>
-        /// <param name="arg1"></param>
-        /// <param name="arg2"></param>
-        private static void Token_UserDisconnect(ASyncToken arg1, string arg2)
+            /// <summary>
+            /// USER DISCONNECT
+            /// </summary>
+            /// <param name="arg1"></param>
+            /// <param name="arg2"></param>
+            private static void Token_UserDisconnect(ASyncToken arg1, string arg2)
         {
             if (arg1.UserToken != null)
             {
