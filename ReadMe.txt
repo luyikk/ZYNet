@@ -24,15 +24,11 @@ Attention when using: IOS platform is unable to use Emit, so it also means that 
 最低.NET 版本支持 .net 4.5
 最低.net standard 支持 .net standard 1.3
 
+使用方法:
+Install-Package ZYNet
 
-nugit:
-Server: Install-Package ZYNetServer-dnx 
-Client: Install-Package ZYNetClient-dnx 
-xamarin:Install-Package ZYNetClient-Xamarin
-
-https://www.nuget.org/packages/ZYNetServer-dnx/
-https://www.nuget.org/packages/ZYNetClient-dnx/
-https://www.nuget.org/packages/ZYNetClient-Xamarin
+Xamarin for IOS:
+Install-Package ZYNet-Portable
 
 github:https://github.com/luyikk/ZYNet
 
