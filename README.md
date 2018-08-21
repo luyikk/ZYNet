@@ -1,2 +1,11 @@
-# ZYNET2
-ZYNet with netstandard2.0 and ZYNet portable version
+ZYNET is a cross platform fiber based network framework.
+He uses RPC+CMD access 
+Excellent performance, cross platform, strong stability 
+Attention when using: IOS platform is unable to use Emit, so it also means that the RPC way can not be used, the only use of CMD, in detail, please see DEMO 
+
+nugit: Install-Package ZYNet
+
+Xamarin for IOS: Install-Package ZYNet-Portable
+
+
+github:https://github.com/luyikk/ZYNet
