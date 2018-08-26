@@ -8,12 +8,15 @@ using ZYNet.CloudSystem.Frame;
 
 namespace ZYNet.CloudSystem.Server
 {
-    public class AsyncStaticMethodDef
+    public class AsyncMethodDef
     {
         static  Type tasktype = typeof(Task);
+
         public bool IsAsync { get; set; }
 
         public bool IsRet { get; set; }
+
+        public Type ImplementationType { get; set; }
 
         public MethodInfo MethodInfo { get; set; }
 
@@ -21,11 +24,12 @@ namespace ZYNet.CloudSystem.Server
 
 
 
-        public AsyncStaticMethodDef(MethodInfo methodInfo)
+        public AsyncMethodDef(Type implementationType,MethodInfo methodInfo)
         {
 
           
             this.MethodInfo = methodInfo;
+            this.ImplementationType = implementationType;
             var parameters = methodInfo.GetParameters();
             ArgsType = new Type[parameters.Length];
 

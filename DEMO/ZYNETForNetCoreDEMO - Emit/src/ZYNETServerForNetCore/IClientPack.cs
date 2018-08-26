@@ -19,5 +19,8 @@ namespace ZYNETServerForNetCore
 
         [TAG(2500)]
         ResultAwatier TestRecAsync(int count);
+
+        [TAG(2501)]
+        ResultAwatier TestRecAsync2(int count);
     }
 }

@@ -16,12 +16,10 @@ namespace ZYNETClientForNetCore
     public class PackHander
     {
         [TAG(2001)]
-        public async Task<Result> DownHtml(AsyncCalls async, string url)
+        public async Task<byte[]> DownHtml(AsyncCalls async, string url)
         {
             HttpClient  client = new HttpClient();
-            byte[] html = await client.GetByteArrayAsync(url);
-            
-            return async.Res(html);
+            return await client.GetByteArrayAsync(url);          
         }
 
         [TAG(3001)]
@@ -32,20 +30,12 @@ namespace ZYNETClientForNetCore
 
 
         [TAG(2500)]
-        public async Task<Result> TestRec(AsyncCalls async, int count)
+        public async Task<int> TestRec(AsyncCalls async, int count)
         {
             count--;
-            if (count > 1)
-            {
-                var x = (await async.Func(2500, count))?[0]?.Value<int>();
-
-                if (x != null && x.HasValue)
-                {
-                    count = x.Value;
-                }
-            }
-
-            return async.Res(count);
+            if (count > 1)            
+                count = (await async.Func(2500, count)).As<int>();
+            return count;
         }
     }
 }

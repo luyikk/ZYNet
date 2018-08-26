@@ -8,7 +8,7 @@ using ZYSocket.share;
 
 namespace ZYNet.CloudSystem.Frame
 {
-    public abstract class ZYSyncBase
+    public abstract class ZYSyncBase:MessageExceptionParse
     {
 
         public Func<byte[],byte[]> DataExtra { get; set; }
@@ -40,9 +40,15 @@ namespace ZYNet.CloudSystem.Frame
                 {
 
                     bufflist.Write(CmdDef.CallCmd);
-                    byte[] classdata = BufferFormat.SerializeObject(buffer);
-                    bufflist.Write(classdata.Length);
-                    bufflist.Write(classdata);
+                 
+                    bufflist.Write(buffer.Id);
+                    bufflist.Write(buffer.CmdTag);
+                    bufflist.Write(buffer.Arguments.Count);
+                    foreach (var arg in buffer.Arguments)
+                    {
+                        bufflist.Write(arg.Length);
+                        bufflist.Write(arg);
+                    }
 
                     byte[] fdata = DataExtra(stream.ToArray());
 
@@ -55,9 +61,15 @@ namespace ZYNet.CloudSystem.Frame
                 {
                     bufflist.Write(0);
                     bufflist.Write(CmdDef.CallCmd);
-                    byte[] classdata = BufferFormat.SerializeObject(buffer);
-                    bufflist.Write(classdata.Length);
-                    bufflist.Write(classdata);
+                   
+                    bufflist.Write(buffer.Id);
+                    bufflist.Write(buffer.CmdTag);
+                    bufflist.Write(buffer.Arguments.Count);
+                    foreach (var arg in buffer.Arguments)
+                    {
+                        bufflist.Write(arg.Length);
+                        bufflist.Write(arg);
+                    }
 
                 }
 
@@ -105,9 +117,15 @@ namespace ZYNet.CloudSystem.Frame
                 {
 
                     bufflist.Write(CmdDef.CallCmd);
-                    byte[] classdata = BufferFormat.SerializeObject(buffer);
-                    bufflist.Write(classdata.Length);
-                    bufflist.Write(classdata);
+                  
+                    bufflist.Write(buffer.Id);
+                    bufflist.Write(buffer.CmdTag);
+                    bufflist.Write(buffer.Arguments.Count);
+                    foreach (var arg in buffer.Arguments)
+                    {
+                        bufflist.Write(arg.Length);
+                        bufflist.Write(arg);
+                    }
 
                     byte[] fdata = DataExtra(stream.ToArray());
 
@@ -120,9 +138,15 @@ namespace ZYNet.CloudSystem.Frame
                 {
                     bufflist.Write(0);
                     bufflist.Write(CmdDef.CallCmd);
-                    byte[] classdata = BufferFormat.SerializeObject(buffer);
-                    bufflist.Write(classdata.Length);
-                    bufflist.Write(classdata);
+                   
+                    bufflist.Write(buffer.Id);
+                    bufflist.Write(buffer.CmdTag);
+                    bufflist.Write(buffer.Arguments.Count);
+                    foreach (var arg in buffer.Arguments)
+                    {
+                        bufflist.Write(arg.Length);
+                        bufflist.Write(arg);
+                    }
 
                 }
 

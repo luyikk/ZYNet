@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -7,6 +8,8 @@ using System.Threading.Tasks;
 using ZYNet.CloudSystem.Frame;
 using ZYNet.CloudSystem.Loggine;
 using ZYSocket.Server;
+using ZYSocket.share;
+using System.Linq;
 
 namespace ZYNet.CloudSystem.Server
 {
@@ -17,6 +20,9 @@ namespace ZYNet.CloudSystem.Server
 
         public ZYSocketSuper Server { get; private set; }
 
+        public Func<Exception,bool> ExceptionOut { get; set; }
+
+        Random Ran = new Random();
 
         int readOutTime;
         /// <summary>
@@ -36,27 +42,28 @@ namespace ZYNet.CloudSystem.Server
         
         public bool CheckTimeOut { get; set; } = false;
 
-
         public int MaxBuffsize { get; set; }
+
+        public TimeSpan TokenWaitClecr { get; set; }
 
 
         /// <summary>
         /// 此IP是否可以连接?
         /// </summary>
         public event IsCanConnHandler IsCanConn;
-
         
-        public Dictionary<int, AsyncStaticMethodDef> CallsMethods { get; private set; }
+        public Dictionary<int, AsyncMethodDef> CallsMethods { get; private set; }
 
-        public List<ASyncToken> TokenList { get; private set; }
+        public ConcurrentDictionary<long,ASyncToken> TokenList { get; private set; }
 
         public Func<byte[],byte[]> DecodeingHandler { get; set; }
 
         public Func<byte[], byte[]> EcodeingHandler { get; set; }
 
 
-        public CloudServer(string host, int port, int maxConnectCout, int maxBuffersize, int maxPackSize)
+        public CloudServer(string host, int port, int maxConnectCout, int maxBuffersize, int maxPackSize,int tokenWaitClecrMilliseconds = 30000)
         {
+            TokenWaitClecr = TimeSpan.FromMilliseconds(tokenWaitClecrMilliseconds);
             Server = new ZYSocketSuper(host, port, maxConnectCout, maxBuffersize);
             MaxBuffsize = maxPackSize;
             Init();
@@ -64,8 +71,9 @@ namespace ZYNet.CloudSystem.Server
 
         private void Init()
         {
-            CallsMethods = new Dictionary<int, AsyncStaticMethodDef>();
-            TokenList = new List<ASyncToken>();
+            
+            CallsMethods = new Dictionary<int, AsyncMethodDef>();
+            TokenList = new ConcurrentDictionary<long, ASyncToken>();
             Server.BinaryOffsetInput = BinaryInputOffsetHandler;
             Server.Connetions = ConnectionFilter;
             Server.MessageInput = MessageInputHandler;
@@ -82,26 +90,27 @@ namespace ZYNet.CloudSystem.Server
 
                 try
                 {
-                    bool isWaitlong = true;
-                    if (CheckTimeOut)
-                    {
-                        for (int i = 0; i < TokenList.Count; i++)
-                        {
-                            var token = TokenList[i];
-                            var t = token.CheckTimeOut();
-                            if (t)
-                                isWaitlong = false;
-                        }
-                        if (isWaitlong)
-                            timeSleep = 500;
-                    }
-                    else
+                    bool c1 = checkTokenTimeOut();
+                    bool c2 = checkAsynTokenTimeOut();           
+
+                    if (c1 && c2)
                         timeSleep = 1000;
+                    else if (c1)
+                        timeSleep = 500;
+                    else if (c2)
+                        timeSleep = 500;
+                    else
+                        timeSleep = 20;
 
                 }
                 catch (Exception er)
                 {
-                    Log.Error($"ERROR:\r\n{er.ToString()}");
+                    var b = ExceptionOut?.Invoke(er);
+                    if(b is null)
+                        Log.Error($"ERROR:\r\n{er.ToString()}");
+                    else if(b.Value)                    
+                        Log.Error($"ERROR:\r\n{er.ToString()}");
+                    
                 }
                 finally
                 {
@@ -110,11 +119,38 @@ namespace ZYNet.CloudSystem.Server
             }
         }
 
+
+        private bool checkTokenTimeOut()
+        {
+            bool isWaitlong = true;
+            if (CheckTimeOut)            
+                foreach (var token in TokenList)               
+                    if(token.Value.CheckTimeOut())                   
+                        isWaitlong = false;             
+
+            return isWaitlong;
+        }
+
+        private bool checkAsynTokenTimeOut()
+        {
+            bool isWaitlong = true;
+            var dis = TokenList.Values.Where(p => p.IsDisconnect);
+
+            foreach (var token in dis)
+                if ((DateTime.Now - TokenWaitClecr) > token.DisconnectDateTime)                
+                    if (TokenList.TryRemove(token.SessionKey, out ASyncToken value))
+                        Log.Debug($"Remove Token {value.SessionKey}");                
+
+            return isWaitlong;
+        }
+
         public CloudServer Install(Type packHandlerType)
         {
-          
 
-            var methods = packHandlerType.GetMethods(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
+            if (packHandlerType.BaseType != typeof(ControllerBase))
+                throw new TypeLoadException($"{packHandlerType.Name} not inherit ControllerBase");
+
+            var methods = packHandlerType.GetMethods();
 
             Type tasktype = typeof(Task);
 
@@ -128,28 +164,12 @@ namespace ZYNet.CloudSystem.Server
                     if (att is TAG attrcmdtype)
                     {
 
-                        if ((method.ReturnType == tasktype || (Common.IsTypeOfBaseTypeIs(method.ReturnType, tasktype) && method.ReturnType.IsConstructedGenericType && method.ReturnType.GenericTypeArguments[0] == typeof(Result))))
+                        if (!CallsMethods.ContainsKey(attrcmdtype.CmdTag))
                         {
-                            if (method.GetParameters().Length > 0 && method.GetParameters()[0].ParameterType == typeof(AsyncCalls))
-                            {
-                                if (!CallsMethods.ContainsKey(attrcmdtype.CmdTag))
-                                {
-                                    AsyncStaticMethodDef tmp = new AsyncStaticMethodDef(method);
-                                    CallsMethods.Add(attrcmdtype.CmdTag, tmp);
-                                }
-                            }
-
+                            AsyncMethodDef tmp = new AsyncMethodDef(packHandlerType, method);
+                            CallsMethods.Add(attrcmdtype.CmdTag, tmp);
                         }
 
-                        else if (method.GetParameters().Length > 0 && method.GetParameters()[0].ParameterType == typeof(ASyncToken))
-                        {
-                            if (!CallsMethods.ContainsKey(attrcmdtype.CmdTag))
-                            {
-                                AsyncStaticMethodDef tmp = new AsyncStaticMethodDef(method);
-                                CallsMethods.Add(attrcmdtype.CmdTag, tmp);
-                            }
-                        }
-                        
                         break;
                     }
 
@@ -190,10 +210,10 @@ namespace ZYNet.CloudSystem.Server
         /// </summary>
         /// <param name="socketAsync"></param>
         /// <returns></returns>
-        private ASyncToken NewASyncToken(SocketAsyncEventArgs socketAsync)
+        private ASyncToken NewASyncToken(SocketAsyncEventArgs socketAsync, ZYNetRingBufferPool stream,long sessionkey)
         {
-            ASyncToken tmp = new ASyncToken(socketAsync, this, MaxBuffsize);
-
+            ASyncToken tmp = new ASyncToken(socketAsync, this, sessionkey, stream);
+            tmp.ExceptionOut = this.ExceptionOut;
             return tmp;
         }
 
@@ -202,46 +222,126 @@ namespace ZYNet.CloudSystem.Server
         private void BinaryInputOffsetHandler(byte[] data, int offset, int count, SocketAsyncEventArgs socketAsync)
         {
             try
-            {              
+            {
                 if (socketAsync.UserToken is ASyncToken tmp)
                     tmp.Write(data, offset, count);
-                else if (count >= 8 && data[offset] == 0xFF && data[offset + 1] == 0xFE && data[offset + 5] == 0xCE &&
-                         data[offset + 7] == 0xED)
-                {
-                    var token = NewASyncToken(socketAsync);
-                    socketAsync.UserToken = token;
-                    TokenList.Add(token);
-                    if (count > 8)
+                else 
+                {                    
+                    ZYNetRingBufferPool stream;
+                    if (socketAsync.UserToken != null)
+                        stream = socketAsync.UserToken as ZYNetRingBufferPool;
+                    else
                     {
-                        byte[] bakdata = new byte[count - 8];
-                        Buffer.BlockCopy(data, offset + 8, bakdata, 0, bakdata.Length);
-                        token.Write(bakdata, 0, bakdata.Length);
+                        stream = new ZYNetRingBufferPool(MaxBuffsize);
+                        socketAsync.UserToken = stream;
+                    }
+
+                    stream.Write(data, offset, count);
+
+                    if (stream.Read(out byte[] pdata))
+                    {
+                        DataOn(pdata, socketAsync,stream);                     
                     }
                 }
-                else
-                {
-                    Server.Disconnect(socketAsync.AcceptSocket);
-
-                }
+               
             }
             catch (Exception er)
             {
-                Log.Error(er.Message,er);
+               var b=  ExceptionOut?.Invoke(er);
+                if(b is null)
+                    Log.Error(er.Message,er);
+                else if(b.Value)
+                    Log.Error(er.Message, er);
+
             }
 
+        }
+
+        private void DataOn(byte[] data,SocketAsyncEventArgs socketAsync, ZYNetRingBufferPool stream)
+        {
+            ReadBytes read = new ReadBytes(data);
+
+            if(read.Length>=4)
+            {
+                int lengt;               
+
+                if (read.ReadInt32(out lengt) && lengt == read.Length)
+                {                    
+
+                    if (read.ReadByte() == 0xED  &&
+                       read.ReadByte() == 0xCE &&
+                       read.ReadByte() == 0xFE &&
+                       read.ReadByte() == 0x10)
+                    {
+
+                        long sessionId = read.ReadInt64();
+
+                        if (sessionId == 0)
+                        {
+                            var token = MakeNewToken(socketAsync, stream, ref sessionId);
+                            if (token != null)
+                            {
+                                BufferFormat session = new BufferFormat(0x10FECEED);
+                                session.AddItem(sessionId);
+                                Send(token.Sendobj, session.Finish());
+                            }
+                        }
+                        else
+                        {
+                            if(TokenList.TryGetValue(sessionId,out ASyncToken token))
+                            {
+
+                                token.SetSocketEventAsync(socketAsync);
+                                socketAsync.UserToken = token;
+                                Log.Debug($"ReUse Token {token.SessionKey}");
+                            }
+                            else
+                            {
+                                var _token = MakeNewToken(socketAsync, stream, ref sessionId);
+                                if (_token != null)
+                                {
+                                    BufferFormat session = new BufferFormat(0x10FECEED);
+                                    session.AddItem(sessionId);
+                                    Send(_token.Sendobj, session.Finish());
+                                }
+                            }
+                        }
+                    }
+                    else
+                        Server.Disconnect(socketAsync.AcceptSocket);
+                }
+                else
+                    Server.Disconnect(socketAsync.AcceptSocket);
+            }
+            else            
+                Server.Disconnect(socketAsync.AcceptSocket);
+
+           
+        }
+
+        private ASyncToken MakeNewToken(SocketAsyncEventArgs socketAsync, ZYNetRingBufferPool stream,ref long sessionId)
+        {
+            sessionId = MakeSessionId();
+            var token = NewASyncToken(socketAsync, stream, sessionId);
+            socketAsync.UserToken = token;
+            if (!TokenList.TryAdd(sessionId, token))
+            {
+                Server.Disconnect(socketAsync.AcceptSocket);
+                return null;
+            }
+
+            Log.Debug($"Create Token {token.SessionKey}");
+
+            return token;
         }
 
 
         private void MessageInputHandler(string message, SocketAsyncEventArgs socketAsync, int erorr)
         {
-            if (socketAsync.UserToken != null)
-            {
-                if (socketAsync.UserToken is ASyncToken tmp)
-                {
-                    tmp.Disconnect(message);
-                    TokenList.Remove(tmp);
-                }
-            }
+            if (socketAsync.UserToken != null)            
+                if (socketAsync.UserToken is ASyncToken tmp)                
+                    tmp.Disconnect(message);                
+            
 
             socketAsync.UserToken = null;
             socketAsync.AcceptSocket.Close();
@@ -256,6 +356,15 @@ namespace ZYNet.CloudSystem.Server
             Server.Send(sock, data);
         }
        
-
+        internal long MakeSessionId()
+        {
+            lock (Ran)
+            {
+                long c = 630822816000000000; //2000-1-1 0:0:0:0
+                long x = DateTime.Now.Ticks;
+                long m = ((x - c) * 1000) + Ran.Next(1000);
+                return m;
+            }
+        }
     }
 }

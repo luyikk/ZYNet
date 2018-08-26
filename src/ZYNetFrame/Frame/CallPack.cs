@@ -12,7 +12,7 @@ namespace ZYNet.CloudSystem.Frame
     {
         public const int CallCmd = 0x1000;
         public const int ReturnResult = 0x1001;
-
+        public const int SetSession = 0x10FECEED;
     }
 
     
@@ -66,7 +66,7 @@ namespace ZYNet.CloudSystem.Frame
 
     public class Result
     {
-        public long Id { get; set; }
+        public long Id { get; set; } = -19999999210012;
 
         public List<byte[]> Arguments { get; set; }
 
@@ -112,7 +112,7 @@ namespace ZYNet.CloudSystem.Frame
 
         public Result()
         {
-
+            Arguments = new List<byte[]>();
         }
 
         public Result(params object[] args)

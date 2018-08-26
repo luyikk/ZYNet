@@ -1,7 +1,7 @@
 {
   "runtimeTarget": {
     "name": ".NETStandard,Version=v2.0/",
-    "signature": "12f44cf860cd8f8197451f280b62fd6f376fbca0"
+    "signature": "be7db88b1a7c49ff0ec8e9b287a8d9d52f41612c"
   },
   "compilationOptions": {},
   "targets": {
@@ -9,12 +9,21 @@
     ".NETStandard,Version=v2.0/": {
       "ZYNetServer_Portable/1.0.0": {
         "dependencies": {
+          "Microsoft.CSharp": "4.5.0",
           "NETStandard.Library": "2.0.3",
           "System.Net.NameResolution": "4.3.0",
           "ZYNetFrame_Portable": "1.0.0"
         },
         "runtime": {
           "ZYNetServer_Portable.dll": {}
+        }
+      },
+      "Microsoft.CSharp/4.5.0": {
+        "runtime": {
+          "lib/netstandard2.0/Microsoft.CSharp.dll": {
+            "assemblyVersion": "4.0.4.0",
+            "fileVersion": "4.6.26515.6"
+          }
         }
       },
       "Microsoft.Extensions.Configuration.Abstractions/1.1.2": {
@@ -360,6 +369,13 @@
       "type": "project",
       "serviceable": false,
       "sha512": ""
+    },
+    "Microsoft.CSharp/4.5.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-EGoBmf3Na2ppbhPePDE9PlX81r1HuOZH5twBrq7couJZiPTjUnD3648balerQJO6EJ8Sj+43+XuRwQ7r+3tE3w==",
+      "path": "microsoft.csharp/4.5.0",
+      "hashPath": "microsoft.csharp.4.5.0.nupkg.sha512"
     },
     "Microsoft.Extensions.Configuration.Abstractions/1.1.2": {
       "type": "package",

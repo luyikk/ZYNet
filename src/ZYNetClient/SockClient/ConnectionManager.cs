@@ -31,6 +31,8 @@ namespace ZYNet.CloudSystem.SocketClient
 
         public int MaxBufferLength { get; private set; }
 
+        public ISessionRW SessionRW { get; set; }
+
         public bool IsConnect
         {
             get
@@ -40,6 +42,14 @@ namespace ZYNet.CloudSystem.SocketClient
                 else
                     return socketClient.IsConnect;
             }
+        }
+
+        public ConnectionManager(ISessionRW sessionRW=null)
+        {
+            if (sessionRW == null)
+                SessionRW = new SessionRWMemory();
+            else
+                SessionRW = sessionRW;
         }
 
      
@@ -90,10 +100,15 @@ namespace ZYNet.CloudSystem.SocketClient
                     {
 
                         RingBuffer.Flush();
-                        socketClient.BinaryInput += SocketClient_BinaryInput; ;
-                        socketClient.Disconnect += SocketClient_Disconnect;
-                        byte[] data = { 0xFF, 0xFE, 0x00, 0x00, 0x00, 0xCE, 0x00, 0xED };
+                        socketClient.BinaryInput += SocketClient_BinaryInput; 
+                        socketClient.Disconnect += SocketClient_Disconnect;                      
+
+                        BufferFormat buffer = new BufferFormat(0x10FECEED);
+                        buffer.AddItem(SessionRW.GetSession());
+                        byte[] data = buffer.Finish();
                         socketClient.Send(data);
+                     
+
                         return true;
 
                     }
@@ -127,10 +142,9 @@ namespace ZYNet.CloudSystem.SocketClient
         {
             RingBuffer.Write(data);
 
-            while (RingBuffer.Read(out byte[] pdata))
-            {
-                BinaryInput?.Invoke(pdata);
-            }
+            while (RingBuffer.Read(out byte[] pdata))            
+                    BinaryInput?.Invoke(pdata);
+            
         }
 
         public void SendData(byte[] data)

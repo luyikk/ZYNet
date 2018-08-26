@@ -18,7 +18,7 @@ namespace ZYNETClientForNetCore
         ResultAwatier StartDownAsync(string url);
 
         [TAG(2001)]
-        Result StartDown(string url);
+        string StartDown(string url);
         
         /// <summary>
         /// 同步调用返回DateTime 注意：如果你写的CMD 服务器返回类型和此DateTime类型有出入或者无法返回，以及返回超时，此函数将抛出异常
@@ -47,13 +47,18 @@ namespace ZYNETClientForNetCore
         void SetPassWord(string password);
 
         [TAG(2500)]
-        Result TestRec(int count);
-
-        [TAG(2500)]
         ResultAwatier TestRecAsync(int count);
 
+      
+
         [TAG(2500)]
+        int TestRec(int count);
+
+        [TAG(2501)]
         int TestRec2(int count);
+
+        [TAG(1005)]
+        void ShowMessage(string msg);
 
     }
 }

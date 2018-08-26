@@ -20,14 +20,13 @@ namespace ZYNETClientForNetCore
             PackHander tmp = new PackHander();
             client.Install(tmp);
             client.Disconnect += Client_Disconnect;
-            client.CheckAsyncTimeOut = false;   
+            client.CheckAsyncTimeOut = false;
 
             if (client.Init("127.0.0.1", 2285))
             {
-               
-                var Sync = client.Sync;
-                IPacker ServerPack = Sync.Get<IPacker>();
-             
+
+                IPacker ServerPack = client.Get<IPacker>();
+
 
                 re:
                 try
@@ -42,9 +41,9 @@ namespace ZYNETClientForNetCore
                         {
                             Console.WriteLine("BaiduHtml:" + html.Length);
 
-                            // var time = ServerPack.GetTime();
+                            var time = ServerPack.GetTime();
 
-                            //  Console.WriteLine("ServerTime:" + time);
+                            Console.WriteLine("ServerTime:" + time);
 
                             ServerPack.SetPassWord("123123");
 
@@ -57,9 +56,12 @@ namespace ZYNETClientForNetCore
                             var rec = ServerPack.TestRec2(10000);
                             stop.Stop();
 
+
+
+
                             Console.WriteLine("Rec:{0} time:{1} MS", rec, stop.ElapsedMilliseconds);
                             TestRun(client);
-                          
+
                         }
                     }
                 }
@@ -70,7 +72,7 @@ namespace ZYNETClientForNetCore
 
                 Console.WriteLine("Close");
                 Console.ReadLine();
-                goto re;
+
 
             }
 
@@ -79,7 +81,7 @@ namespace ZYNETClientForNetCore
 
         public static async void TestRun(CloudClient client)
         {
-            var Server = client.NewAsync().Get<IPacker>();
+            var Server = client.Get<IPacker>();
 
             var test = (await Server.TestRecAsync(10))?[0]?.Value<int>();
             Console.WriteLine(test);
@@ -87,10 +89,19 @@ namespace ZYNETClientForNetCore
             System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch();
             stop.Start();
             var rec = await Server.TestRecAsync(10000);
-            stop.Stop();            
+            stop.Stop();
 
             Console.WriteLine("Async Rec:{0} time:{1} MS", rec.First.Value<int>(), stop.ElapsedMilliseconds);
 
+            stop.Restart();
+
+            long i = 0;
+            while (i < 100000)
+                i = (await Server.Add(i)).As<long>();
+
+            stop.Stop();
+
+            Console.WriteLine("Async Add:{0} time:{1} MS",i, stop.ElapsedMilliseconds);
         }
 
 

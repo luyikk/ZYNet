@@ -41,7 +41,7 @@ namespace ZYNet.CloudSystem.Client
                     if (attrcmdtype != null)
                     {
 
-                        if ((method.ReturnType == tasktype || (Common.IsTypeOfBaseTypeIs(method.ReturnType,tasktype) && method.ReturnType.IsConstructedGenericType && method.ReturnType.GenericTypeArguments[0] == typeof(Result))))
+                        if ((method.ReturnType == tasktype || (Common.IsTypeOfBaseTypeIs(method.ReturnType,tasktype) && method.ReturnType.IsConstructedGenericType)))
                         {
 
                             if (method.GetParameters().Length > 0 && method.GetParameters()[0].ParameterType == typeof(AsyncCalls))
@@ -57,6 +57,21 @@ namespace ZYNet.CloudSystem.Client
                                     ModuleDiy[attrcmdtype.CmdTag] = tmp;
                                 }
                             }
+                            else if (type.GetInterface("ZYNet.CloudSystem.Client.IController") != null)
+                            {
+                                if (!ModuleDiy.ContainsKey(attrcmdtype.CmdTag))
+                                {
+                                    AsyncMethodDef tmp = new AsyncMethodDef(method, o);
+                                    tmp.IsController = true;
+                                    ModuleDiy.Add(attrcmdtype.CmdTag, tmp);
+                                }
+                                else
+                                {
+                                    AsyncMethodDef tmp = new AsyncMethodDef(method, o);
+                                    tmp.IsController = true;
+                                    ModuleDiy[attrcmdtype.CmdTag] = tmp;
+                                }
+                            }
 
                         }
                         else if (method.GetParameters().Length > 0 && method.GetParameters()[0].ParameterType == typeof(CloudClient))
@@ -69,6 +84,21 @@ namespace ZYNet.CloudSystem.Client
                             else
                             {
                                 AsyncMethodDef tmp = new AsyncMethodDef(method, o);
+                                ModuleDiy[attrcmdtype.CmdTag] = tmp;
+                            }
+                        }
+                        else if(type.GetInterface("ZYNet.CloudSystem.Client.IController") !=null)
+                        {
+                            if (!ModuleDiy.ContainsKey(attrcmdtype.CmdTag))
+                            {
+                                AsyncMethodDef tmp = new AsyncMethodDef(method, o);
+                                tmp.IsController = true;
+                                ModuleDiy.Add(attrcmdtype.CmdTag, tmp);
+                            }
+                            else
+                            {
+                                AsyncMethodDef tmp = new AsyncMethodDef(method, o);
+                                tmp.IsController = true;
                                 ModuleDiy[attrcmdtype.CmdTag] = tmp;
                             }
                         }
@@ -96,7 +126,8 @@ namespace ZYNet.CloudSystem.Client
 
         public Type[] ArgsType { get; set; }
 
-        
+        public bool IsController { get; set; }
+
 
         public AsyncMethodDef(MethodInfo methodInfo, object token)
         {

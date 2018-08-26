@@ -10,8 +10,5 @@ namespace ZYNet.CloudSystem
 
     }
 
-    public interface IFodyCall
-    {
-        object Call(int cmd, Type returnType, object[] args);
-    }
+   
 }

@@ -10,7 +10,7 @@ using ZYSocket.share;
 
 namespace ZYNet.CloudSystem.Client
 {
-    public class AsyncCalls: IFodyCall
+    public class AsyncCalls :MessageExceptionParse
     {
         protected static readonly ILog Log = LogFactory.ForContext<AsyncCalls>();
 
@@ -28,12 +28,11 @@ namespace ZYNet.CloudSystem.Client
 
         internal event Action<byte[]> CallSend;
 
-        public Fiber _fiber { get; private set; }
+        internal Fiber _fiber { get; private set; }
 
         public bool IsHaveReturn { get; private set; }
 
         public object Obj { get; set; }
-
 
         public MethodInfo Method { get; private set; }
 
@@ -72,9 +71,14 @@ namespace ZYNet.CloudSystem.Client
                 try
                 {
                     if (IsHaveReturn)
-                    {
-                        Result = await (Task<Result>)Method.Invoke(Obj, Args);
+                    {                                               
+                        var res = await (dynamic)Method.Invoke(Obj, Args);
+                        if (res is Result xres)                        
+                            Result = xres;                                              
+                        else                        
+                            Result = new Result(res);
 
+                        Result.Id = this.Id;
                         Complete?.Invoke(Result);
                     }
                     else
@@ -89,18 +93,10 @@ namespace ZYNet.CloudSystem.Client
                     Error = er;
 
                     if (IsHaveReturn)
-                    {
-                        var nullx = new Result()
-                        {
-                            Id = this.Id,
-                            ErrorMsg = er.ToString(),
-                            ErrorId = er.HResult                            
-                        };
+                        Complete?.Invoke(GetExceptionResult(er, Id));                    
 
-                        Complete?.Invoke(nullx);
-                    }
-
-                    Log.Error($"Cmd:{Cmd} Error:\r\n {Error}");
+                    if(PushException(er))
+                        Log.Error($"Cmd:{Cmd} Error:\r\n {Error}");
                 }
                 finally
                 {
@@ -116,117 +112,6 @@ namespace ZYNet.CloudSystem.Client
 
         }
 
-
-
-
-        /// <summary>
-        /// Need Nuget Install-Package Fody
-        /// And Add xml file 'FodyWeavers.xml' to project
-        /// context:
-        /// \<?xml version="1.0" encoding="utf-8" ?\>
-        /// \<Weavers\>
-        /// \<Virtuosity\/\> 
-        /// \</Weavers\>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public T Get<T>()
-        {
-            var interfaceType = typeof(T);
-            if (!FodyDir.ContainsKey(interfaceType))
-            {
-                var assembly = interfaceType.Assembly;
-                var implementationType = assembly.GetType(interfaceType.FullName + "_Builder_Implementation");
-                if (implementationType == null)
-                    throw new Exception("not find with {interfaceType.FullName} the Implementation");
-                FodyDir.Add(interfaceType, implementationType);
-                return (T)Activator.CreateInstance(implementationType, new Func<int, Type, object[], object>(Call));                   
-                              
-            }
-            else
-            {
-                return (T)Activator.CreateInstance(FodyDir[interfaceType], new Func<int, Type, object[], object>(Call));
-             
-            }
-        }
-        public virtual object Call(int cmd, Type returnType, object[] args)
-        {
-
-            if (returnType != typeof(void))
-            {
-                if (!Common.IsTypeOfBaseTypeIs(returnType, typeof(FiberThreadAwaiterBase)))
-                {
-                    throw new Exception(string.Format("Async Call Not Use Sync Mehhod"));
-                }
-                else
-                {
-                    return Func(cmd, args);
-                }
-            }
-            else
-            {
-                Action(cmd, args);
-
-                return null;
-            }
-
-
-        }
-
-
-#if !Xamarin
-      
-
-
-
-        public T GetForEmit<T>()
-        {
-            var tmp = DispatchProxy.Create<T, SyncProxy>();
-            var proxy = tmp as SyncProxy;
-            proxy.Call = Call;
-            return tmp;
-        }
-
-#endif
-
-        protected virtual object Call(MethodInfo method, object[] args)
-        {
-
-            var attr = method.GetCustomAttribute(typeof(TAG), true);
-
-            if (attr == null)
-            {
-                throw new FormatException(method.Name + " Is Not MethodRun Attribute");
-            }
-
-
-            if (attr is TAG run)
-            {
-                int cmd = run.CmdTag;
-
-                if (method.ReturnType != typeof(void))
-                {
-                    if (!Common.IsTypeOfBaseTypeIs(method.ReturnType, typeof(FiberThreadAwaiterBase)))
-                    {
-                        throw new Exception(string.Format("Async Call Not Use Sync Mehhod"));
-                    }
-                    else
-                    {
-                        return Func(cmd, args);
-                    }
-                }
-                else
-                {
-                    Action(cmd, args);
-
-                    return null;
-                }
-
-            }
-            else
-                return null;
-        }
 
 
         /// <summary>
@@ -272,9 +157,15 @@ namespace ZYNet.CloudSystem.Client
                 {
 
                     bufflist.Write(CmdDef.CallCmd);
-                    byte[] classdata = BufferFormat.SerializeObject(buffer);
-                    bufflist.Write(classdata.Length);
-                    bufflist.Write(classdata);
+                   
+                    bufflist.Write(buffer.Id);
+                    bufflist.Write(buffer.CmdTag);
+                    bufflist.Write(buffer.Arguments.Count);
+                    foreach (var arg in buffer.Arguments)
+                    {
+                        bufflist.Write(arg.Length);
+                        bufflist.Write(arg);
+                    }
 
                     byte[] fdata = CCloudClient.EncodingHandler(stream.ToArray());
 
@@ -287,9 +178,17 @@ namespace ZYNet.CloudSystem.Client
                 {
                     bufflist.Write(0);
                     bufflist.Write(CmdDef.CallCmd);
-                    byte[] classdata = BufferFormat.SerializeObject(buffer);
-                    bufflist.Write(classdata.Length);
-                    bufflist.Write(classdata);
+                    //byte[] classdata = BufferFormat.SerializeObject(buffer);
+                    //bufflist.Write(classdata.Length);
+                    //bufflist.Write(classdata);
+                    bufflist.Write(buffer.Id);
+                    bufflist.Write(buffer.CmdTag);
+                    bufflist.Write(buffer.Arguments.Count);
+                    foreach (var arg in buffer.Arguments)
+                    {
+                        bufflist.Write(arg.Length);
+                        bufflist.Write(arg);
+                    }
 
                 }
 
@@ -325,6 +224,15 @@ namespace ZYNet.CloudSystem.Client
                 Id = this.Id
             };
             return tmp;
+        }
+
+        public Task<Result> ResTask(params object[] args)
+        {
+            Result tmp = new Result(args)
+            {
+                Id = this.Id
+            };
+            return Task.FromResult(tmp);
         }
     }
 }

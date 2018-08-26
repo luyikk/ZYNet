@@ -13,6 +13,8 @@ namespace ZYNet.CloudSystem.Client
         ZYNetRingBufferPool RingBuffer { get; }
         ISyncClient Sock { get; }
 
+        ISessionRW SessionRW { get;  }
+
         event Action<byte[]> BinaryInput;
         event Action<string> Disconnect;
 

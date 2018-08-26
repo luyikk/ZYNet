@@ -2,37 +2,44 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using ZYNet.CloudSystem.Frame;
 using ZYNet.CloudSystem.Loggine;
+using ZYSocket.AsyncSend;
 using ZYSocket.share;
 
 
 namespace ZYNet.CloudSystem.Server
 {
-    public class AsyncCalls: IFodyCall
+    public class AsyncCalls:MessageExceptionParse, IASync
     {
-        protected static readonly ILog Log = LogFactory.ForContext<AsyncCalls>();
-
-        public Result Result { get; private set; }
+        protected static readonly ILog Log = LogFactory.ForContext<AsyncCalls>();     
 
         private Dictionary<Type, Type> FodyDir { get; set; }
+
+
+        internal event Action<Result> Complete;
+
+        internal event Action<byte[]> CallSend;
+
+        public  Action<ASyncToken, string> UserDisconnect { get; set; }
+
+        internal Fiber _fiber { get; private set; }
+
+
+        public Result Result { get; private set; }
 
         public ASyncToken AsyncUser { get; private set; }
 
         public bool IsOver { get; private set; }
         public bool IsError { get; private set; }
         public Exception Error { get; private set; }
-
-        internal event Action<Result> Complete;
-
-        internal event Action<byte[]> CallSend;
-
-        public Fiber _fiber { get; private set; }
-
         public bool IsHaveReturn { get; private set; }
+
+        public object Controller { get; private set; }
 
         public MethodInfo Method { get; private set; }
 
@@ -59,16 +66,60 @@ namespace ZYNet.CloudSystem.Server
             return AsyncUser.Token<T>();
         }
 
+        public ASyncToken GetAsyncToken()
+        {
+            return this.AsyncUser;
+        }
+
 
         public CloudServer CurrentServer => AsyncUser?.CurrentServer;
 
+        public SocketAsyncEventArgs Asyn => AsyncUser?.Asyn;
+
+        public AsyncSend Sendobj => AsyncUser?.Sendobj;
 
         public AsyncCalls(ASyncToken token,Fiber fiber)
         {
             this.AsyncUser = token;
+            AsyncUser.UserDisconnect = (a, b) => this.UserDisconnect?.Invoke(a, b);           
             this._fiber = fiber;
             FodyDir = new Dictionary<Type, Type>();
         }
+
+
+
+        public Result Res(params object[] args)
+        {
+            Result tmp = new Result(args)
+            {
+                Id = this.Id
+            };
+            return tmp;
+        }
+
+        public Task<Result> ResTask(params object[] args)
+        {
+            Result tmp = new Result(args)
+            {
+                Id = this.Id
+            };
+            return Task.FromResult(tmp);
+        }
+
+        public void Disconnect()
+        {
+            if (AsyncUser != null)
+                AsyncUser.Disconnect();
+        }
+
+        public AsyncCalls MakeAsync(AsyncCalls async)
+        {
+            return AsyncUser.MakeAsync(async);
+        }
+
+
+
+
 
         ~AsyncCalls()
         {
@@ -76,8 +127,9 @@ namespace ZYNet.CloudSystem.Server
         }
 
 
-        public AsyncCalls(long id,int cmd,ASyncToken token,MethodInfo method,object[] args,bool ishavereturn)
+        public AsyncCalls(long id,int cmd,ASyncToken token,object implement, MethodInfo method,object[] args,bool ishavereturn)
         {
+            Controller = implement;
             IsHaveReturn = ishavereturn;
             Method = method;
             Args = args;
@@ -86,7 +138,7 @@ namespace ZYNet.CloudSystem.Server
             FodyDir = new Dictionary<Type, Type>();
         }
 
-        public void Run()
+        internal void Run()
         {
 
             Func<Task> wrappedGhostThreadFunction = async () =>
@@ -95,13 +147,28 @@ namespace ZYNet.CloudSystem.Server
                 {
                     if (IsHaveReturn)
                     {
-                        Result = await (Task<Result>)Method.Invoke(null, Args);
+
+                        var x = await (dynamic)Method.Invoke(Controller, Args);                      
+
+                        if (x is Result xres)
+                        {
+                            Result = xres;
+                            Result.Id = this.Id;
+                        }
+                        else
+                        {
+                            Result = new Result(x)
+                            {
+                                Id = this.Id
+                            };
+
+                        }
 
                         Complete?.Invoke(Result);
                     }
                     else
                     {
-                        await (Task)Method.Invoke(null, Args);
+                        await (Task)Method.Invoke(Controller, Args);
                     }
 
                 }
@@ -110,18 +177,11 @@ namespace ZYNet.CloudSystem.Server
                     IsError = true;
                     Error = er;
 
-                    if (IsHaveReturn)
-                    {
-                        var nullx = new Result()
-                        {
-                            Id = this.Id,
-                            ErrorMsg = er.ToString(),
-                            ErrorId = er.HResult
-                        };
-                        Complete?.Invoke(nullx);
-                    }
+                    if (IsHaveReturn)                                          
+                        Complete?.Invoke(GetExceptionResult(er, this.Id));
 
-                    Log.Error($"Cmd:{Cmd} Error:\r\n{Error}",er);
+                    if (PushException(er))
+                        Log.Error($"Cmd:{Cmd} Error:\r\n{Error}",er);
 
                 }
                 finally
@@ -158,7 +218,7 @@ namespace ZYNet.CloudSystem.Server
                 var assembly = interfaceType.Assembly;
                 var implementationType = assembly.GetType(interfaceType.FullName + "_Builder_Implementation");
                 if (implementationType == null)
-                    throw new Exception("not find with {interfaceType.FullName} the Implementation");
+                    throw new FodyInstallException("not find with {interfaceType.FullName} the Implementation",(int)ErrorTag.FodyInstallErr);
                 FodyDir.Add(interfaceType, implementationType);
                 return (T)Activator.CreateInstance(implementationType, new Func<int, Type, object[], object>(Call));
 
@@ -171,7 +231,7 @@ namespace ZYNet.CloudSystem.Server
         }
 
 
-        public virtual object Call(int cmd, Type returnType, object[] args)
+        protected virtual object Call(int cmd, Type returnType, object[] args)
         {
       
             if (returnType != typeof(void))
@@ -179,7 +239,7 @@ namespace ZYNet.CloudSystem.Server
 
                 if (!Common.IsTypeOfBaseTypeIs(returnType, typeof(FiberThreadAwaiterBase)))
                 {
-                    throw new Exception(string.Format("Async Call Not Use Sync Mehhod"));
+                    throw new CallException($"Async Call Not Use Sync Mehhod CMD:{cmd}", (int)ErrorTag.CallErr);
                 }
                 else
                 {
@@ -229,7 +289,7 @@ namespace ZYNet.CloudSystem.Server
 
                     if (!Common.IsTypeOfBaseTypeIs(method.ReturnType, typeof(FiberThreadAwaiterBase)))
                     {
-                        throw new Exception(string.Format("Async Call Not Use Sync Mehhod"));
+                        throw new CallException($"Async Call Not Use Sync Mehhod CMD:{cmd}",(int)ErrorTag.CallErr);
                     }
                     else
                     {
@@ -248,6 +308,12 @@ namespace ZYNet.CloudSystem.Server
                 return null;
         }
 
+#else
+         public T GetForEmit<T>()
+         {
+            return Get<T>();
+         }
+
 #endif
 
         /// <summary>
@@ -255,7 +321,7 @@ namespace ZYNet.CloudSystem.Server
         /// </summary>
         /// <param name="cmdTag"></param>
         /// <param name="args"></param>
-        public void Action(int cmdTag, params object[] args)
+        private void Action(int cmdTag, params object[] args)
         {
             AsyncUser.Action(cmdTag, args);
         }
@@ -266,7 +332,7 @@ namespace ZYNet.CloudSystem.Server
         /// <param name="cmdTag"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        public ResultAwatier Func(int cmdTag, params object[] args)
+        private ResultAwatier Func(int cmdTag, params object[] args)
         {
             CallPack buffer = new CallPack()
             {
@@ -278,9 +344,7 @@ namespace ZYNet.CloudSystem.Server
             foreach (var item in args)
             {
                 Type type = item.GetType();
-
                 buffer.Arguments.Add(Serialization.PackSingleObject(type, item));
-
             }
 
 
@@ -293,12 +357,17 @@ namespace ZYNet.CloudSystem.Server
                 {
 
                     bufflist.Write(CmdDef.CallCmd);
-                    byte[] classdata = BufferFormat.SerializeObject(buffer);
-                    bufflist.Write(classdata.Length);
-                    bufflist.Write(classdata);
+
+                    bufflist.Write(buffer.Id);
+                    bufflist.Write(buffer.CmdTag);
+                    bufflist.Write(buffer.Arguments.Count);
+                    foreach (var arg in buffer.Arguments)
+                    {
+                        bufflist.Write(arg.Length);
+                        bufflist.Write(arg);
+                    }
 
                     byte[] fdata = AsyncUser.DataExtra(stream.ToArray());
-
                     stream.Position = 0;
                     stream.SetLength(0);
                     bufflist.Write(0);
@@ -307,10 +376,16 @@ namespace ZYNet.CloudSystem.Server
                 else
                 {
                     bufflist.Write(0);
-                    bufflist.Write(CmdDef.CallCmd);
-                    byte[] classdata = BufferFormat.SerializeObject(buffer);
-                    bufflist.Write(classdata.Length);
-                    bufflist.Write(classdata);
+                    bufflist.Write(CmdDef.CallCmd);                 
+
+                    bufflist.Write(buffer.Id);
+                    bufflist.Write(buffer.CmdTag);
+                    bufflist.Write(buffer.Arguments.Count);
+                    foreach (var arg in buffer.Arguments)
+                    {
+                        bufflist.Write(arg.Length);
+                        bufflist.Write(arg);
+                    }
 
                 }
 
@@ -334,24 +409,11 @@ namespace ZYNet.CloudSystem.Server
         }
 
 
-        public void SetRes(Result result)
+        internal void SetRes(Result result)
         {
             _fiber.Set(result);
         }
 
-        public Result Res(params object[] args)
-        {
-            Result tmp = new Result(args)
-            {
-                Id = this.Id
-            };
-            return tmp;
-        }
 
-        public void Disconnect()
-        {           
-            if (AsyncUser != null)
-                AsyncUser.Disconnect();
-        }
     }
 }

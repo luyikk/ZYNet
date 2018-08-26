@@ -56,8 +56,7 @@ namespace TestApp
 
         private void Button_Clicked(object sender, EventArgs e)
         {
-            var Sync = Dependency.Container.Resolve<CloudClient>().Sync;
-            IPacker ServerPack = Sync.Get<IPacker>();
+            var ServerPack = Dependency.Container.Resolve<CloudClient>().Get<IPacker>();        
 
             try
             {
@@ -101,8 +100,7 @@ namespace TestApp
         {
             try
             {
-                var Server = Dependency.Container.Resolve<CloudClient>().NewAsync();
-                var sync = Server.Get<IPacker>();
+                var sync = Dependency.Container.Resolve<CloudClient>().Get<IPacker>();                
 
                 var html = await sync.StartDownAsync("http://www.baidu.com");
                 if (html != null && !html.IsError)
@@ -148,7 +146,7 @@ namespace TestApp
                 });
 
 
-                var Server = Dependency.Container.Resolve<CloudClient>().NewAsync().Get<IPacker>();
+                var Server = Dependency.Container.Resolve<CloudClient>().Get<IPacker>();
 
                 while(IsStart)
                 {
