@@ -1,23 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
-using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using ZYNet.CloudSystem.Frame;
 using ZYSocket.share;
 using System.IO;
-using ZYSocket.AsyncSend;
+using ZYSocket.Server;
 using ZYNet.CloudSystem.Loggine;
 using System.Reflection;
+using Autofac;
+using ZYNet.CloudSystem.Server.Options;
+using ZYNet.CloudSystem.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace ZYNet.CloudSystem.Server
 {
-    public class ASyncToken : ZYSync, IASync
+    public class ASyncToken : ZYSync, IASync,IDisposable
     {
-        protected static readonly ILog Log = LogFactory.ForContext<ASyncToken>();
 
+        public ILoggerFactory LoggerFactory { get; private set; }
+        private readonly ILog Log;
 
         private Dictionary<Type, Type> FodyDir { get; set; }
 
@@ -32,7 +36,9 @@ namespace ZYNet.CloudSystem.Server
 
         public Action<ASyncToken,string> UserDisconnect { get; set; }
 
-        public AsyncSend Sendobj { get; private set; }
+        public ISend Sendobj { get; private set; }
+
+        public IContainer Container => CurrentServer?.Container;
 
         public object UserToken { get; set; }
 
@@ -43,28 +49,32 @@ namespace ZYNet.CloudSystem.Server
         public DateTime DisconnectDateTime { get; private set; }
 
 
-        public ASyncToken(SocketAsyncEventArgs asynca, CloudServer server,long sessionKey, int MaxBuffsize)
+        public ASyncToken(ILoggerFactory loggerFactory,SocketAsyncEventArgs asynca, CloudServer server,long sessionKey, int MaxBuffsize)
         {
             this.Asyn = asynca;
             Stream = new ZYNetRingBufferPool(MaxBuffsize);
             CurrentServer = server;
             this.DataExtra = server.EcodeingHandler;
-            Sendobj = new AsyncSend(asynca.AcceptSocket);
+            Sendobj = Container.Resolve<ISend>(new NamedParameter("sock", asynca.AcceptSocket),new NamedParameter("bufferLenght", Container.Resolve<BufferSizeOptions>().SendBufferSize));
             AsyncWaitTimeOut = new List<KeyValuePair<long, DateTime>>();
             FodyDir = new Dictionary<Type, Type>();
             SessionKey = SessionKey;
+            this.LoggerFactory = loggerFactory;
+            Log = new DefaultLog(LoggerFactory.CreateLogger<ASyncToken>());
         }
 
-        public ASyncToken(SocketAsyncEventArgs asynca, CloudServer server,long sessionKey, ZYNetRingBufferPool stream)
+        public ASyncToken(ILoggerFactory loggerFactory, SocketAsyncEventArgs asynca, CloudServer server,long sessionKey, ZYNetRingBufferPool stream)
         {
             this.Asyn = asynca;
             Stream = stream;
             CurrentServer = server;
             this.DataExtra = server.EcodeingHandler;
-            Sendobj = new AsyncSend(asynca.AcceptSocket);
+            Sendobj = Container.Resolve<ISend>(new NamedParameter("sock", asynca.AcceptSocket), new NamedParameter("bufferLenght", Container.Resolve<BufferSizeOptions>().SendBufferSize));
             AsyncWaitTimeOut = new List<KeyValuePair<long, DateTime>>();
             FodyDir = new Dictionary<Type, Type>();
-            SessionKey = sessionKey; 
+            SessionKey = sessionKey;
+            this.LoggerFactory = loggerFactory;
+            Log = new DefaultLog(LoggerFactory.CreateLogger<ASyncToken>());
         }
 
      
@@ -73,7 +83,7 @@ namespace ZYNet.CloudSystem.Server
         public void SetSocketEventAsync(SocketAsyncEventArgs asynca)
         {
             this.Asyn = asynca;
-            this.Sendobj = new AsyncSend(asynca.AcceptSocket);
+            this.Sendobj = Container.Resolve<ISend>(new NamedParameter("sock", asynca.AcceptSocket), new NamedParameter("bufferLenght", Container.Resolve<BufferSizeOptions>().SendBufferSize));
             IsDisconnect = false;
         }
 
@@ -100,7 +110,7 @@ namespace ZYNet.CloudSystem.Server
 
         public AsyncCalls MakeAsync(AsyncCalls async)
         {
-            AsyncCalls tmp = new AsyncCalls(this, async._fiber);
+            AsyncCalls tmp = new AsyncCalls(this.LoggerFactory,this, async._fiber);
             tmp.CallSend += SendData;
             tmp.ExceptionOut = this.ExceptionOut;
             return tmp;
@@ -332,9 +342,9 @@ namespace ZYNet.CloudSystem.Server
 
             CallBackDict.AddOrUpdate(id, asyncalls, (a, b) => asyncalls);
 
-            if (asyncalls.CurrentServer.CheckTimeOut)
+            if (asyncalls.CurrentServer.IsCheckReadTimeOut)
             {
-                KeyValuePair<long, DateTime> tot = new KeyValuePair<long, DateTime>(id, DateTime.Now.AddMilliseconds(asyncalls.CurrentServer.ReadOutTime));
+                KeyValuePair<long, DateTime> tot = new KeyValuePair<long, DateTime>(id, DateTime.Now.AddMilliseconds(asyncalls.CurrentServer.ReadOutTimeMilliseconds));
                 AsyncWaitTimeOut.Add(tot);
             }
 
@@ -426,9 +436,11 @@ namespace ZYNet.CloudSystem.Server
                     case CmdDef.ReturnResult:
                         {
 
-                            Result result = new Result();
-                            result.Id = read.ReadInt64();
-                            result.ErrorId = read.ReadInt32();
+                            Result result = new Result
+                            {
+                                Id = read.ReadInt64(),
+                                ErrorId = read.ReadInt32()
+                            };
                             byte[] strdata = read.ReadByteArray();
                             if (strdata.Length > 0)
                                 result.ErrorMsg = Encoding.UTF8.GetString(strdata);                          
@@ -566,10 +578,9 @@ namespace ZYNet.CloudSystem.Server
                     ControllerDict = new ConcurrentDictionary<Type, ControllerBase>();
 
                 var method = CurrentServer.CallsMethods[pack.CmdTag];
+                
 
-                ControllerBase implement;
-
-                if (!ControllerDict.TryGetValue(method.ImplementationType, out implement))
+                if (!ControllerDict.TryGetValue(method.ImplementationType, out ControllerBase implement))
                 {
                     implement = (ControllerBase)Activator.CreateInstance(method.ImplementationType,this);
                     ControllerDict[method.ImplementationType] = implement;
@@ -668,6 +679,12 @@ namespace ZYNet.CloudSystem.Server
             }
         }
 
-     
+        public void Dispose()
+        {
+            foreach (var item in ControllerDict)
+            {
+                item.Value.Dispose();
+            }
+        }
     }
 }

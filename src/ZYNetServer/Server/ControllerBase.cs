@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using ZYNet.CloudSystem.Interfaces;
 
 namespace ZYNet.CloudSystem.Server
 {
-    public abstract class ControllerBase
+    public abstract class ControllerBase:IDisposable
     {
         public AsyncCalls CurrentAsync { get; set; }
         public ASyncToken Token { get; private set; }
@@ -32,6 +33,11 @@ namespace ZYNet.CloudSystem.Server
         public T GetForEmit<T>()
         {
             return Async.GetForEmit<T>();
-        }           
+        }
+
+        public virtual void Dispose()
+        {
+            
+        }
     }
 }

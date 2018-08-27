@@ -20,7 +20,7 @@ namespace ZYSocket.Server
     internal sealed class BufferManager
     {
         private Byte[] buffer;
-        private Int32 bufferSize;
+        private readonly Int32 bufferSize;
         private Int32 numSize;
         private Int32 currentIndex;
         private Stack<Int32> freeIndexPool;

@@ -30,11 +30,11 @@ namespace ZYNETServerForNetCore
             {
                 UserName = username,
                 PassWord = password,
-                token = Async.GetAsyncToken()
+                Token = Async.GetAsyncToken()
             };
 
-            tmp.token.UserToken = tmp;
-            tmp.token.UserDisconnect += Token_UserDisconnect;
+            tmp.Token.UserToken = tmp;
+            tmp.Token.UserDisconnect += Token_UserDisconnect;
             lock (UserList)
             {
                 UserList.Add(tmp);
@@ -131,6 +131,11 @@ namespace ZYNETServerForNetCore
                     }
                 }
             }
+        }
+
+        public override void Dispose()
+        {
+            Console.WriteLine("我被释放了");
         }
 
 

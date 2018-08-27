@@ -4,7 +4,7 @@ using System.Net.Sockets;
 using System;
 using System.Threading;
 
-namespace ZYSocket.AsyncSend
+namespace ZYSocket.Server
 {
     public class AsyncSend : ISend
     {
@@ -14,12 +14,13 @@ namespace ZYSocket.AsyncSend
 
         private Socket _sock { get; set; }
 
-        protected int BufferLenght { get; set; } = -1;
+        public int BufferLenght { get; private set; } = -1;
 
         private int SendIng;
 
-        public AsyncSend(Socket sock)
+        public AsyncSend(Socket sock,int bufferLenght)
         {
+            this.BufferLenght = bufferLenght;
             this._sock = sock;
             SendIng = 0;
             BufferQueue = new ConcurrentQueue<byte[]>();

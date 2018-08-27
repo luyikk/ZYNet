@@ -681,7 +681,7 @@ namespace ZYNet.CloudSystem.Frame //NOT USE System.Reflection
                 return 1;   // TypeCode.Object;
             }
 
-            private static OpCode[] s_convOpCodes = new OpCode[] {
+            private static readonly OpCode[] s_convOpCodes = new OpCode[] {
                 OpCodes.Nop,//Empty = 0,
                 OpCodes.Nop,//Object = 1,
                 OpCodes.Nop,//DBNull = 2,
@@ -703,7 +703,7 @@ namespace ZYNet.CloudSystem.Frame //NOT USE System.Reflection
                 OpCodes.Nop,//String = 18,
             };
 
-            private static OpCode[] s_ldindOpCodes = new OpCode[] {
+            private static readonly OpCode[] s_ldindOpCodes = new OpCode[] {
                 OpCodes.Nop,//Empty = 0,
                 OpCodes.Nop,//Object = 1,
                 OpCodes.Nop,//DBNull = 2,
@@ -725,7 +725,7 @@ namespace ZYNet.CloudSystem.Frame //NOT USE System.Reflection
                 OpCodes.Ldind_Ref,//String = 18,
             };
 
-            private static OpCode[] s_stindOpCodes = new OpCode[] {
+            private static readonly OpCode[] s_stindOpCodes = new OpCode[] {
                 OpCodes.Nop,//Empty = 0,
                 OpCodes.Nop,//Object = 1,
                 OpCodes.Nop,//DBNull = 2,

@@ -15,7 +15,7 @@ namespace ZYNETClientForNetCore
         static void Main(string[] args)
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
-            LogFactory.AddConsole();
+          
 
             CloudClient client = new CloudClient(new ConnectionManager(new SessionRWFile()), 60000, 1024 * 1024); //最大数据包能够接收 1M
             PackHander tmp = new PackHander();

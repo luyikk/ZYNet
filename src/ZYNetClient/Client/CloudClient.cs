@@ -9,13 +9,16 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
-
+using Microsoft.Extensions.Logging;
 namespace ZYNet.CloudSystem.Client
 {
     public class CloudClient:MessageExceptionParse
     {
-        protected static readonly ILog Log = LogFactory.ForContext<CloudClient>();     
-       
+
+
+        public readonly ILog Log;
+        public ILoggerFactory LoggerFactory { get; private set; }
+
 
         public IConnectionManager ClientManager { get; private set; }
 
@@ -25,7 +28,7 @@ namespace ZYNet.CloudSystem.Client
 
         public bool CheckAsyncTimeOut { get; set; }
         public int MillisecondsTimeout { get; private set; }
-
+     
         public int MaxBufferLength { get; private set; }
         public ConcurrentDictionary<long,ReturnEventWaitHandle> SyncWaitDic { get;  set; }
         public ConcurrentDictionary<long, AsyncCalls> AsyncCallDiy { get; private set; }
@@ -104,6 +107,8 @@ namespace ZYNet.CloudSystem.Client
             Module = new ModuleDictionary();
             IsClose = false;
             Task.Run(new Action(checkAsyncTimeOut));
+            this.LoggerFactory = new LoggerFactory();
+            Log = new DefaultLog(this.LoggerFactory.CreateLogger<CloudClient>());
         }
 
      
@@ -380,7 +385,7 @@ namespace ZYNet.CloudSystem.Client
         private Result SendDataAsWait(long Id, byte[] Data)
         {
 
-            using (ReturnEventWaitHandle wait = new ReturnEventWaitHandle(MillisecondsTimeout, false, EventResetMode.AutoReset))
+            using (ReturnEventWaitHandle wait = new ReturnEventWaitHandle(this.LoggerFactory, MillisecondsTimeout, false, EventResetMode.AutoReset))
             {
                 if (!SyncWaitDic.TryAdd(Id, wait))
                 {
@@ -454,10 +459,12 @@ namespace ZYNet.CloudSystem.Client
                     case CmdDef.ReturnResult:
                         {
 
-                         
-                            Result result = new Result();
-                            result.Id = read.ReadInt64();
-                            result.ErrorId = read.ReadInt32();
+
+                            Result result = new Result
+                            {
+                                Id = read.ReadInt64(),
+                                ErrorId = read.ReadInt32()
+                            };
                             byte[] strdata = read.ReadByteArray();
                             if (strdata.Length > 0)
                                 result.ErrorMsg = Encoding.UTF8.GetString(strdata);
@@ -569,7 +576,7 @@ namespace ZYNet.CloudSystem.Client
                         if (!method.IsRet)
                         {
 
-                            AsyncCalls _calls_ = new AsyncCalls(pack.Id, pack.CmdTag, this, method.Obj, method.methodInfo, args, false);
+                            AsyncCalls _calls_ = new AsyncCalls(this.LoggerFactory,pack.Id, pack.CmdTag, this, method.Obj, method.MethodInfo, args, false);
                             args[0] = _calls_;
                             _calls_.CallSend += SendData;
                             _calls_.ExceptionOut = this.ExceptionOut;
@@ -581,7 +588,7 @@ namespace ZYNet.CloudSystem.Client
                         else
                         {
 
-                            AsyncCalls _calls_ = new AsyncCalls(pack.Id, pack.CmdTag, this, method.Obj, method.methodInfo, args, true);
+                            AsyncCalls _calls_ = new AsyncCalls(this.LoggerFactory, pack.Id, pack.CmdTag, this, method.Obj, method.MethodInfo, args, true);
                             args[0] = _calls_;                          
                             _calls_.CallSend += SendData;
                             _calls_.Complete += RetrunResultData;
@@ -597,13 +604,13 @@ namespace ZYNet.CloudSystem.Client
                     {
                         if (!method.IsRet)
                         {
-                            method.methodInfo.Invoke(method.Obj, args);
+                            method.MethodInfo.Invoke(method.Obj, args);
                         }
                         else
                         {
                             try
                             {
-                                object res = method.methodInfo.Invoke(method.Obj, args);
+                                object res = method.MethodInfo.Invoke(method.Obj, args);
 
                                 if (res != null)
                                 {
@@ -654,7 +661,7 @@ namespace ZYNet.CloudSystem.Client
                         if (!method.IsRet)
                         {
 
-                            AsyncCalls _calls_ = new AsyncCalls(pack.Id, pack.CmdTag, this, method.Obj, method.methodInfo, args, false);
+                            AsyncCalls _calls_ = new AsyncCalls(this.LoggerFactory, pack.Id, pack.CmdTag, this, method.Obj, method.MethodInfo, args, false);
                             controller.Async = _calls_;
                             controller.IsAsync = true;
                             _calls_.CallSend += SendData;
@@ -665,7 +672,7 @@ namespace ZYNet.CloudSystem.Client
                         }
                         else
                         {
-                            AsyncCalls _calls_ = new AsyncCalls(pack.Id, pack.CmdTag, this, method.Obj, method.methodInfo, args, true);
+                            AsyncCalls _calls_ = new AsyncCalls(this.LoggerFactory, pack.Id, pack.CmdTag, this, method.Obj, method.MethodInfo, args, true);
                             controller.Async = _calls_;
                             controller.IsAsync = true;
                             _calls_.CallSend += SendData;
@@ -686,13 +693,13 @@ namespace ZYNet.CloudSystem.Client
 
                         if (!method.IsRet)
                         {
-                            method.methodInfo.Invoke(method.Obj, args);
+                            method.MethodInfo.Invoke(method.Obj, args);
                         }
                         else
                         {
                             try
                             {
-                                object res = method.methodInfo.Invoke(method.Obj, args);
+                                object res = method.MethodInfo.Invoke(method.Obj, args);
 
                                 if (res != null)
                                 {

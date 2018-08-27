@@ -10,11 +10,11 @@ namespace ZYNet.CloudSystem.Frame
 {
     public class FiberSynchronizationContext : SynchronizationContext
     {
-        public Fiber fiber { get; set; }
+        public Fiber Fiber { get; set; }
 
         public FiberSynchronizationContext(Fiber fiber)
         {
-            this.fiber = fiber;
+            this.Fiber = fiber;
         }
 
         public override SynchronizationContext CreateCopy()
@@ -31,7 +31,7 @@ namespace ZYNet.CloudSystem.Frame
             // Note: As it will end up on the callstack, it might be better to Schedule it instead (to avoid overflow)?
             // 2/ Otherwise, we just received an external task continuation (i.e. TaskEx.Sleep()), or a microthread triggering another,
             // so schedule it so that it comes back in our regular scheduler.
-            if (Fiber.Current == fiber)
+            if (Fiber.Current == Fiber)
             {
                 d(state);
             }

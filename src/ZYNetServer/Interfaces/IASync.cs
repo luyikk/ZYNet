@@ -2,16 +2,17 @@
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using ZYNet.CloudSystem.Frame;
-using ZYSocket.AsyncSend;
+using ZYNet.CloudSystem.Server;
+using ZYSocket.Server;
 
-namespace ZYNet.CloudSystem.Server
+namespace ZYNet.CloudSystem.Interfaces
 {
     public interface IASync
     {
         SocketAsyncEventArgs Asyn { get; }
         CloudServer CurrentServer { get; }
         bool IsValidate { get; set; }
-        AsyncSend Sendobj { get; }
+        ISend Sendobj { get; }
         object UserToken { get; set; }
 
         Action<ASyncToken, string> UserDisconnect { get; set; }     

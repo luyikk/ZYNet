@@ -8,7 +8,7 @@ using ZYNet.CloudSystem.Frame;
 
 namespace ZYNet.CloudSystem.Server
 {
-    public class AsyncMethodDef
+    public class AsyncMethodDef : IAsyncMethodDef
     {
         static  Type tasktype = typeof(Task);
 

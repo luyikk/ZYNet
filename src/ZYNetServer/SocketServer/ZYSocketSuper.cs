@@ -50,7 +50,7 @@ namespace ZYSocket.Server
     /// ZYSOCKET框架 服务器端
     ///（通过6W个连接测试。理论上支持10W个连接，可谓.NET最强SOCKET模型）
     /// </summary>
-    public class ZYSocketSuper : IDisposable
+    public class ZYSocketSuper : IDisposable, ISocketServer
     {
 
         #region 释放
@@ -200,7 +200,7 @@ namespace ZYSocket.Server
         /// <summary>
         /// 接收包大小
         /// </summary>
-        private int MaxBufferSize;
+        private readonly int MaxBufferSize;
 
         public int GetMaxBufferSize
         {
@@ -213,7 +213,7 @@ namespace ZYSocket.Server
         /// <summary>
         /// 最大用户连接
         /// </summary>
-        private int MaxConnectCout;
+        private readonly int MaxConnectCout;
 
         /// <summary>
         /// 最大用户连接数
@@ -242,7 +242,7 @@ namespace ZYSocket.Server
         /// <summary>
         /// 端口
         /// </summary>
-        private int Port;
+        private readonly int Port;
 
 
 
@@ -620,7 +620,7 @@ namespace ZYSocket.Server
         /// <summary>
         /// 消息类型
         /// </summary>     
-        private LogType messClass;
+        private readonly LogType messClass;
 
         /// <summary>
         /// 消息类型
@@ -635,7 +635,7 @@ namespace ZYSocket.Server
         /// <summary>
         /// 消息
         /// </summary>
-        private string mess;
+        private readonly string mess;
 
         public string Mess
         {

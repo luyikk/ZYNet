@@ -5,12 +5,16 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ZYNet.CloudSystem.Loggine;
+using Microsoft.Extensions.Logging;
 
 namespace ZYNet.CloudSystem.Frame
 {
     public class ReturnEventWaitHandle:IDisposable
     {
-        protected static readonly ILog Log = LogFactory.ForContext<ReturnEventWaitHandle>();
+
+        protected ILoggerFactory loggerFactory { get; set; }
+
+        protected ILog Log { get; set; }
 
         public Result Result { get; private set; }
 
@@ -20,8 +24,10 @@ namespace ZYNet.CloudSystem.Frame
 
         private bool IsClose;
 
-        public ReturnEventWaitHandle(int millisecondsTimeout, bool initialState, EventResetMode mode)
+        public ReturnEventWaitHandle(ILoggerFactory loggerFactory,int millisecondsTimeout, bool initialState, EventResetMode mode)
         {
+            this.loggerFactory = loggerFactory;
+            this.Log = new DefaultLog(loggerFactory.CreateLogger<ReturnEventWaitHandle>());
             this.MillisecondsTimeout = millisecondsTimeout;
            
             WaitHandle = new EventWaitHandle(initialState, mode);

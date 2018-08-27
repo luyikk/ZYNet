@@ -1,5 +1,5 @@
-﻿    using System;
-    using Microsoft.Extensions.Logging;
+﻿using System;
+using Microsoft.Extensions.Logging;
 
 
 namespace ZYNet.CloudSystem.Loggine
@@ -7,13 +7,12 @@ namespace ZYNet.CloudSystem.Loggine
 
     public static class LogFactory
     {
-        static readonly ILoggerFactory DefaultFactory;
+        private static ILoggerFactory DefaultFactory = new LoggerFactory();
 
-        static LogFactory()
+        public static void SetLogFactory(ILoggerFactory loggerFactory)
         {
-            DefaultFactory = new LoggerFactory();
+            DefaultFactory = loggerFactory;
         }
-
 
         public static ILoggerFactory AddConsole() => AddConsoleProvider(LogLevel.Trace);
         public static ILoggerFactory AddDebug() => AddDebug(LogLevel.Trace);

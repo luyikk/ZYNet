@@ -6,13 +6,15 @@ using System.Threading.Tasks;
 using ZYNet.CloudSystem.Frame;
 using ZYNet.CloudSystem.Loggine;
 using ZYSocket.share;
+using Microsoft.Extensions.Logging;
 
 
 namespace ZYNet.CloudSystem.Client
 {
     public class AsyncCalls :MessageExceptionParse
     {
-        protected static readonly ILog Log = LogFactory.ForContext<AsyncCalls>();
+        private readonly ILog Log;
+
 
         public Result Result { get; private set; }
 
@@ -45,7 +47,7 @@ namespace ZYNet.CloudSystem.Client
         public ZYSync Sync => CCloudClient?.Sync;
 
 
-        public AsyncCalls(long id,int cmd, CloudClient client,Object obj, MethodInfo method,object[] args,bool ishavereturn)
+        public AsyncCalls(ILoggerFactory loggerFactory, long id,int cmd, CloudClient client,Object obj, MethodInfo method,object[] args,bool ishavereturn)
         {
             IsHaveReturn = ishavereturn;
             Obj = obj;
@@ -55,6 +57,7 @@ namespace ZYNet.CloudSystem.Client
             Id = id;
             Cmd = cmd;
             FodyDir = new Dictionary<Type, Type>();
+            Log = new DefaultLog(loggerFactory.CreateLogger<AsyncCalls>());
         }
 
         ~AsyncCalls()
@@ -66,16 +69,16 @@ namespace ZYNet.CloudSystem.Client
         public void Run()
         {
 
-            Func<Task> wrappedGhostThreadFunction = async () =>
+            async Task wrappedGhostThreadFunction()
             {
                 try
                 {
                     if (IsHaveReturn)
-                    {                                               
+                    {
                         var res = await (dynamic)Method.Invoke(Obj, Args);
-                        if (res is Result xres)                        
-                            Result = xres;                                              
-                        else                        
+                        if (res is Result xres)
+                            Result = xres;
+                        else
                             Result = new Result(res);
 
                         Result.Id = this.Id;
@@ -93,9 +96,9 @@ namespace ZYNet.CloudSystem.Client
                     Error = er;
 
                     if (IsHaveReturn)
-                        Complete?.Invoke(GetExceptionResult(er, Id));                    
+                        Complete?.Invoke(GetExceptionResult(er, Id));
 
-                    if(PushException(er))
+                    if (PushException(er))
                         Log.Error($"Cmd:{Cmd} Error:\r\n {Error}");
                 }
                 finally
@@ -103,7 +106,7 @@ namespace ZYNet.CloudSystem.Client
                     IsOver = true;
                     CCloudClient.RemoveAsyncCall(Id);
                 }
-            };
+            }
 
 
             _fiber = new Fiber();

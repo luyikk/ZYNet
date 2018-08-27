@@ -22,7 +22,7 @@ namespace ZYSocket.Server
         /// <summary>
         /// SocketAsyncEventArgs栈
         /// </summary>
-        Stack<SocketAsyncEventArgs> pool;
+        readonly Stack<SocketAsyncEventArgs> pool;
 
         /// <summary>
         /// 初始化SocketAsyncEventArgs池

@@ -48,38 +48,6 @@ namespace ZYNet.CloudSystem.Frame
             {
                 return ReadString(data);
             }
-            else if (type == typeof(short))
-            {
-                return BitConverter.ToInt16(data,0);
-            }
-            else if (type == typeof(ushort))
-            {
-                return BitConverter.ToUInt16(data, 0);
-            }
-            else if (type == typeof(int))
-            {
-                return BitConverter.ToInt32(data, 0);
-            }
-            else if (type == typeof(uint))
-            {
-                return BitConverter.ToUInt32(data, 0);
-            }
-            else if (type == typeof(long))
-            {
-                return BitConverter.ToInt64(data, 0);
-            }
-            else if (type == typeof(ulong))
-            {
-                return BitConverter.ToUInt64(data, 0);
-            }
-            else if (type == typeof(float))
-            {
-                return BitConverter.ToSingle(data, 0);
-            }
-            else if (type == typeof(double))
-            {
-                return BitConverter.ToDouble(data, 0);
-            }
             else if (type == typeof(byte[]))
             {
                 return data;
@@ -112,39 +80,7 @@ namespace ZYNet.CloudSystem.Frame
             if (type == typeof(string))
             {
                 return Encoding.UTF8.GetBytes((string)obj);
-            }
-            else if (type == typeof(short))
-            {
-                return BitConverter.GetBytes((short)obj);
-            }
-            else if (type == typeof(ushort))
-            {
-                return BitConverter.GetBytes((ushort)obj);
-            }
-            else if(type==typeof(int))
-            {
-                return BitConverter.GetBytes((int)obj);
-            }
-            else if (type == typeof(uint))
-            {
-                return BitConverter.GetBytes((uint)obj);
-            }
-            else if (type == typeof(long))
-            {
-                return BitConverter.GetBytes((long)obj);
-            }
-            else if (type == typeof(ulong))
-            {
-                return BitConverter.GetBytes((ulong)obj);
-            }
-            else if (type == typeof(float))
-            {
-                return BitConverter.GetBytes((float)obj);
-            }
-            else if (type == typeof(double))
-            {
-                return BitConverter.GetBytes((double)obj);
-            }
+            }          
             else if (type == typeof(byte[]))
             {
                 return (byte[])obj;

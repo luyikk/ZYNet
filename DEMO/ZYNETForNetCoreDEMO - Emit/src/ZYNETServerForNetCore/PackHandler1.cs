@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ZYNet.CloudSystem;
 using ZYNet.CloudSystem.Frame;
+using ZYNet.CloudSystem.Interfaces;
 using ZYNet.CloudSystem.Server;
 
 
@@ -33,7 +33,7 @@ namespace ZYNETServerForNetCore
             {
                 UserName = username,
                 PassWord = password,
-                token = Async.GetAsyncToken()
+                Token = Async.GetAsyncToken()
             };
 
             Name = username;

@@ -7,78 +7,69 @@ using System.Threading.Tasks;
 using ZYNet.CloudSystem.Loggine;
 using ZYSocket.Server;
 using ZYSocket.share;
-
+using Autofac;
+using Microsoft.Extensions.Logging;
+using ZYNet.CloudSystem.Server.Options;
+using ZYNet.CloudSystem.Interfaces;
 
 namespace ZYNet.CloudSystem.Server
 {
     public delegate bool IsCanConnHandler(IPEndPoint ipaddress);
-    public partial class CloudServer:InstallController
+
+    public partial class CloudServer: CloudRegister, IDisposable
     {
-        protected static readonly ILog Log = LogFactory.ForContext<CloudServer>();
-
-        public ZYSocketSuper Server { get; private set; }
-
-        public Func<Exception,bool> ExceptionOut { get; set; }
-
-        Random Ran = new Random();
-
-        int readOutTime;
-        /// <summary>
-        /// 设置超时时间
-        /// </summary>
-        public int ReadOutTime
-        {
-            get
-            {
-                return readOutTime;
-            }
-            set
-            {
-                readOutTime = value;
-            }
-        }
-        
-        public bool CheckTimeOut { get; set; } = false;
-
-        public int MaxBuffsize { get; set; }
-
-        public TimeSpan TokenWaitClecr { get; set; }
+     
 
 
         /// <summary>
-        /// 此IP是否可以连接?
+        ///IP连接过滤
         /// </summary>
-        public event IsCanConnHandler IsCanConn;        
+        public IConnectfilter ConnectFilter { get; set; }   
       
 
         public ConcurrentDictionary<long,ASyncToken> TokenList { get; private set; }
 
-        public Func<byte[],byte[]> DecodeingHandler { get; set; }
-
-        public Func<byte[], byte[]> EcodeingHandler { get; set; }
 
 
-        public CloudServer(string host, int port, int maxConnectCout, int maxBuffersize, int maxPackSize,int tokenWaitClecrMilliseconds = 30000)
+
+        public CloudServer(IContainer container)
         {
-            TokenWaitClecr = TimeSpan.FromMilliseconds(tokenWaitClecrMilliseconds);
-            Server = new ZYSocketSuper(host, port, maxConnectCout, maxBuffersize);
-            MaxBuffsize = maxPackSize;
+            Container = container;          
+
+            var timeoutoption = container.Resolve<TimeOutOptions>();
+            TokenWaitClecrTime = timeoutoption.TokenWaitClecrTime;
+            ReadOutTimeMilliseconds = timeoutoption.ReadOutTimeMilliseconds;
+            IsCheckReadTimeOut = timeoutoption.IsCheckReadOutTime;
+            var bufferoption = container.Resolve<BufferSizeOptions>();
+            MaxPacksize = bufferoption.MaxPackSize;
+            var decodeoption = container.Resolve<DataEncodeOptions>();
+            if(container.IsRegistered<IConnectfilter>())
+                ConnectFilter = container.Resolve<IConnectfilter>(); 
+
+            Server = container.Resolve<ISocketServer>();
+
+            LoggerFactory = container.Resolve<ILoggerFactory>();
+            Log = new DefaultLog(LoggerFactory.CreateLogger<CloudServer>());
             Init();
+
+
         }
+      
+
+
 
         private void Init()
         {
             
-            CallsMethods = new Dictionary<int, AsyncMethodDef>();
+            CallsMethods = new Dictionary<int, IAsyncMethodDef>();
             TokenList = new ConcurrentDictionary<long, ASyncToken>();
             Server.BinaryOffsetInput = BinaryInputOffsetHandler;
             Server.Connetions = ConnectionFilter;
             Server.MessageInput = MessageInputHandler;
             Server.IsOffsetInput = true;
-            ReadOutTime = 5000;
+            ReadOutTimeMilliseconds = 5000;
             Task.Run(new Action(checkAsyncTimeOut));
         }
-
       
 
 
@@ -102,7 +93,7 @@ namespace ZYNet.CloudSystem.Server
 
             Log.Trace(socketAsync.AcceptSocket.RemoteEndPoint + " Connect");
 
-            return IsCanConn == null || IsCanConn((IPEndPoint)socketAsync.AcceptSocket.RemoteEndPoint);
+            return ConnectFilter == null || ConnectFilter.Filter((IPEndPoint)socketAsync.AcceptSocket.RemoteEndPoint);
         }
 
 
@@ -122,7 +113,7 @@ namespace ZYNet.CloudSystem.Server
                         stream = socketAsync.UserToken as ZYNetRingBufferPool;
                     else
                     {
-                        stream = new ZYNetRingBufferPool(MaxBuffsize);
+                        stream = new ZYNetRingBufferPool(MaxPacksize);
                         socketAsync.UserToken = stream;
                     }
 
@@ -153,9 +144,8 @@ namespace ZYNet.CloudSystem.Server
 
             if(read.Length>=4)
             {
-                int lengt;               
 
-                if (read.ReadInt32(out lengt) && lengt == read.Length)
+                if (read.ReadInt32(out int lengt) && lengt == read.Length)
                 {                    
 
                     if (read.ReadByte() == 0xED  &&
@@ -243,6 +233,12 @@ namespace ZYNet.CloudSystem.Server
             Server.Send(sock, data);
         }
 
-     
+        public void Dispose()
+        {
+            Server.Stop();
+            Log.Info("Server is Pause");           
+            Server.Dispose();
+            Container.Dispose();
+        }
     }
 }

@@ -36,12 +36,11 @@ namespace ZYNet.CloudSystem.Client
                 foreach (var att in attr)
                 {
 
-                    TAG attrcmdtype = att as TAG;
 
-                    if (attrcmdtype != null)
+                    if (att is TAG attrcmdtype)
                     {
 
-                        if ((method.ReturnType == tasktype || (Common.IsTypeOfBaseTypeIs(method.ReturnType,tasktype) && method.ReturnType.IsConstructedGenericType)))
+                        if ((method.ReturnType == tasktype || (Common.IsTypeOfBaseTypeIs(method.ReturnType, tasktype) && method.ReturnType.IsConstructedGenericType)))
                         {
 
                             if (method.GetParameters().Length > 0 && method.GetParameters()[0].ParameterType == typeof(AsyncCalls))
@@ -61,14 +60,18 @@ namespace ZYNet.CloudSystem.Client
                             {
                                 if (!ModuleDiy.ContainsKey(attrcmdtype.CmdTag))
                                 {
-                                    AsyncMethodDef tmp = new AsyncMethodDef(method, o);
-                                    tmp.IsController = true;
+                                    AsyncMethodDef tmp = new AsyncMethodDef(method, o)
+                                    {
+                                        IsController = true
+                                    };
                                     ModuleDiy.Add(attrcmdtype.CmdTag, tmp);
                                 }
                                 else
                                 {
-                                    AsyncMethodDef tmp = new AsyncMethodDef(method, o);
-                                    tmp.IsController = true;
+                                    AsyncMethodDef tmp = new AsyncMethodDef(method, o)
+                                    {
+                                        IsController = true
+                                    };
                                     ModuleDiy[attrcmdtype.CmdTag] = tmp;
                                 }
                             }
@@ -87,22 +90,26 @@ namespace ZYNet.CloudSystem.Client
                                 ModuleDiy[attrcmdtype.CmdTag] = tmp;
                             }
                         }
-                        else if(type.GetInterface("ZYNet.CloudSystem.Client.IController") !=null)
+                        else if (type.GetInterface("ZYNet.CloudSystem.Client.IController") != null)
                         {
                             if (!ModuleDiy.ContainsKey(attrcmdtype.CmdTag))
                             {
-                                AsyncMethodDef tmp = new AsyncMethodDef(method, o);
-                                tmp.IsController = true;
+                                AsyncMethodDef tmp = new AsyncMethodDef(method, o)
+                                {
+                                    IsController = true
+                                };
                                 ModuleDiy.Add(attrcmdtype.CmdTag, tmp);
                             }
                             else
                             {
-                                AsyncMethodDef tmp = new AsyncMethodDef(method, o);
-                                tmp.IsController = true;
+                                AsyncMethodDef tmp = new AsyncMethodDef(method, o)
+                                {
+                                    IsController = true
+                                };
                                 ModuleDiy[attrcmdtype.CmdTag] = tmp;
                             }
                         }
-                        
+
 
                         break;
                     }
@@ -122,7 +129,7 @@ namespace ZYNet.CloudSystem.Client
         public bool IsAsync { get; set; }
         public bool IsRet { get; set; }
 
-        public MethodInfo methodInfo { get; set; }
+        public MethodInfo MethodInfo { get; set; }
 
         public Type[] ArgsType { get; set; }
 
@@ -132,7 +139,7 @@ namespace ZYNet.CloudSystem.Client
         public AsyncMethodDef(MethodInfo methodInfo, object token)
         {
             this.Obj = token;
-            this.methodInfo = methodInfo;
+            this.MethodInfo = methodInfo;
 
             var parameters = methodInfo.GetParameters();
             ArgsType = new Type[parameters.Length];

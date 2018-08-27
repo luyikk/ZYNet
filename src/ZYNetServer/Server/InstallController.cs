@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
+using Autofac;
 using System.Threading.Tasks;
+
 
 namespace ZYNet.CloudSystem.Server
 {
-    public abstract class InstallController
+    public abstract class CloudRegister : CloudBase
     {
 
-        public Dictionary<int, AsyncMethodDef> CallsMethods { get; protected set; }
+        public Dictionary<int, IAsyncMethodDef> CallsMethods { get; protected set; }
 
         public void Install(Type packHandlerType)
         {
@@ -33,8 +34,8 @@ namespace ZYNet.CloudSystem.Server
                     {
 
                         if (!CallsMethods.ContainsKey(attrcmdtype.CmdTag))
-                        {
-                            AsyncMethodDef tmp = new AsyncMethodDef(packHandlerType, method);
+                        {                            
+                            IAsyncMethodDef tmp = base.Container.Resolve<IAsyncMethodDef>(new NamedParameter("implementationType", packHandlerType), new NamedParameter("methodInfo", method));
                             CallsMethods.Add(attrcmdtype.CmdTag, tmp);
                         }
 

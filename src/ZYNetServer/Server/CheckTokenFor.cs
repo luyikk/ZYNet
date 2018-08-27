@@ -6,6 +6,23 @@ namespace ZYNet.CloudSystem.Server
 {
     public partial class CloudServer
     {
+        /// <summary>
+        /// 是否启用读取超时
+        /// </summary>
+        public bool IsCheckReadTimeOut { get; set; } = false;
+        /// <summary>
+        /// 设置读取超时时间
+        /// </summary>
+        public int ReadOutTimeMilliseconds { get; set; }
+
+
+        /// <summary>
+        /// TOKEN 等待重连时间,超过删除
+        /// </summary>
+        public TimeSpan TokenWaitClecrTime { get; set; }
+
+
+
         private async void checkAsyncTimeOut()
         {
             while (true)
@@ -39,7 +56,7 @@ namespace ZYNet.CloudSystem.Server
         private int checkTokenTimeOut()
         {
             int isWaitlong = 500;
-            if (CheckTimeOut)
+            if (IsCheckReadTimeOut)
                 foreach (var token in TokenList)
                     if (token.Value.CheckTimeOut())
                         isWaitlong = 20;
@@ -53,10 +70,11 @@ namespace ZYNet.CloudSystem.Server
             var dis = TokenList.Values.Where(p => p.IsDisconnect);
 
             foreach (var token in dis)
-                if ((DateTime.Now - TokenWaitClecr) > token.DisconnectDateTime)
-                    if (TokenList.TryRemove(token.SessionKey, out ASyncToken value))
+                if ((DateTime.Now - TokenWaitClecrTime) > token.DisconnectDateTime)
+                    if (TokenList.TryRemove(token.SessionKey, out ASyncToken p))
                     {
-                        Log.Debug($"Remove Token {value.SessionKey}");
+                        p.Dispose();
+                        Log.Debug($"Remove Token {p.SessionKey}");
                         isWaitlong = 20;
                     }
 

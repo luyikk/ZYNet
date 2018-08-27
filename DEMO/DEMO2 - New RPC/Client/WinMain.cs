@@ -127,7 +127,7 @@ namespace Client
 
             if (this.comboBox1.SelectedIndex == 0)
             {
-                client.Sync.Get<ServerMethods>().SendMessageToAllUser(this.textBox1.Text);
+                client.Sync.Get<IServerMethods>().SendMessageToAllUser(this.textBox1.Text);
             }
             else
             {
@@ -137,7 +137,7 @@ namespace Client
                 {
                     try
                     {
-                        var msgres = await client.NewAsync().Get<ServerMethods>().SendMsgToUser(userinfo.UserName, this.textBox1.Text);
+                        var msgres = await client.NewAsync().Get<IServerMethods>().SendMsgToUser(userinfo.UserName, this.textBox1.Text);
 
                         var msg = msgres?.First?.Value<string>();
 

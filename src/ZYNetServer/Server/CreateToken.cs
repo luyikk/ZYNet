@@ -33,8 +33,10 @@ namespace ZYNet.CloudSystem.Server
         /// <returns></returns>
         private ASyncToken NewASyncToken(SocketAsyncEventArgs socketAsync, ZYNetRingBufferPool stream, long sessionkey)
         {
-            ASyncToken tmp = new ASyncToken(socketAsync, this, sessionkey, stream);
-            tmp.ExceptionOut = this.ExceptionOut;
+            ASyncToken tmp = new ASyncToken(this.LoggerFactory,socketAsync, this, sessionkey, stream)
+            {
+                ExceptionOut = this.ExceptionOut
+            };
             return tmp;
         }
 

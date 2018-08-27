@@ -9,7 +9,7 @@ namespace ZYNet.CloudSystem.SocketClient
 {
     public class ConnectionManager : IConnectionManager
     {
-        private object lockObj = new object();
+        private readonly object lockObj = new object();
         /// <summary>
         /// 数据包进入事件
         /// </summary>

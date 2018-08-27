@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using ZYNet.CloudSystem;
 using ZYNet.CloudSystem.Loggine;
 using ZYNet.CloudSystem.Server;
+using ZYNet.CloudSystem.Server.Bulider;
+using Microsoft.Extensions.Logging;
 
 namespace ZYNETServerForNetCore
 {
@@ -13,11 +15,15 @@ namespace ZYNETServerForNetCore
         static void Main(string[] args)
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
-            LogFactory.AddConsole();
-            CloudServer tmp = new CloudServer("any", 2285, 1000, 1024 * 128, 1024 * 1024);//没个SocketAsync对象缓冲区128k,最大能接收1M长度的数据包
+
+
+            var tmp = new ServBuilder()
+                .ConfigureDefaults()
+                .ConfigureServHostAndPort(p => p.Port = 2285)           
+                .Bulid();
+
             tmp.Install(typeof(PackHandler));
-            tmp.Start();
-            tmp.CheckTimeOut = false;
+            tmp.Start();        
           
             while (true)
             {
@@ -25,7 +31,7 @@ namespace ZYNETServerForNetCore
 
                 foreach (var item in PackHandler.UserList)
                 {
-                    item.token.Action(3001, msg);
+                    item.Token.Action(3001, msg);
 
                 }
             }
@@ -40,6 +46,6 @@ namespace ZYNETServerForNetCore
 
         public string PassWord { get; set; }
 
-        public ASyncToken token { get; set; }
+        public ASyncToken Token { get; set; }
     }
 }

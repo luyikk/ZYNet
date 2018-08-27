@@ -7,16 +7,17 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using ZYNet.CloudSystem.Frame;
+using ZYNet.CloudSystem.Interfaces;
 using ZYNet.CloudSystem.Loggine;
-using ZYSocket.AsyncSend;
+using ZYSocket.Server;
 using ZYSocket.share;
-
+using Microsoft.Extensions.Logging;
 
 namespace ZYNet.CloudSystem.Server
 {
     public class AsyncCalls:MessageExceptionParse, IASync
     {
-        protected static readonly ILog Log = LogFactory.ForContext<AsyncCalls>();     
+        private readonly ILog Log;
 
         private Dictionary<Type, Type> FodyDir { get; set; }
 
@@ -76,14 +77,15 @@ namespace ZYNet.CloudSystem.Server
 
         public SocketAsyncEventArgs Asyn => AsyncUser?.Asyn;
 
-        public AsyncSend Sendobj => AsyncUser?.Sendobj;
+        public ISend Sendobj => AsyncUser?.Sendobj;
 
-        public AsyncCalls(ASyncToken token,Fiber fiber)
+        public AsyncCalls(ILoggerFactory loggerFactory, ASyncToken token,Fiber fiber)
         {
             this.AsyncUser = token;
             AsyncUser.UserDisconnect = (a, b) => this.UserDisconnect?.Invoke(a, b);           
             this._fiber = fiber;
             FodyDir = new Dictionary<Type, Type>();
+            Log = new DefaultLog(loggerFactory.CreateLogger<AsyncCalls>());
         }
 
 
@@ -141,14 +143,14 @@ namespace ZYNet.CloudSystem.Server
         internal void Run()
         {
 
-            Func<Task> wrappedGhostThreadFunction = async () =>
+            async Task wrappedGhostThreadFunction()
             {
                 try
                 {
                     if (IsHaveReturn)
                     {
 
-                        var x = await (dynamic)Method.Invoke(Controller, Args);                      
+                        var x = await (dynamic)Method.Invoke(Controller, Args);
 
                         if (x is Result xres)
                         {
@@ -177,11 +179,11 @@ namespace ZYNet.CloudSystem.Server
                     IsError = true;
                     Error = er;
 
-                    if (IsHaveReturn)                                          
+                    if (IsHaveReturn)
                         Complete?.Invoke(GetExceptionResult(er, this.Id));
 
                     if (PushException(er))
-                        Log.Error($"Cmd:{Cmd} Error:\r\n{Error}",er);
+                        Log.Error($"Cmd:{Cmd} Error:\r\n{Error}", er);
 
                 }
                 finally
@@ -189,7 +191,7 @@ namespace ZYNet.CloudSystem.Server
                     IsOver = true;
                     AsyncUser.RemoveAsyncCall(Id);
                 }
-            };
+            }
 
 
             _fiber = new Fiber();

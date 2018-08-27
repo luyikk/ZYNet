@@ -19,7 +19,7 @@ namespace Client
 
 
     [Build]
-    public interface ServerMethods
+    public interface IServerMethods
     {
         [TAG((int)Cmdtype.LogOn)]
         FiberThreadAwaiter<Result> LogOn(string username);

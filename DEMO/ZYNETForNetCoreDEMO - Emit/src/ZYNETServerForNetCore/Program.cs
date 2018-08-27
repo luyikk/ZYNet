@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ZYNet.CloudSystem;
 using ZYNet.CloudSystem.Loggine;
 using ZYNet.CloudSystem.Server;
-
+using ZYNet.CloudSystem.Server.Bulider;
 namespace ZYNETServerForNetCore
 {
     public class Program
@@ -13,11 +14,17 @@ namespace ZYNETServerForNetCore
         static void Main(string[] args)
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
-            LogFactory.AddConsole();
-            CloudServer tmp = new CloudServer("any", 2285, 1000, 1024 * 128, 1024 * 1024);//没个SocketAsync对象缓冲区128k,最大能接收1M长度的数据包
+
+
+            var tmp = new ServBuilder()
+                .ConfigureDefaults()
+                .ConfigureServHostAndPort(p => p.Port = 2285)
+                .ConfigureLogSet(() => new LoggerFactory(), log => log.AddConsole(LogLevel.Trace))
+                .Bulid();          
+
             tmp.Install(typeof(PackHandler1).Assembly);        
             tmp.Start();
-            tmp.CheckTimeOut = false;
+            tmp.IsCheckReadTimeOut = false;
             
 
 
@@ -27,7 +34,7 @@ namespace ZYNETServerForNetCore
 
                 foreach (var item in PackHandler1.UserList)
                 {
-                    item.token.Action(3001, msg);
+                    item.Token.Action(3001, msg);
 
                 }
             }
@@ -42,6 +49,6 @@ namespace ZYNETServerForNetCore
 
         public string PassWord { get; set; }
 
-        public ASyncToken token { get; set; }
+        public ASyncToken Token { get; set; }
     }
 }

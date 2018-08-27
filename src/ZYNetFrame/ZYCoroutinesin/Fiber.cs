@@ -38,7 +38,7 @@ namespace ZYNet.CloudSystem.Frame
         }
 
 
-        public static Fiber Current => (SynchronizationContext.Current as FiberSynchronizationContext)?.fiber;
+        public static Fiber Current => (SynchronizationContext.Current as FiberSynchronizationContext)?.Fiber;
 
         public void SetAction(Func<Task> action)
         {
@@ -49,7 +49,7 @@ namespace ZYNet.CloudSystem.Frame
         {
             IsOver = false;
 
-            Action wrappedGhostThreadFunction = async () =>
+            async void wrappedGhostThreadFunction()
             {
                 try
                 {
@@ -59,7 +59,7 @@ namespace ZYNet.CloudSystem.Frame
                 }
                 catch (Exception er)
                 {
-                    
+
                     IsError = true;
                     Error = er;
                 }
@@ -67,7 +67,7 @@ namespace ZYNet.CloudSystem.Frame
                 {
                     IsOver = true;
                 }
-            };
+            }
 
             var previousSyncContext = SynchronizationContext.Current;
 
