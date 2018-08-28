@@ -10,7 +10,7 @@ namespace ZYNet.CloudSystem.Client
     {
         bool IsConnect { get; }
 
-        event Action<byte[]> BinaryInput;
+        event Action<byte[],int,int> BinaryInput;
 
         event Action<string> Disconnect;
 

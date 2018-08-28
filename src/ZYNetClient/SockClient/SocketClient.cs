@@ -39,7 +39,7 @@ namespace ZYNet.CloudSystem.SocketClient
         /// <summary>
         /// 数据包进入事件
         /// </summary>
-        public event Action<byte[]> BinaryInput;
+        public event Action<byte[],int,int> BinaryInput;
         /// <summary>
         /// 出错或断开触发事件
         /// </summary>
@@ -202,12 +202,9 @@ namespace ZYNet.CloudSystem.SocketClient
 
                 case SocketAsyncOperation.Receive:
                     if (e.SocketError == SocketError.Success && e.BytesTransferred > 0)
-                    {                       
+                    { 
 
-                        byte[] data = new byte[e.BytesTransferred];
-                        Buffer.BlockCopy(e.Buffer, 0, data, 0, data.Length);
-                    
-                        BinaryInput?.Invoke(data);
+                        BinaryInput?.Invoke(e.Buffer,e.Offset,e.BytesTransferred);
 
                         try
                         {

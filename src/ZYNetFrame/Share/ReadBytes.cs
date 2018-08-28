@@ -118,24 +118,47 @@ namespace ZYSocket.share
 
                 byte[] handBytes = new byte[this.startIndex];
 
-                Buffer.BlockCopy(data, 0, handBytes, 0, handBytes.Length); //首先保存不需要解密的数组
+                unsafe
+                {
+                    fixed (byte* datap = &data[0])
+                    fixed (byte* handbytesp = &handBytes[0])
+                        Buffer.MemoryCopy(datap, handbytesp, handBytes.Length, handBytes.Length);
+                    //Buffer.BlockCopy(data, 0, handBytes, 0, handBytes.Length); //首先保存不需要解密的数组
 
-                byte[] endBytes = new byte[data.Length - (startIndex + endlengt)];
+                    byte[] endBytes = new byte[data.Length - (startIndex + endlengt)];
 
-                Buffer.BlockCopy(data, (startIndex + endlengt), endBytes, 0, endBytes.Length); //首先保存不需要解密的数组
+                    fixed (byte* datap = &data[startIndex + endlengt])
+                    fixed (byte* endbytesp = &endBytes[0])
+                        Buffer.MemoryCopy(datap, endbytesp, endBytes.Length, endBytes.Length);
+                    //Buffer.BlockCopy(data, (startIndex + endlengt), endBytes, 0, endBytes.Length); //首先保存不需要解密的数组
 
-                byte[] NeedExByte = new byte[endlengt];
+                    byte[] NeedExByte = new byte[endlengt];
 
-                Buffer.BlockCopy(data, startIndex, NeedExByte, 0, NeedExByte.Length);
+                    fixed (byte* datap = &data[startIndex])
+                    fixed (byte* needbytesp = &NeedExByte[0])
+                        Buffer.MemoryCopy(datap, needbytesp, NeedExByte.Length, NeedExByte.Length);
+                    //Buffer.BlockCopy(data, startIndex, NeedExByte, 0, NeedExByte.Length);
 
-                if (dataExtraCallBack != null)
+                    if (dataExtraCallBack != null)
                     NeedExByte = dataExtraCallBack(NeedExByte);
 
-                Data = new byte[handBytes.Length + NeedExByte.Length + endBytes.Length]; //重新整合解密完毕后的数据包
+                    Data = new byte[handBytes.Length + NeedExByte.Length + endBytes.Length]; //重新整合解密完毕后的数据包
 
-                Buffer.BlockCopy(handBytes, 0, Data, 0, handBytes.Length);
-                Buffer.BlockCopy(NeedExByte, 0, Data, handBytes.Length, NeedExByte.Length);
-                Buffer.BlockCopy(endBytes, 0, Data, (handBytes.Length + NeedExByte.Length), endBytes.Length);
+                    fixed (byte* handbytep = &handBytes[0])
+                    fixed (byte* Databytep = &Data[0])
+                        Buffer.MemoryCopy(handbytep, Databytep, Data.Length, handBytes.Length);
+                    //Buffer.BlockCopy(handBytes, 0, Data, 0, handBytes.Length);
+
+                    fixed (byte* needexbytep = &NeedExByte[0])
+                    fixed (byte* Databytep = &Data[handBytes.Length])
+                        Buffer.MemoryCopy(needexbytep, Databytep, Data.Length, NeedExByte.Length);
+                    //Buffer.BlockCopy(NeedExByte, 0, Data, handBytes.Length, NeedExByte.Length);
+
+                    fixed (byte* endbytesp = &endBytes[0])
+                    fixed (byte* Databytep = &Data[handBytes.Length + NeedExByte.Length])
+                        Buffer.MemoryCopy(endbytesp, Databytep, Data.Length, endBytes.Length);
+                    // Buffer.BlockCopy(endBytes, 0, Data, (handBytes.Length + NeedExByte.Length), endBytes.Length);
+                }
                 current = 0;
                 IsDataExtraSuccess = true;
             }
@@ -528,10 +551,18 @@ namespace ZYSocket.share
 
             int lengt = ReadInt32();
 
-            Byte[] buf = new Byte[lengt];
+            if (lengt == 0)
+                return "";
 
-            Buffer.BlockCopy(Data, current, buf, 0, buf.Length);
+            byte[] buf = new byte[lengt];
 
+            unsafe
+            {
+                fixed (byte* datap = &Data[current])
+                fixed (byte* bufp = &buf[0])
+                    Buffer.MemoryCopy(datap, bufp, buf.Length, buf.Length);
+                //Buffer.BlockCopy(Data, current, buf, 0, buf.Length);
+            }
             string values = Encode.GetString(buf, 0, buf.Length);
 
             current = Interlocked.Add(ref current, lengt);
@@ -554,11 +585,22 @@ namespace ZYSocket.share
             {
                 if (ReadInt32(out int lengt))
                 {
+                    if (lengt == 0)
+                    {
+                        values = "";
+                        return true;
+                    }
 
-                    Byte[] buf = new Byte[lengt];
+                    byte[] buf = new byte[lengt];
 
-                    Buffer.BlockCopy(Data, current, buf, 0, buf.Length);
-                   
+                    unsafe
+                    {
+                        fixed (byte* datap = &Data[current])
+                        fixed (byte* bufp = &buf[0])
+                            Buffer.MemoryCopy(datap, bufp, buf.Length, buf.Length);
+                        //Buffer.BlockCopy(Data, current, buf, 0, buf.Length);
+                    }                  
+
                     values = Encode.GetString(buf, 0, buf.Length);
 
                     current = Interlocked.Add(ref current, lengt);
@@ -587,8 +629,17 @@ namespace ZYSocket.share
         public virtual byte[] ReadByteArray(int lengt)
         {
 
-            byte[] values = new Byte[lengt];
-            Buffer.BlockCopy(Data, current, values, 0, values.Length);
+            if (lengt == 0)
+                return new byte[0];
+
+            byte[] values = new byte[lengt];
+            unsafe
+            {
+                fixed (byte* datap = &Data[current])
+                fixed (byte* valuesp = &values[0])
+                    Buffer.MemoryCopy(datap, valuesp, values.Length, values.Length);
+                //Buffer.BlockCopy(Data, current, values, 0, values.Length);
+            }
             current = Interlocked.Add(ref current, lengt);
             return values;
 
@@ -603,8 +654,20 @@ namespace ZYSocket.share
         public virtual byte[] ReadByteArray()
         {          
             int lengt = ReadInt32();
-            byte[] values = new Byte[lengt];
-            Buffer.BlockCopy(Data, current, values, 0, values.Length);
+
+            if (lengt == 0)
+                return new byte[0];
+
+            byte[] values = new byte[lengt];
+            unsafe
+            {
+                fixed (byte* datap = &Data[current])
+                fixed (byte* valuesp = &values[0])
+                    Buffer.MemoryCopy(datap, valuesp, values.Length, values.Length);
+
+                //Buffer.BlockCopy(Data, current, values, 0, values.Length);
+            }
+          
             current = Interlocked.Add(ref current, lengt);
             return values;
         }
@@ -618,8 +681,21 @@ namespace ZYSocket.share
             try
             {
 
-                values = new Byte[lengt];
-                Buffer.BlockCopy(Data, current, values, 0, values.Length);
+                if (lengt == 0)
+                {
+                    values = new byte[0];
+                    return true;
+                }
+
+                values = new byte[lengt];
+                unsafe
+                {
+                    fixed (byte* datap = &Data[current])
+                    fixed (byte* valuesp = &values[0])
+                        Buffer.MemoryCopy(datap, valuesp, values.Length, values.Length);
+                    //Buffer.BlockCopy(Data, current, values, 0, values.Length);
+                }
+               
                 current = Interlocked.Add(ref current, lengt);
                 return true;
 
@@ -646,8 +722,20 @@ namespace ZYSocket.share
             {
                 if (ReadInt32(out int lengt))
                 {
-                    values = new Byte[lengt];
-                    Buffer.BlockCopy(Data, current, values, 0, values.Length);
+                    if (lengt == 0)
+                    {
+                        values = new byte[0];
+                        return true;
+                    }
+
+                    values = new byte[lengt];                  
+                    unsafe
+                    {
+                        fixed (byte* datap = &Data[current])
+                        fixed (byte* valuesp = &values[0])
+                            Buffer.MemoryCopy(datap, valuesp, values.Length, values.Length);
+                        //Buffer.BlockCopy(Data, current, values, 0, values.Length);
+                    }
                     current = Interlocked.Add(ref current, lengt);
                     return true;
 

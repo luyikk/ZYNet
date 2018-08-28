@@ -139,9 +139,9 @@ namespace ZYNet.CloudSystem.SocketClient
             
         }
 
-        private void SocketClient_BinaryInput(byte[] data)
+        private void SocketClient_BinaryInput(byte[] data,int offset,int lengt)
         {
-            RingBuffer.Write(data);
+            RingBuffer.Write(data,offset,lengt);
 
             while (RingBuffer.Read(out byte[] pdata))            
                     BinaryInput?.Invoke(pdata);

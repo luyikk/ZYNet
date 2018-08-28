@@ -54,9 +54,17 @@ namespace ZYNETClientForNetCore
                             stop.Start();
                             var rec = ServerPack.TestRec2(10000);
                             stop.Stop();
-
-
                             Console.WriteLine("Rec:{0} time:{1} MS", rec, stop.ElapsedMilliseconds);
+                            stop.Restart();
+                            rec = ServerPack.TestRec2(10000);
+                            stop.Stop();
+                            Console.WriteLine("Rec:{0} time:{1} MS", rec, stop.ElapsedMilliseconds);
+                            stop.Restart();
+                            rec = ServerPack.TestRec2(10000);
+                            stop.Stop();
+                            Console.WriteLine("Rec:{0} time:{1} MS", rec, stop.ElapsedMilliseconds);
+
+
                             TestRun(client);
                             TestRun(client);
                             TestRun(client);

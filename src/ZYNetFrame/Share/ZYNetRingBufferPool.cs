@@ -135,7 +135,7 @@ namespace ZYSocket.share
             if (lengt > MAXSIZE)
             {
 #if DEBUG
-                throw new Exception("写入的数据包长度超出环总长度");
+                throw new Exception($"写入的数据包长度超出环总长度{lengt}>{MAXSIZE}");
 #else
                   return false;
 #endif
@@ -168,22 +168,32 @@ namespace ZYSocket.share
             savepos = (_current + _length) % MAXSIZE;
 
 
-
-            Buffer.BlockCopy(data, offset, Data, savepos, savelen);
-
-            Length += savelen;
-
-            int have = lengt - savelen;
-            if (have > 0)
+            unsafe
             {
-                savepos = (_current + Length) % MAXSIZE;
-                Buffer.BlockCopy(data, offset + (lengt - have), Data, savepos, have);
-                Length += have;
+                fixed (byte* sourcep = &data[offset])                
+                    fixed (byte* targetp = &Data[savepos])                   
+                        //Buffer.BlockCopy(data, offset, Data, savepos, savelen);
+                        Buffer.MemoryCopy(sourcep, targetp, Data.Length, savelen);                     
+                    
+
+                Length += savelen;
+                int have = lengt - savelen;
+                if (have > 0)
+                {
+                    savepos = (_current + Length) % MAXSIZE;
+
+                    fixed (byte* sourceppus = &data[offset + (lengt - have)])                    
+                        fixed (byte* targetppus = &Data[savepos])                       
+                            Buffer.MemoryCopy(sourceppus, targetppus, Data.Length, have);
+                            // Buffer.BlockCopy(data, offset + (lengt - have), Data, savepos, have);
+                        
+                    
+
+                    Length += have;
+                }
+
+                return true;
             }
-
-            return true;
-
-
 
 
         }
@@ -231,20 +241,31 @@ namespace ZYSocket.share
             // 缓冲区数据的末尾
             savepos = (_current + _length) % MAXSIZE;
 
-            Buffer.BlockCopy(data, 0, Data, savepos, savelen);
-
-            Length += savelen;
-
-            int have = data.Length - savelen;
-            if (have > 0)
+            unsafe
             {
-                savepos = (_current + Length) % MAXSIZE;
-                Buffer.BlockCopy(data, data.Length - have, Data, savepos, have);
-                Length += have;
+                fixed (byte* sourcep = &data[0])                
+                    fixed (byte* targetp = &Data[savepos])                    
+                        Buffer.MemoryCopy(sourcep, targetp, Data.Length, savelen);
+                        //Buffer.BlockCopy(data, 0, Data, savepos, savelen);
+                    
+
+                Length += savelen;
+
+                int have = data.Length - savelen;
+                if (have > 0)
+                {
+                    savepos = (_current + Length) % MAXSIZE;
+
+                    fixed (byte* sourcep = &data[data.Length - have])
+                        fixed (byte* targetp = &Data[savepos])
+                            Buffer.MemoryCopy(sourcep, targetp, Data.Length, have);
+                    //Buffer.BlockCopy(data, data.Length - have, Data, savepos, have);
+
+                    Length += have;
+                }
+
+                return true;
             }
-
-            return true;
-
 
 
         }
@@ -285,10 +306,20 @@ namespace ZYSocket.share
                 // 先拷贝环形缓冲区末尾的数据
                 int copylen = MAXSIZE - _current;
 
-                Buffer.BlockCopy(Data, _current, data, 0, copylen);
+                unsafe
+                {
 
-                // 再拷贝环形缓冲区头部的剩余部分              
-                Buffer.BlockCopy(Data, 0, data, copylen, lengt - copylen);
+                    fixed (byte* sourcep = &Data[_current])
+                    fixed (byte* targetp = &data[0])
+                        Buffer.MemoryCopy(sourcep, targetp, data.Length, copylen);
+                    //Buffer.BlockCopy(Data, _current, data, 0, copylen);
+
+                    fixed (byte* sourcep = &Data[0])
+                    fixed (byte* targetp = &data[copylen])
+                        Buffer.MemoryCopy(sourcep, targetp, data.Length, lengt - copylen);
+                    // 再拷贝环形缓冲区头部的剩余部分              
+                    //Buffer.BlockCopy(Data, 0, data, copylen, lengt - copylen);
+                }
 
             }
             else
@@ -305,7 +336,13 @@ namespace ZYSocket.share
                 }
                 else
                 {
-                    Buffer.BlockCopy(Data, _current, data, 0, lengt);
+                    unsafe
+                    {
+                        fixed (byte* sourcep = &Data[_current])
+                        fixed (byte* targetp = &data[0])
+                            Buffer.MemoryCopy(sourcep, targetp, data.Length, lengt);
+                        //Buffer.BlockCopy(Data, _current, data, 0, lengt);
+                    }
                 }
             }
 
@@ -354,11 +391,21 @@ namespace ZYSocket.share
                 // 如果一个消息有回卷（被拆成两份在环形缓冲区的头尾）
                 // 先拷贝环形缓冲区末尾的数据
                 int copylen = MAXSIZE - _current;
+          
+                unsafe
+                {
 
-                Buffer.BlockCopy(Data, _current, data, 0, copylen);
+                    fixed (byte* sourcep = &Data[_current])
+                    fixed (byte* targetp = &data[0])
+                        Buffer.MemoryCopy(sourcep, targetp, data.Length, copylen);
+                    //Buffer.BlockCopy(Data, _current, data, 0, copylen);
 
-                // 再拷贝环形缓冲区头部的剩余部分              
-                Buffer.BlockCopy(Data, 0, data, copylen, lengt - copylen);
+                    fixed (byte* sourcep = &Data[0])
+                    fixed (byte* targetp = &data[copylen])
+                        Buffer.MemoryCopy(sourcep, targetp, data.Length, lengt - copylen);
+                    // 再拷贝环形缓冲区头部的剩余部分              
+                    //Buffer.BlockCopy(Data, 0, data, copylen, lengt - copylen);
+                }
 
             }
             else
@@ -375,7 +422,14 @@ namespace ZYSocket.share
                 }
                 else
                 {
-                    Buffer.BlockCopy(Data, _current, data, 0, lengt);
+                    unsafe
+                    {
+                        fixed (byte* sourcep = &Data[_current])
+                        fixed (byte* targetp = &data[0])
+                            Buffer.MemoryCopy(sourcep, targetp, data.Length, lengt);
+                        //Buffer.BlockCopy(Data, _current, data, 0, lengt);
+                    }
+                   
                 }
             }
 

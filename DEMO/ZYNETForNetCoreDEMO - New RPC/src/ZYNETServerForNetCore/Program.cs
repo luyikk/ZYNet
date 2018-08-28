@@ -19,6 +19,7 @@ namespace ZYNETServerForNetCore
 
             var tmp = new ServBuilder()
                 .ConfigureDefaults()
+                .ConfigureBufferSize(p=>p.MaxPackSize=1024*256)
                 .ConfigureServHostAndPort(p => p.Port = 2285)           
                 .Bulid();
 
