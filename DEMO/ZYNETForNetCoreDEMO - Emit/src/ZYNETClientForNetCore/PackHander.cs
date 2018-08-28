@@ -14,12 +14,9 @@ namespace ZYNETClientForNetCore
     /// <summary>
     /// 客户端包处理器
     /// </summary>
-    public class PackHander: IController
+    public class PackHander
     {
-        public CloudClient CClient { get; set; }
-        public AsyncCalls Async { get; set; }
-        public bool IsAsync { get; set; }
-        public IContainer Container { get; set; }
+       
 
         [TAG(2001)]
         public async Task<byte[]> DownHtml(string url)
@@ -56,12 +53,12 @@ namespace ZYNETClientForNetCore
 
 
         [TAG(2501)]
-        public async Task<int> TestRec2(int count)
+        public async Task<int> TestRec2(IASync async, int count)
         {
             count--;
             if (count > 1)
             {
-                var x = (await Async.Func(2501, count))?[0]?.Value<int>();
+                var x = (await async.Func(2501, count))?[0]?.Value<int>();
 
                 if (x != null && x.HasValue)
                 {

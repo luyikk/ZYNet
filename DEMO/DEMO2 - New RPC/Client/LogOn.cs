@@ -33,13 +33,12 @@ namespace Client
 
             var client = Dependency.Container.Resolve<CloudClient>();
 
-            var res = await client.NewAsync().Get<IServerMethods>().LogOn(this.textBox1.Text);
+            var res = await client.Get<IServerMethods>().LogOn(this.textBox1.Text);
 
-            var isOK = res?.First?.Value<bool>();
-
-            if (isOK != null)
+           
+            if (!res.IsError)
             {
-                if (isOK.Value)
+                if (res.As<bool>())
                 {
                     this.BeginInvoke(new EventHandler(delegate
                     {

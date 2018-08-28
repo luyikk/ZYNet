@@ -582,11 +582,11 @@ namespace ZYNet.CloudSystem.Server
 
                 if (!ControllerDict.TryGetValue(method.ImplementationType, out ControllerBase implement))
                 {
-                    implement = (ControllerBase)Activator.CreateInstance(method.ImplementationType,this);
+                    implement = (ControllerBase)Activator.CreateInstance(method.ImplementationType,this.Container);
                     ControllerDict[method.ImplementationType] = implement;
-                }
-                
+                }                
 
+                
 
                 object[] args = null;
 
@@ -594,80 +594,167 @@ namespace ZYNet.CloudSystem.Server
 
                 if (pack.Arguments != null)
                     argcount = pack.Arguments.Count;
-
-                if (method.ArgsType.Length > 0 && method.ArgsType.Length == argcount)
+                if (!method.IsNotAsyncArg)
                 {
-                    args = new object[method.ArgsType.Length];
-                  
-                    for (int i = 0; i < method.ArgsType.Length; i++)
-                    {                      
-                        args[i] = Serialization.UnpackSingleObject(method.ArgsType[i], pack.Arguments[i]);
-                    }
-                }
-           
-                if (method.IsAsync)
-                {
-                    if (!method.IsRet)
+                    if (method.ArgsType.Length > 0 && method.ArgsType.Length == (argcount + 1))
                     {
-
-                        AsyncCalls _calls_ = new AsyncCalls(pack.Id, pack.CmdTag,  this, implement,method.MethodInfo, args, false);
-                        implement.CurrentAsync = _calls_;
-                        _calls_.CallSend += SendData;
-                        _calls_.ExceptionOut = this.ExceptionOut;
-                        AsyncCallDict.AddOrUpdate(pack.Id, _calls_, (a, b) => _calls_);
-                        _calls_.Run();
-
-                    }
-                    else
-                    {
-
-                        AsyncCalls _calls_ = new AsyncCalls(pack.Id, pack.CmdTag, this, implement,method.MethodInfo, args, true);
-                        implement.CurrentAsync = _calls_;
-                        _calls_.CallSend += SendData;
-                        _calls_.Complete += ResrunResultData;
-                        _calls_.ExceptionOut = this.ExceptionOut;
-                        AsyncCallDict.AddOrUpdate(pack.Id, _calls_, (a, b) => _calls_);
-                        _calls_.Run();
-                    }
-                }
-                else //SYNC
-                {
-                    if (!method.IsRet)
-                    {
-                        method.MethodInfo.Invoke(implement, args);
-                    }
-                    else
-                    {
-                        try
+                        args = new object[method.ArgsType.Length];
+                        args[0] = this;
+                        int x = 1;
+                        for (int i = 0; i < (method.ArgsType.Length - 1); i++)
                         {
-                            object res = method.MethodInfo.Invoke(implement, args);
+                            x = i + 1;
+                            args[x] = Serialization.UnpackSingleObject(method.ArgsType[x], pack.Arguments[i]);
+                        }
+                    }
 
-                            if (res != null)
+                    if (method.IsAsync)
+                    {
+                        if (!method.IsRet)
+                        {
+
+                            AsyncCalls _calls_ = new AsyncCalls(pack.Id, pack.CmdTag, this, implement, method.MethodInfo, args, false);
+                            args[0] = _calls_;
+                            _calls_.CallSend += SendData;
+                            _calls_.ExceptionOut = this.ExceptionOut;
+                            AsyncCallDict.AddOrUpdate(pack.Id, _calls_, (a, b) => _calls_);
+                            _calls_.Run();
+
+                        }
+                        else
+                        {
+
+                            AsyncCalls _calls_ = new AsyncCalls(pack.Id, pack.CmdTag, this, implement, method.MethodInfo, args, true);
+                            args[0] = _calls_;
+                            _calls_.CallSend += SendData;
+                            _calls_.Complete += ResrunResultData;
+                            _calls_.ExceptionOut = this.ExceptionOut;
+                            AsyncCallDict.AddOrUpdate(pack.Id, _calls_, (a, b) => _calls_);
+                            _calls_.Run();
+                        }
+                    }
+                    else //SYNC
+                    {
+
+
+                        if (!method.IsRet)
+                        {
+                            method.MethodInfo.Invoke(implement, args);
+                        }
+                        else
+                        {
+                            try
                             {
-                                if (res is Result result)
-                                {
-                                    result.Id = pack.Id;
+                                object res = method.MethodInfo.Invoke(implement, args);
 
-                                    ResrunResultData(result);
-                                }
-                                else
+                                if (res != null)
                                 {
-                                    Result tmp = new Result(res)
+                                    if (res is Result result)
                                     {
-                                        Id = pack.Id
-                                    };
+                                        result.Id = pack.Id;
 
-                                    ResrunResultData(tmp);
+                                        ResrunResultData(result);
+                                    }
+                                    else
+                                    {
+                                        Result tmp = new Result(res)
+                                        {
+                                            Id = pack.Id
+                                        };
+
+                                        ResrunResultData(tmp);
+                                    }
                                 }
                             }
+                            catch (Exception er)
+                            {
+                                var tmp = base.GetExceptionResult(er, pack.Id);
+                                ResrunResultData(tmp);
+                                if (PushException(er))
+                                    Log.Error($"Cmd:{pack.CmdTag} ERROR:{er}");
+                            }
                         }
-                        catch (Exception er)
+
+                    }
+                }
+                else
+                {
+                    if (method.ArgsType.Length > 0 && method.ArgsType.Length == argcount)
+                    {
+                        args = new object[method.ArgsType.Length];
+                       
+                      
+                        for (int i = 0; i < method.ArgsType.Length; i++)
+                        {                            
+                            args[i] = Serialization.UnpackSingleObject(method.ArgsType[i], pack.Arguments[i]);
+                        }
+                    }
+
+                    if (method.IsAsync)
+                    {
+                        if (!method.IsRet)
                         {
-                            var tmp = base.GetExceptionResult(er, pack.Id);
-                            ResrunResultData(tmp);
-                            if (PushException(er))
-                                Log.Error($"Cmd:{pack.CmdTag} ERROR:{er}");
+
+                            AsyncCalls _calls_ = new AsyncCalls(pack.Id, pack.CmdTag, this, implement, method.MethodInfo, args, false);                       
+                            _calls_.CallSend += SendData;
+                            _calls_.ExceptionOut = this.ExceptionOut;
+                            AsyncCallDict.AddOrUpdate(pack.Id, _calls_, (a, b) => _calls_);
+                            _calls_.Run();
+
                         }
+                        else
+                        {
+
+                            AsyncCalls _calls_ = new AsyncCalls(pack.Id, pack.CmdTag, this, implement, method.MethodInfo, args, true);                          
+                            _calls_.CallSend += SendData;
+                            _calls_.Complete += ResrunResultData;
+                            _calls_.ExceptionOut = this.ExceptionOut;
+                            AsyncCallDict.AddOrUpdate(pack.Id, _calls_, (a, b) => _calls_);
+                            _calls_.Run();
+                        }
+                    }
+                    else //SYNC
+                    {
+
+
+                        if (!method.IsRet)
+                        {
+                            method.MethodInfo.Invoke(implement, args);
+                        }
+                        else
+                        {
+                            try
+                            {
+                                object res = method.MethodInfo.Invoke(implement, args);
+
+                                if (res != null)
+                                {
+                                    if (res is Result result)
+                                    {
+                                        result.Id = pack.Id;
+
+                                        ResrunResultData(result);
+                                    }
+                                    else
+                                    {
+                                        Result tmp = new Result(res)
+                                        {
+                                            Id = pack.Id
+                                        };
+
+                                        ResrunResultData(tmp);
+                                    }
+                                }
+                            }
+                            catch (Exception er)
+                            {
+                                var tmp = base.GetExceptionResult(er, pack.Id);
+                                ResrunResultData(tmp);
+                                if (PushException(er))
+                                    Log.Error($"Cmd:{pack.CmdTag} ERROR:{er}");
+                            }
+                        }
+
                     }
 
                 }

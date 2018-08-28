@@ -6,7 +6,7 @@ using ZYNet.CloudSystem;
 using ZYNet.CloudSystem.Frame;
 using ZYNet.CloudSystem.Interfaces;
 using ZYNet.CloudSystem.Server;
-
+using Autofac;
 
 namespace ZYNETServerForNetCore
 {
@@ -20,26 +20,26 @@ namespace ZYNETServerForNetCore
 
         public string Name { get; set; }
 
-        public PackHandler1(ASyncToken token):base(token)
+        public PackHandler1(IContainer container ):base(container)
         {
 
         }
 
 
         [TAG(1000)]
-        public  bool IsLogOn(string username, string password)
+        public  bool IsLogOn(IASync async, string username, string password)
         {
             UserInfo tmp = new UserInfo()
             {
                 UserName = username,
                 PassWord = password,
-                Token = Async.GetAsyncToken()
+                Token = async.GetAsyncToken()
             };
 
             Name = username;
 
-            Token.UserToken = tmp;
-            Token.UserDisconnect += Token_UserDisconnect;         
+            async.UserToken = tmp;
+            async.UserDisconnect += Token_UserDisconnect;         
             lock (UserList)
             {
                 UserList.Add(tmp);
@@ -59,10 +59,10 @@ namespace ZYNETServerForNetCore
         }
 
         [TAG(2001)]
-        public  async Task<string> StartDown(string url)
+        public  async Task<string> StartDown(IASync async,string url)
         {
             
-            var htmldata = (await GetForEmit<IClientPack>().DownHtmlAsync(url))?[0]?.Value<byte[]>();
+            var htmldata = (await async.GetForEmit<IClientPack>().DownHtmlAsync(url))?[0]?.Value<byte[]>();
 
             if (htmldata != null)
                 return Encoding.UTF8.GetString(htmldata);
@@ -73,17 +73,17 @@ namespace ZYNETServerForNetCore
 
 
         [TAG(2002)]
-        public  Task<Result> GetTime()
+        public  Task<DateTime> GetTime()
         {
             
-            return Async.ResTask(DateTime.Now);
+            return Task.FromResult(DateTime.Now);
         }
 
 
         [TAG(2003)]
-        public  void SetPassWord(string password)
+        public  void SetPassWord(IASync async, string password)
         {
-            UserInfo user = Async.UserToken as UserInfo;
+            UserInfo user = async.UserToken as UserInfo;
 
             if (user != null)
             {

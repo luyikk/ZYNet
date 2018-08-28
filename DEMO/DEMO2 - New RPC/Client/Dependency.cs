@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ZYNet.CloudSystem.Client;
+using ZYNet.CloudSystem.Client.Bulider;
 using ZYNet.CloudSystem.SocketClient;
 
 namespace Client
@@ -15,10 +16,10 @@ namespace Client
 
         public static void Register()
         {
-            var bullder = new ContainerBuilder();
-            bullder.RegisterType<ConnectionManager>().As<IConnectionManager>();
-            bullder.RegisterType<CloudClient>().AsSelf().SingleInstance();
-            Container = bullder.Build();
+          
+           var container = new ClientBuilder().ConfigureTimeOut(p => p.IsCheckAsyncTimeOut = true);
+            container.Bulid();
+            Container = container.Containerbulid;
         }
     }
 }

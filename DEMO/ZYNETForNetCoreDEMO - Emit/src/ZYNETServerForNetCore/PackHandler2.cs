@@ -5,25 +5,27 @@ using System.Threading.Tasks;
 using ZYNet.CloudSystem;
 using ZYNet.CloudSystem.Frame;
 using ZYNet.CloudSystem.Server;
+using Autofac;
+using ZYNet.CloudSystem.Interfaces;
 
 namespace ZYNETServerForNetCore
 {
     public class PackHandler2:ControllerBase
     {
-        public PackHandler2(ASyncToken token ):base(token)
+        public PackHandler2(IContainer container ):base(container)
         {
 
         }
 
 
         [TAG(2500)]
-        public async Task<int> TestRec(int count)
+        public async Task<int> TestRec(IASync async, int count)
         {
            
             count--;
             if (count > 1)
             {
-                var pk = await GetForEmit<IClientPack>().TestRecAsync(count);
+                var pk = await async.GetForEmit<IClientPack>().TestRecAsync(count);
 
                 if (pk.IsError)
                     return 0;
@@ -34,12 +36,12 @@ namespace ZYNETServerForNetCore
         }
 
         [TAG(2501)]
-        public async Task<int> TestRec2(int count)
+        public async Task<int> TestRec2(IASync async, int count)
         {
             count--;
             if (count > 1)
             {
-                var tmp = await GetForEmit<IClientPack>().TestRecAsync2(count);
+                var tmp = await async.GetForEmit<IClientPack>().TestRecAsync2(count);
                 if (tmp.IsError)
                     return 0;
 

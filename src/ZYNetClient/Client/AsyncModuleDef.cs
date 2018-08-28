@@ -43,7 +43,7 @@ namespace ZYNet.CloudSystem.Client
                         if ((method.ReturnType == tasktype || (Common.IsTypeOfBaseTypeIs(method.ReturnType, tasktype) && method.ReturnType.IsConstructedGenericType)))
                         {
 
-                            if (method.GetParameters().Length > 0 && method.GetParameters()[0].ParameterType == typeof(AsyncCalls))
+                            if (method.GetParameters().Length > 0 && (method.GetParameters()[0].ParameterType == typeof(AsyncCalls)|| method.GetParameters()[0].ParameterType == typeof(IASync)))
                             {
                                 if (!ModuleDiy.ContainsKey(attrcmdtype.CmdTag))
                                 {
@@ -56,28 +56,29 @@ namespace ZYNet.CloudSystem.Client
                                     ModuleDiy[attrcmdtype.CmdTag] = tmp;
                                 }
                             }
-                            else if (type.GetInterface("ZYNet.CloudSystem.Client.IController") != null)
+                            else if(method.GetParameters().Length==0|| (method.GetParameters()[0].ParameterType!= typeof(AsyncCalls) && method.GetParameters()[0].ParameterType != typeof(IASync)))
                             {
                                 if (!ModuleDiy.ContainsKey(attrcmdtype.CmdTag))
                                 {
                                     AsyncMethodDef tmp = new AsyncMethodDef(method, o)
                                     {
-                                        IsController = true
+                                        IsNotRefAsyncArg = true
                                     };
+                                    
                                     ModuleDiy.Add(attrcmdtype.CmdTag, tmp);
                                 }
                                 else
                                 {
                                     AsyncMethodDef tmp = new AsyncMethodDef(method, o)
                                     {
-                                        IsController = true
+                                        IsNotRefAsyncArg = true
                                     };
                                     ModuleDiy[attrcmdtype.CmdTag] = tmp;
                                 }
                             }
 
                         }
-                        else if (method.GetParameters().Length > 0 && method.GetParameters()[0].ParameterType == typeof(CloudClient))
+                        else if (method.GetParameters().Length > 0 && (method.GetParameters()[0].ParameterType == typeof(CloudClient) || method.GetParameters()[0].ParameterType == typeof(IASync)))
                         {
                             if (!ModuleDiy.ContainsKey(attrcmdtype.CmdTag))
                             {
@@ -90,13 +91,13 @@ namespace ZYNet.CloudSystem.Client
                                 ModuleDiy[attrcmdtype.CmdTag] = tmp;
                             }
                         }
-                        else if (type.GetInterface("ZYNet.CloudSystem.Client.IController") != null)
+                        else if (method.GetParameters().Length == 0 || (method.GetParameters()[0].ParameterType != typeof(CloudClient) || method.GetParameters()[0].ParameterType != typeof(IASync)))
                         {
                             if (!ModuleDiy.ContainsKey(attrcmdtype.CmdTag))
                             {
                                 AsyncMethodDef tmp = new AsyncMethodDef(method, o)
                                 {
-                                    IsController = true
+                                    IsNotRefAsyncArg = true
                                 };
                                 ModuleDiy.Add(attrcmdtype.CmdTag, tmp);
                             }
@@ -104,7 +105,7 @@ namespace ZYNet.CloudSystem.Client
                             {
                                 AsyncMethodDef tmp = new AsyncMethodDef(method, o)
                                 {
-                                    IsController = true
+                                    IsNotRefAsyncArg = true
                                 };
                                 ModuleDiy[attrcmdtype.CmdTag] = tmp;
                             }
@@ -122,19 +123,18 @@ namespace ZYNet.CloudSystem.Client
 
     public class AsyncMethodDef : IAsyncMethodDef
     {
-        static Type tasktype = typeof(Task);
+            Type tasktype = typeof(Task);
 
         public object Obj { get; private set; }
 
         public bool IsAsync { get; set; }
         public bool IsRet { get; set; }
 
+        public bool IsNotRefAsyncArg { get; set; }
+
         public MethodInfo MethodInfo { get; set; }
 
         public Type[] ArgsType { get; set; }
-
-        public bool IsController { get; set; }
-
 
         public AsyncMethodDef(MethodInfo methodInfo, object token)
         {

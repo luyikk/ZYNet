@@ -25,11 +25,10 @@ namespace TestApp
 
         private async void Init()
         {
-            var client = Dependency.Container.Resolve<CloudClient>(new NamedParameter("millisecondsTimeout",60000),new NamedParameter("maxBufferLength",1024*1024)); 
+            var client = Dependency.Container.Resolve<CloudClient>(); 
             PackHander tmp = new PackHander();
             client.Install(tmp);
-            client.Disconnect += Client_Disconnect;
-            client.CheckAsyncTimeOut = true;
+            client.Disconnect += Client_Disconnect;            
             if(!await client.InitAsync("192.168.1.33", 2285))
             {
                 await this.DisplayActionSheet("NOT CONNECT SERVER", "OK","");              
@@ -65,7 +64,7 @@ namespace TestApp
                 if (res != null && res == true)
                 {
 
-                    var html = ServerPack.StartDown("http://www.baidu.com")?[0]?.Value<string>();
+                    var html = ServerPack.StartDown("http://www.baidu.com").As<string>();
                     if (html != null)
                     {
                         OutMessage("BaiduHtml:" + html.Length);
@@ -76,9 +75,9 @@ namespace TestApp
 
                         ServerPack.SetPassWord("123123");
 
-                        var x = ServerPack.StartDown("http://www.qq.com");
+                        var x = ServerPack.StartDown("http://www.qq.com").As<string>();
 
-                        OutMessage("QQHtml:" + x.First.Value<string>().Length);
+                        OutMessage("QQHtml:" + x.Length);
 
                         System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch();
                         stop.Start();
@@ -100,22 +99,19 @@ namespace TestApp
         {
             try
             {
-                var sync = Dependency.Container.Resolve<CloudClient>().Get<IPacker>();                
+                var sync = Dependency.Container.Resolve<CloudClient>().Get<IPacker>();
 
-                var html = await sync.StartDownAsync("http://www.baidu.com");
-                if (html != null && !html.IsError)
-                {
-                    OutMessage("BaiduHtml:" + html.First.Value<string>().Length);
-                }
+                var html = (await sync.StartDownAsync("http://www.baidu.com")).As<string>();
+               
+                OutMessage("BaiduHtml:" + html.Length);                
 
                 System.Diagnostics.Stopwatch stop = new System.Diagnostics.Stopwatch();
                 stop.Start();
-                var rec = (await sync.TestRecAsync(1000))?.First?.Value<int>();
+                var rec = (await sync.TestRecAsync(1000)).As<int>();
                 stop.Stop();
-                if (rec != null)
-                {
-                    OutMessage(string.Format("Async Rec:{0} time:{1} MS", rec.Value, stop.ElapsedMilliseconds));
-                }
+
+                OutMessage(string.Format("Async Rec:{0} time:{1} MS", rec, stop.ElapsedMilliseconds));
+
 
             }
             catch (TimeoutException er)

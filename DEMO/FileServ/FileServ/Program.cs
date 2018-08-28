@@ -13,8 +13,8 @@ namespace FileServ
                 RunCmd();
             else if(args[0].Equals("SERVER",StringComparison.OrdinalIgnoreCase))
             {
-                LogFactory.AddConsole();
-                FileServ.Server.FileServer.Server.Start();
+                
+                FileServ.Server.FileServer.Server.Start(true);
                 while (true)
                     Console.ReadLine();
             }
@@ -22,32 +22,35 @@ namespace FileServ
 
         static  void RunCmd()
         {
+            bool isLog = false;
             Top1:
-            Console.WriteLine("Whether to open the file service ?\r\n1   Start(default)\r\n2   Skip");
-
-            string select = Console.ReadLine();
-
-            if (string.IsNullOrEmpty(select) || select.Equals("1", StringComparison.Ordinal))
-            {
-                FileServ.Server.FileServer.Server.Start();
-                Console.WriteLine("Service Is Start...");
-            }
-            else if (!select.Equals("2", StringComparison.Ordinal))
-                goto Top1;
-
-
-            Top2:
-
             Console.WriteLine("Whether to open the Logging?\r\n 1   No(default)\r\n 2   Yes");
-            select = Console.ReadLine();
+            string select = Console.ReadLine();
 
             if (string.IsNullOrEmpty(select) || select.Equals("1", StringComparison.Ordinal))
             {
 
             }
             else if (select.Equals("2", StringComparison.Ordinal))
-                LogFactory.AddConsole();
+                isLog = true;
             else
+                goto Top1;
+
+          
+
+
+            Top2:
+
+            Console.WriteLine("Whether to open the file service ?\r\n1   Start(default)\r\n2   Skip");
+
+             select = Console.ReadLine();
+
+            if (string.IsNullOrEmpty(select) || select.Equals("1", StringComparison.Ordinal))
+            {
+                FileServ.Server.FileServer.Server.Start(isLog);
+                Console.WriteLine("Service Is Start...");
+            }
+            else if (!select.Equals("2", StringComparison.Ordinal))
                 goto Top2;
 
 
@@ -66,14 +69,14 @@ namespace FileServ
 
                 if (sp.Length == 2)
                 {
-                    FileClient fileClient = new FileClient();
+                    FileClient fileClient = new FileClient(isLog);
 
                     if (fileClient.Connect(sp[1]))
                     {                        
                         Console.Clear();
                         Console.Clear();
                         Console.WriteLine($"Connect {sp[1]} OK");
-                        fileClient.client.Sync.Get<IServer>().LogOn();
+                        fileClient.client.Get<IServer>().LogOn();
                         fileClient.PrintCmd();
 
                         while (true)

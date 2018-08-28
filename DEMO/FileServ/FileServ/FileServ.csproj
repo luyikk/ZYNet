@@ -6,7 +6,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ZYNet" Version="1.0.0" />
+    <PackageReference Include="Fody" Version="3.1.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\ZYNetClient\ZYNetClient.csproj" />
+    <ProjectReference Include="..\..\..\src\ZYNetFrame\ZYNetFrame.csproj" />
+    <ProjectReference Include="..\..\..\src\ZYNetServer\ZYNetServer.csproj" />
   </ItemGroup>
 
 </Project>

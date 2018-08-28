@@ -34,6 +34,12 @@ namespace ZYNETClientForNetCore
         [TAG(2002)]
         Result GetTimer();
 
+        [TAG(20022)]
+        string SetMessage(string a,string b);
+
+        [TAG(20023)]
+        void SetMessage();
+
         /// <summary>
         /// 异步调用版本，只能在异步数据包处理时才能使用，无法在主线程同步方法中使用
         /// </summary>

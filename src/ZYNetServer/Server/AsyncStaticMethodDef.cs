@@ -10,7 +10,7 @@ namespace ZYNet.CloudSystem.Server
 {
     public class AsyncMethodDef : IAsyncMethodDef
     {
-        static  Type tasktype = typeof(Task);
+             Type tasktype = typeof(Task);
 
         public bool IsAsync { get; set; }
 
@@ -21,8 +21,7 @@ namespace ZYNet.CloudSystem.Server
         public MethodInfo MethodInfo { get; set; }
 
         public Type[] ArgsType { get; set; }
-
-
+        public bool IsNotAsyncArg { get; set; }
 
         public AsyncMethodDef(Type implementationType,MethodInfo methodInfo)
         {

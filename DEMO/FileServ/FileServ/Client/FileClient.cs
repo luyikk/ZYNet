@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using ZYNet.CloudSystem.Client;
-using ZYNet.CloudSystem.SocketClient;
+using ZYNet.CloudSystem.Client.Bulider;
 
 namespace FileServ.Client
 {
@@ -14,13 +15,20 @@ namespace FileServ.Client
 
         public string Current { get; set; } = null;
 
-        public FileClient()
+        public FileClient(bool isLog)
         {
-            client = new CloudClient(new ConnectionManager(), 10000, 1024 * 1024); //最大数据包能够接收 1M
+            void SetLog(ILoggerFactory log)
+            {
+                if (isLog)
+                    log.AddConsole(LogLevel.Trace);
+              
+            };
+
+            client = new ClientBuilder().ConfigureLogSet(null,SetLog).ConfigureTimeOut(p => { p.MillisecondsTimeout = 10000; p.IsCheckAsyncTimeOut = true; }).Bulid();
             ClientPackHander tmp = new ClientPackHander();
             client.Install(tmp);
             client.Disconnect += Client_Disconnect;
-            client.CheckAsyncTimeOut = true;
+          
         }
 
         public bool Connect(string IP)
@@ -220,7 +228,7 @@ namespace FileServ.Client
 
         protected async void ShowDriveInfo()
         {
-            var res = await client.NewAsync().Get<IServer>().GetDriveInfo();
+            var res = await client.Get<IServer>().GetDriveInfo();
             Console.WriteLine("Name\tVolumeLabel\t\tTotalFreeSpace\tTotalSize\tDriveFormat");
             if (res.IsError)
             {
@@ -253,7 +261,7 @@ namespace FileServ.Client
 
                 tmpPath = tmpPath.Replace("\\", "/");
 
-                if (client.Sync.Get<IServer>().ExistsDir(tmpPath))
+                if (client.Get<IServer>().ExistsDir(tmpPath))
                 {
                     Current = tmpPath;
                     Console.WriteLine(Current);
@@ -273,13 +281,13 @@ namespace FileServ.Client
             {
                 if (!string.IsNullOrEmpty(Current))
                 {
-                    var tmpPath = client.Sync.Get<IServer>().CombinePath(Current, path);
+                    var tmpPath = client.Get<IServer>().CombinePath(Current, path);
 
                     if (tmpPath != null)
                     {
                         tmpPath = tmpPath.Replace("\\", "/");
 
-                        if (client.Sync.Get<IServer>().ExistsDir(tmpPath))
+                        if (client.Get<IServer>().ExistsDir(tmpPath))
                         {
                             Current = tmpPath;
                             Console.WriteLine(Current);
@@ -293,7 +301,7 @@ namespace FileServ.Client
                 }
                 else
                 {
-                    if (client.Sync.Get<IServer>().ExistsDir(path))
+                    if (client.Get<IServer>().ExistsDir(path))
                     {
                         path = path.Replace("\\", "/");
                         Current = path;
@@ -328,7 +336,7 @@ namespace FileServ.Client
         protected async void PrintDir(string path)
         {
 
-            var res = await client.NewAsync().Get<IServer>().LsOrDir(path);
+            var res = await client.Get<IServer>().LsOrDir(path);
 
             if (res != null && res.IsHaveValue)
             {
@@ -374,10 +382,9 @@ namespace FileServ.Client
                 return;
             }
 
-            var Async = client.NewAsync();
-            var Sync = client.Sync.Get<IServer>();
-
-            var Serv = Async.Get<IServer>();
+            
+            var Sync = client.Get<IServer>();
+            var Serv = client.Get<IServer>();
 
             var res = await Serv.CreateFile(target);
 
@@ -529,10 +536,10 @@ namespace FileServ.Client
             }
 
 
-            var Async = client.NewAsync();
-            var Sync = client.Sync.Get<IServer>();
+          
+            var Sync = client.Get<IServer>();
 
-            var Serv = Async.Get<IServer>();
+            var Serv = client.Get<IServer>();
 
             var res = await Serv.GetFile(target);
 
@@ -680,13 +687,13 @@ namespace FileServ.Client
 
         protected async  Task Img(DirectoryInfo dir,string target)
         {
-            var Serv = client.NewAsync().Get<IServer>();
-            var Sync = client.Sync.Get<IServer>();
+            var Serv = client.Get<IServer>();
+            var Sync = client.Get<IServer>();
 
             var dirname = dir.Name;
             target = Path.Combine(target, dirname);
             target = target.Replace("\\", "/");
-            var dirres = (await client.NewAsync().Get<IServer>().CreateDirectory(target))?.First?.Value<bool>();
+            var dirres = (await client.Get<IServer>().CreateDirectory(target))?.First?.Value<bool>();
 
             if (dirres.HasValue&&dirres.Value)
             {
@@ -741,10 +748,8 @@ namespace FileServ.Client
                 return;
             }
 
-            var Async = client.NewAsync();
-            var Sync = client.Sync.Get<IServer>();
-
-            var Serv = Async.Get<IServer>();
+            var Sync = client.Get<IServer>();
+            var Serv = client.Get<IServer>();
 
             var res = await Serv.CreateFile(target);
 
@@ -851,7 +856,7 @@ namespace FileServ.Client
                 try { target = Path.Combine(Current, target).Replace("\\", "/"); } catch { }
 
 
-            var Async = client.NewAsync().Get<IServer>();
+            var Async = client.Get<IServer>();
             var res = await Async.MvFile(source, target);
 
             
@@ -888,7 +893,7 @@ namespace FileServ.Client
                 try { target = Path.Combine(Current, target).Replace("\\", "/"); } catch { }
                
 
-            var Async = client.NewAsync().Get<IServer>();
+            var Async = client.Get<IServer>();
             var res = await Async.Copy(source, target);
 
 
@@ -918,7 +923,7 @@ namespace FileServ.Client
             if (!Path.IsPathRooted(file))
                 file = Path.Combine(Current, file).Replace("\\", "/");
 
-            var Async = client.NewAsync().Get<IServer>();
+            var Async = client.Get<IServer>();
             var res = await Async.MkDir(file);
 
 
@@ -950,7 +955,7 @@ namespace FileServ.Client
             if (!Path.IsPathRooted(file))
                 file = Path.Combine(Current, file).Replace("\\", "/");
 
-            var Async = client.NewAsync().Get<IServer>();
+            var Async = client.Get<IServer>();
             var res = await Async.Rm(file);
 
 

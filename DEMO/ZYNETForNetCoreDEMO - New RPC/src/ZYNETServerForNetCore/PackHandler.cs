@@ -5,8 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using ZYNet.CloudSystem;
 using ZYNet.CloudSystem.Frame;
+using ZYNet.CloudSystem.Interfaces;
 using ZYNet.CloudSystem.Server;
-
+using Autofac;
 
 namespace ZYNETServerForNetCore
 {
@@ -18,19 +19,19 @@ namespace ZYNETServerForNetCore
 
         public static List<UserInfo> UserList = new List<UserInfo>();
 
-        public PackHandler(ASyncToken token) : base(token)
+        public PackHandler(IContainer  container) : base(container)
         {
         }
 
 
         [TAG(1000)]
-        public bool IsLogOn(string username, string password)
+        public bool IsLogOn(IASync async,string username, string password)
         {
             UserInfo tmp = new UserInfo()
             {
                 UserName = username,
                 PassWord = password,
-                Token = Async.GetAsyncToken()
+                Token = async.GetAsyncToken()
             };
 
             tmp.Token.UserToken = tmp;
@@ -45,39 +46,54 @@ namespace ZYNETServerForNetCore
             return true;
 
         }
-
+ 
         [TAG(2001)]
-        public async Task<Result> StartDown(string url)
+        public async Task<Result> StartDown(IASync async, string url)
         {
 
-            var htmldata = (await Async.Get<IClientPack>().DownHtmlAsync(url))?[0]?.Value<byte[]>();
+            var htmldata = (await async.Get<IClientPack>().DownHtmlAsync(url))?[0]?.Value<byte[]>();
 
             if (htmldata != null)
             {
                 string html = Encoding.UTF8.GetString(htmldata);
 
-                return Async.Res(html);
+                return async.Res(html);
 
             }
 
 
-            return Async.Res();// or async.RET(null);
+            return async.Res();// or async.RET(null);
         }
 
 
 
         [TAG(2002)]
-        public Task<Result> GetTime()
+        public Task<DateTime> GetTime()
         {
 
-            return Task.FromResult<Result>(Async.Res(DateTime.Now));
+            return Task.FromResult(DateTime.Now);
+        }
+
+        [TAG(20022)]
+        public Task<string> SetMessage(string a,string b)
+        {
+            return Task.FromResult(a + b);
         }
 
 
-        [TAG(2003)]
-        public void SetPassWord(string password)
+        [TAG(20023)]
+        public Task SetMessage()
         {
-            UserInfo user = Async.UserToken as UserInfo;
+            return Task.Run(() =>
+            {
+                Console.WriteLine("HHHHHHHHHHHHHHHHH");
+            });
+        }
+
+        [TAG(2003)]
+        public void SetPassWord(IASync async,string password)
+        {
+            UserInfo user = async.UserToken as UserInfo;
 
             if (user != null)
             {
@@ -89,12 +105,12 @@ namespace ZYNETServerForNetCore
         }
 
         [TAG(2500)]
-        public async Task<Result> TestRec(int count)
+        public async Task<Result> TestRec(IASync async, int count)
         {
             count--;
             if (count > 1)
             {
-                var x = (await Async.Get<IClientPack>().TestRecAsync(count))?[0]?.Value<int>();
+                var x = (await async.Get<IClientPack>().TestRecAsync(count))?[0]?.Value<int>();
 
                 if (x != null && x.HasValue)
                 {
@@ -102,11 +118,11 @@ namespace ZYNETServerForNetCore
                 }
             }
 
-            return Async.Res(count);
+            return async.Res(count);
         }
 
         [TAG(3000)]
-        public int Add(int count)
+        public int Add(IASync async,int count)
         {
             return count + 1;
 

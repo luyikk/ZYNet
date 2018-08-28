@@ -29,7 +29,7 @@ namespace ZYNet.CloudSystem.SocketClient
         /// </summary>
         public Socket _sock { get; private set; }
 
-        public static int ConnectTimeOut { get; set; } = 6000;
+        public     int ConnectTimeOut { get; set; } = 6000;
 
         /// <summary>
         /// 连接成功事件

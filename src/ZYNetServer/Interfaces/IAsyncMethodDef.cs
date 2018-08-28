@@ -7,6 +7,7 @@ namespace ZYNet.CloudSystem.Server
     {
         Type[] ArgsType { get; set; }
         Type ImplementationType { get; set; }
+        bool IsNotAsyncArg { get; set; }
         bool IsAsync { get; set; }
         bool IsRet { get; set; }
         MethodInfo MethodInfo { get; set; }

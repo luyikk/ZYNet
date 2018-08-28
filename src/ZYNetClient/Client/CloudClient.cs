@@ -15,7 +15,7 @@ using ZYNet.CloudSystem.Client.Options;
 
 namespace ZYNet.CloudSystem.Client
 {
-    public class CloudClient:MessageExceptionParse,IDisposable
+    public class CloudClient:MessageExceptionParse, IASync,IDisposable
     {
 
 
@@ -68,8 +68,10 @@ namespace ZYNet.CloudSystem.Client
         public event Action<string> Disconnect;
 
         public ZYSync Sync { get; private set; }
-        public AsyncRun ASync { get; private set; }
 
+        public CloudClient Client => this;
+
+        public bool IsASync => false;
 
         public CloudClient(IContainer container)
         {
@@ -92,10 +94,7 @@ namespace ZYNet.CloudSystem.Client
                 SyncSendAsWait = SendDataAsWait
             };
 
-            ASync = new AsyncRun(this)
-            {
-                CallSend = SendData
-            };
+          
             Module = container.Resolve<IModuleDictionary>();
             IsClose = false;
 
@@ -280,7 +279,7 @@ namespace ZYNet.CloudSystem.Client
                 }
                 else
                 {
-                    return ASync.Func(cmd, args);
+                    return NewAsync().Func(cmd, args);
                 }
             }
             else
@@ -350,7 +349,7 @@ namespace ZYNet.CloudSystem.Client
                     }
                     else
                     {
-                        return ASync.Func(cmd, args);
+                        return NewAsync().Func(cmd, args);
                     }
                 }
                 else
@@ -370,7 +369,24 @@ namespace ZYNet.CloudSystem.Client
 
         #endregion
 
-        
+        public AsyncRun NewAsync()
+        {
+            AsyncRun run1 = new AsyncRun(this);
+            run1.CallSend += new Action<byte[]>(this.SendData);
+            return run1;
+        }
+
+        public void Action(int cmdTag, params object[] args)
+        {
+            Sync.Action(cmdTag, args);
+        }
+
+        public ResultAwatier Func(int cmdTag, params object[] args)
+        {
+            return NewAsync().Func(cmdTag, args);
+        }
+
+
         private void SendData(byte[] data)
         {
             ClientManager.SendData(data);
@@ -536,15 +552,16 @@ namespace ZYNet.CloudSystem.Client
             {
                 IAsyncMethodDef method = Module.ModuleDiy[pack.CmdTag];
 
-                if (!method.IsController)
+
+                object[] args = null;
+                
+                int argcount = 0;
+
+                if (pack.Arguments != null)
+                    argcount = pack.Arguments.Count;
+
+                if (!method.IsNotRefAsyncArg)
                 {
-
-                    object[] args = null;
-
-                    int argcount = 0;
-
-                    if (pack.Arguments != null)
-                        argcount = pack.Arguments.Count;
 
                     if (method.ArgsType.Length > 0 && method.ArgsType.Length == (argcount + 1))
                     {
@@ -570,7 +587,7 @@ namespace ZYNet.CloudSystem.Client
                         if (!method.IsRet)
                         {
 
-                            AsyncCalls _calls_ = new AsyncCalls(this.LoggerFactory,pack.Id, pack.CmdTag, this, method.Obj, method.MethodInfo, args, false);
+                            AsyncCalls _calls_ = new AsyncCalls(this.LoggerFactory, pack.Id, pack.CmdTag, this, method.Obj, method.MethodInfo, args, false);
                             args[0] = _calls_;
                             _calls_.CallSend += SendData;
                             _calls_.ExceptionOut = this.ExceptionOut;
@@ -583,7 +600,7 @@ namespace ZYNet.CloudSystem.Client
                         {
 
                             AsyncCalls _calls_ = new AsyncCalls(this.LoggerFactory, pack.Id, pack.CmdTag, this, method.Obj, method.MethodInfo, args, true);
-                            args[0] = _calls_;                          
+                            args[0] = _calls_;
                             _calls_.CallSend += SendData;
                             _calls_.Complete += RetrunResultData;
                             _calls_.ExceptionOut = this.ExceptionOut;
@@ -630,53 +647,37 @@ namespace ZYNet.CloudSystem.Client
                 }
                 else
                 {
-                    IController controller = (IController)method.Obj;
-                    object[] args = null;
-
-                    int argcount = 0;
-
-                    if (pack.Arguments != null)
-                        argcount = pack.Arguments.Count;
-
                     if (method.ArgsType.Length > 0 && method.ArgsType.Length == argcount)
                     {
-                        args = new object[method.ArgsType.Length];
-                        
-                        for (int i = 0; i < method.ArgsType.Length; i++)
-                        {                           
+                        args = new object[method.ArgsType.Length];                       
+                       
+                        for (int i = 0; i < method.ArgsType.Length ; i++)                                       
                             args[i] = Serialization.UnpackSingleObject(method.ArgsType[i], pack.Arguments[i]);
-                        }
+                        
                     }
 
                     if (method.IsAsync)
-                    {                      
-
-
+                    {
                         if (!method.IsRet)
                         {
 
-                            AsyncCalls _calls_ = new AsyncCalls(this.LoggerFactory, pack.Id, pack.CmdTag, this, method.Obj, method.MethodInfo, args, false);
-                            controller.Async = _calls_;
-                            controller.IsAsync = true;
-                            controller.CClient = this;
-                            controller.Container = this.Container;
+                            AsyncCalls _calls_ = new AsyncCalls(this.LoggerFactory, pack.Id, pack.CmdTag, this, method.Obj, method.MethodInfo, args, false);                         
                             _calls_.CallSend += SendData;
                             _calls_.ExceptionOut = this.ExceptionOut;
                             _calls_.Run();
+
                             AsyncCallDiy.AddOrUpdate(pack.Id, _calls_, (a, b) => _calls_);
 
                         }
                         else
                         {
-                            AsyncCalls _calls_ = new AsyncCalls(this.LoggerFactory, pack.Id, pack.CmdTag, this, method.Obj, method.MethodInfo, args, true);
-                            controller.Async = _calls_;
-                            controller.IsAsync = true;
-                            controller.CClient = this;
-                            controller.Container = this.Container;
+
+                            AsyncCalls _calls_ = new AsyncCalls(this.LoggerFactory, pack.Id, pack.CmdTag, this, method.Obj, method.MethodInfo, args, true);                        
                             _calls_.CallSend += SendData;
                             _calls_.Complete += RetrunResultData;
                             _calls_.ExceptionOut = this.ExceptionOut;
                             _calls_.Run();
+
 
                             AsyncCallDiy.AddOrUpdate(pack.Id, _calls_, (a, b) => _calls_);
                         }
@@ -684,12 +685,6 @@ namespace ZYNet.CloudSystem.Client
                     }
                     else //SYNC
                     {
-
-                      
-                        controller.CClient = this;
-                        controller.IsAsync = false;
-                        controller.Container = this.Container;
-
                         if (!method.IsRet)
                         {
                             method.MethodInfo.Invoke(method.Obj, args);
@@ -724,6 +719,7 @@ namespace ZYNet.CloudSystem.Client
 
 
                 }
+
             }
             else
             {
@@ -813,6 +809,17 @@ namespace ZYNet.CloudSystem.Client
 
         }
 
+        public Result Res(params object[] args)
+        {
+            return new Result(args);
+        }
+
+        public Task<Result> ResTask(params object[] args)
+        {       
+            return Task.FromResult(new Result(args));
+        }
+
+
         public void Close()
         {
             IsClose = true;
@@ -832,5 +839,7 @@ namespace ZYNet.CloudSystem.Client
         {
             this.Close();
         }
+
+      
     }
 }

@@ -94,7 +94,7 @@ namespace Client
         private async void WinMain_Load(object sender, EventArgs e)
         {
 
-            var client = Dependency.Container.Resolve<CloudClient>(new NamedParameter("millisecondsTimeout", 60000), new NamedParameter("maxBufferLength", 1024*1024));
+            var client = Dependency.Container.Resolve<CloudClient>();
 
             if (await client.InitAsync("127.0.0.1", 3775))
             {
@@ -127,7 +127,7 @@ namespace Client
 
             if (this.comboBox1.SelectedIndex == 0)
             {
-                client.Sync.Get<IServerMethods>().SendMessageToAllUser(this.textBox1.Text);
+                client.Get<IServerMethods>().SendMessageToAllUser(this.textBox1.Text);
             }
             else
             {
@@ -137,14 +137,11 @@ namespace Client
                 {
                     try
                     {
-                        var msgres = await client.NewAsync().Get<IServerMethods>().SendMsgToUser(userinfo.UserName, this.textBox1.Text);
-
-                        var msg = msgres?.First?.Value<string>();
-
+                        var msgres = (await client.Get<IServerMethods>().SendMsgToUser(userinfo.UserName, this.textBox1.Text)).As<string>();                      
 
                         this.BeginInvoke(new EventHandler(delegate
                         {
-                            this.richTextBox1.AppendText((userinfo.UserName + ":" + msg ?? "发送失败") + "\r\n");
+                            this.richTextBox1.AppendText((userinfo.UserName + ":" + msgres ?? "发送失败") + "\r\n");
                         }));
 
                     }

@@ -21,8 +21,7 @@ namespace ZYNet.CloudSystem.Client
 
         public AsyncRun(CloudClient client)
         {            
-            CCloudClient = client;
-            this.Id = Id;
+            CCloudClient = client;          
         }
 
 

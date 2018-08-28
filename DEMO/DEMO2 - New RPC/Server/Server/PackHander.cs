@@ -6,16 +6,24 @@ using System.Threading.Tasks;
 using ZYNet.CloudSystem;
 using ZYNet.CloudSystem.Server;
 using ZYNet.CloudSystem.Frame;
+using ZYNet.CloudSystem.Interfaces;
+using Autofac;
 
 namespace Server
 {
-    public static class PackHandler
+    public  class PackHandler: ControllerBase
     {
+
         public static List<UserInfo> UserList { get; set; } = new List<UserInfo>();
 
 
+        public PackHandler(IContainer container):base(container)
+        {
+
+        }
+
         [TAG(1000)]
-        public static async Task<Result> IsLogOn(AsyncCalls async,string username)
+        public  async Task<bool> IsLogOn(IASync async,string username)
         {
             if (UserList.Find(p => p.UserName == username) == null)
             {
@@ -23,13 +31,13 @@ namespace Server
                 UserInfo user = new UserInfo()
                 {
                     UserName = username,
-                    token = async.AsyncUser
+                    token = async.GetAsyncToken()
                 };
 
                 async.UserToken = user;
                 async.IsValidate = true;
 
-                user.Nick = (await async.Get<ClientMethods>().GetNick())?.First?.Value<string>();
+                user.Nick = (await async.Get<ClientMethods>().GetNick()).As<string>();
 
                 async.Get<ClientMethods>().SetUserList(UserList);
 
@@ -38,33 +46,33 @@ namespace Server
                     item.token.Get<ClientMethods>().AddUser(user);
                 }
 
-                async.AsyncUser.UserDisconnect += AsyncUser_UserDisconnect;
+                async.UserDisconnect += AsyncUser_UserDisconnect;
 
                 UserList.Add(user);
 
-                return async.Res(true);
+                return true;
             }
             else
-                return async.Res(false,"username not use");
+                return false;
         }
 
 
         [TAG(2001)]
-        public static void SendMessage(ASyncToken token,string msg)
+        public  void SendMessage(IASync async,string msg)
         {
-            var userinfo = token.UserToken as UserInfo;
+            var userinfo = async.UserToken as UserInfo;
 
-            if (userinfo != null&&token.IsValidate)
+            if (userinfo != null&& async.IsValidate)
             {
                 foreach (var item in UserList)
                 {
-                    item.token.Get<ClientMethods>().MessageTo(userinfo.UserName, msg);
+                    item.token.Get<ClientMethods>().MessageTo(userinfo.Nick, msg);
                 }
             }
         }
 
         [TAG(2002)]
-        public static async Task<Result> ToMessage(AsyncCalls async,string account,string msg)
+        public  async Task<string> ToMessage(IASync async,string account,string msg)
         {
             var userinfo = async.Token<UserInfo>();
 
@@ -75,22 +83,22 @@ namespace Server
                 if(touser!=null)
                 {
 
-                    var cx = touser.token.MakeAsync(async).Get<ClientMethods>();
-                    var ret = (await cx.MsgToUser(userinfo.UserName, msg))?.First?.Value<string>();
+                    var cx = touser.token.MakeAsync(async as AsyncCalls).Get<ClientMethods>();
+                    var ret = (await cx.MsgToUser(userinfo.Nick, msg)).As<string>();
 
                     if(ret!=null)
                     {
-                        return async.Res(ret);
+                        return ret;
                     }
                 }
             }
 
-            return async.Res();           
+            return null;  
         }
 
 
 
-        private static void AsyncUser_UserDisconnect(ASyncToken arg1, string arg2)
+        private  void AsyncUser_UserDisconnect(ASyncToken arg1, string arg2)
         {
             var userinfo = arg1.UserToken as UserInfo;
 

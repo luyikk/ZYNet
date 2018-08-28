@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Autofac;
 using System.Threading.Tasks;
-
+using ZYNet.CloudSystem.Interfaces;
 
 namespace ZYNet.CloudSystem.Server
 {
@@ -36,6 +36,10 @@ namespace ZYNet.CloudSystem.Server
                         if (!CallsMethods.ContainsKey(attrcmdtype.CmdTag))
                         {                            
                             IAsyncMethodDef tmp = base.Container.Resolve<IAsyncMethodDef>(new NamedParameter("implementationType", packHandlerType), new NamedParameter("methodInfo", method));
+
+                            if (method.GetParameters().Length == 0 || (method.GetParameters()[0].ParameterType.BaseType!=typeof(IASync) && method.GetParameters()[0].ParameterType != typeof(IASync)))
+                                tmp.IsNotAsyncArg = true;
+
                             CallsMethods.Add(attrcmdtype.CmdTag, tmp);
                         }
 

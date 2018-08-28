@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 using ZYNet.CloudSystem.Server;
-
+using ZYNet.CloudSystem.Server.Bulider;
+using Microsoft.Extensions.Logging;
 namespace FileServ.Server
 {
     public class FileServer
@@ -18,8 +19,7 @@ namespace FileServ.Server
 
         private FileServer()
         {
-            cloudServer = new CloudServer("any", 9557, 10, 1024 * 1024, 8 * 1024 * 1024);
-            cloudServer.Install(typeof(ServerPackHandler));
+           
         }
 
         protected CloudServer cloudServer;
@@ -27,8 +27,17 @@ namespace FileServ.Server
 
         
 
-        public void Start()
+        public void Start(bool isLog)
         {
+            void SetLog(ILoggerFactory log)
+            {
+                if (isLog)
+                    log.AddConsole(LogLevel.Trace);
+               
+            };
+
+            cloudServer = new ServBuilder().ConfigureLogSet(null, SetLog).ConfigureServHostAndPort(p => p.Port = 9557).ConfigureBufferSize(p => p.MaxPackSize = 8 * 1024 * 1024).Bulid();
+            cloudServer.Install(typeof(ServerPackHandler));
             cloudServer.Start();
         }
 

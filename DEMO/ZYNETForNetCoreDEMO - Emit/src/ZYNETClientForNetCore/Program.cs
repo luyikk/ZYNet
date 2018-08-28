@@ -15,7 +15,7 @@ namespace ZYNETClientForNetCore
             PackHander tmp = new PackHander();
             client.Install(tmp);
             client.Disconnect += Client_Disconnect;
-        
+
 
             if (client.Init("127.0.0.1", 2285))
             {
@@ -120,7 +120,7 @@ namespace ZYNETClientForNetCore
             Console.WriteLine("Async Rec:{0} time:{1} MS", rec.First.Value<int>(), stop.ElapsedMilliseconds);
         }
 
-    
+
 
         private static void Client_Disconnect(string obj)
         {

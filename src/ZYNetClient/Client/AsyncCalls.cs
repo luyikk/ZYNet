@@ -11,7 +11,7 @@ using Autofac;
 
 namespace ZYNet.CloudSystem.Client
 {
-    public class AsyncCalls :MessageExceptionParse
+    public class AsyncCalls :MessageExceptionParse, IASync
     {
         private readonly ILog Log;
 
@@ -47,6 +47,10 @@ namespace ZYNet.CloudSystem.Client
         public ZYSync Sync => CCloudClient?.Sync;
 
         public IContainer Container => CCloudClient.Container;
+
+        public CloudClient Client => CCloudClient;
+
+        public bool IsASync => true;
 
         public AsyncCalls(ILoggerFactory loggerFactory, long id,int cmd, CloudClient client,Object obj, MethodInfo method,object[] args,bool ishavereturn)
         {
@@ -118,6 +122,124 @@ namespace ZYNet.CloudSystem.Client
 
 
 
+
+        #region Action
+        /// <summary>
+        /// Need Nuget Install-Package Fody
+        /// And Add xml file 'FodyWeavers.xml' to project
+        /// context:
+        /// \<?xml version="1.0" encoding="utf-8" ?\>
+        /// \<Weavers\>
+        /// \<Virtuosity\/\> 
+        /// \</Weavers\>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T Get<T>()
+        {
+            var interfaceType = typeof(T);
+            if (!FodyDir.ContainsKey(interfaceType))
+            {
+                var assembly = interfaceType.Assembly;
+                var implementationType = assembly.GetType(interfaceType.FullName + "_Builder_Implementation");
+                if (implementationType == null)
+                    throw new FodyInstallException("not find with {interfaceType.FullName} the Implementation", (int)ErrorTag.FodyInstallErr);
+                FodyDir.Add(interfaceType, implementationType);
+                return (T)Activator.CreateInstance(implementationType, new Func<int, Type, object[], object>(Call));
+
+            }
+            else
+            {
+                return (T)Activator.CreateInstance(FodyDir[interfaceType], new Func<int, Type, object[], object>(Call));
+
+            }
+        }
+
+
+        protected virtual object Call(int cmd, Type needType, object[] args)
+        {
+
+            if (needType != typeof(void))
+            {
+
+                if (!Common.IsTypeOfBaseTypeIs(needType, typeof(FiberThreadAwaiterBase)))
+                {
+                    throw new CallException($"Async Call Not Use Sync Mehhod CMD:{cmd}", (int)ErrorTag.CallErr);
+                }
+                else
+                {
+                    return Func(cmd, args);
+                }
+            }
+            else
+            {
+                Action(cmd, args);
+
+                return null;
+            }
+        }
+
+#if !Xamarin
+
+        public T GetForEmit<T>()
+        {
+            var tmp = DispatchProxy.Create<T, SyncProxy>();
+            var proxy = tmp as SyncProxy;
+            proxy.Call = Call;
+            return tmp;
+        }
+
+
+
+
+        protected virtual object Call(MethodInfo method, object[] args)
+        {
+
+            var attr = method.GetCustomAttribute(typeof(TAG), true);
+
+            if (attr == null)
+            {
+                throw new FormatException(method.Name + " Is Not MethodRun Attribute");
+            }
+
+
+            if (attr is TAG run)
+            {
+                int cmd = run.CmdTag;
+
+                if (method.ReturnType != typeof(void))
+                {
+
+                    if (!Common.IsTypeOfBaseTypeIs(method.ReturnType, typeof(FiberThreadAwaiterBase)))
+                    {
+                        throw new CallException($"Async Call Not Use Sync Mehhod CMD:{cmd}", (int)ErrorTag.CallErr);
+                    }
+                    else
+                    {
+                        return Func(cmd, args);
+                    }
+                }
+                else
+                {
+                    Action(cmd, args);
+
+                    return null;
+                }
+
+            }
+            else
+                return null;
+        }
+
+#endif
+
+
+        #endregion
+
+
+
+
         /// <summary>
         /// CALL VOID
         /// </summary>
@@ -182,9 +304,7 @@ namespace ZYNet.CloudSystem.Client
                 {
                     bufflist.Write(0);
                     bufflist.Write(CmdDef.CallCmd);
-                    //byte[] classdata = BufferFormat.SerializeObject(buffer);
-                    //bufflist.Write(classdata.Length);
-                    //bufflist.Write(classdata);
+                    
                     bufflist.Write(buffer.Id);
                     bufflist.Write(buffer.CmdTag);
                     bufflist.Write(buffer.Arguments.Count);
@@ -215,6 +335,8 @@ namespace ZYNet.CloudSystem.Client
 
             return  _fiber.Read();
         }
+
+     
 
         public void SetRes(Result result)
         {
