@@ -1,4 +1,5 @@
 ﻿using System;
+using Autofac;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using ZYNet.CloudSystem.Frame;
@@ -14,7 +15,7 @@ namespace ZYNet.CloudSystem.Interfaces
         bool IsValidate { get; set; }
         ISend Sendobj { get; }
         object UserToken { get; set; }
-
+        IContainer Container { get; }
         Action<ASyncToken, string> UserDisconnect { get; set; }     
         void Disconnect();
         T Get<T>();

@@ -19,8 +19,8 @@ namespace ZYNet.CloudSystem.Client
         event Action<string> Disconnect;
 
         void Close();
-        bool Install(string host, int port, int maxBufferLength);
-        Task<bool> InstallAsync(string host, int port, int maxBufferLength);
+        bool Install(string host, int port);
+        Task<bool> InstallAsync(string host, int port);
         void SendData(byte[] data);
     }
 }

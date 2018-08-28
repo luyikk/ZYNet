@@ -10,9 +10,12 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using Microsoft.Extensions.Logging;
+using Autofac;
+using ZYNet.CloudSystem.Client.Options;
+
 namespace ZYNet.CloudSystem.Client
 {
-    public class CloudClient:MessageExceptionParse
+    public class CloudClient:MessageExceptionParse,IDisposable
     {
 
 
@@ -26,9 +29,10 @@ namespace ZYNet.CloudSystem.Client
 
         public int Port { get; private set; }
 
-        public bool CheckAsyncTimeOut { get; set; }
-        public int MillisecondsTimeout { get; private set; }
-     
+        public IContainer Container { get; private set; }
+
+        public bool IsCheckAsyncTimeOut { get; set; }
+        public int MillisecondsTimeout { get; private set; }     
         public int MaxBufferLength { get; private set; }
         public ConcurrentDictionary<long,ReturnEventWaitHandle> SyncWaitDic { get;  set; }
         public ConcurrentDictionary<long, AsyncCalls> AsyncCallDiy { get; private set; }
@@ -41,7 +45,7 @@ namespace ZYNet.CloudSystem.Client
 
         private Dictionary<Type, Type> FodyDir { get; set; }
 
-        public ModuleDictionary Module { get; private set; }
+        public IModuleDictionary Module { get; private set; }
 
         public bool IsClose { get; private set; }
 
@@ -66,21 +70,8 @@ namespace ZYNet.CloudSystem.Client
         public ZYSync Sync { get; private set; }
         public AsyncRun ASync { get; private set; }
 
-        public void Close()
-        {
-            IsClose = true;
-            AsyncWaitTimeOut.Clear();
-            ClientManager.Close();
-            Module.ModuleDiy.Clear();
-            AsyncRunDiy.Clear();
-            CallBackDiy.Clear();
-            AsyncCallDiy.Clear();
-            SyncWaitDic.Clear();
-            FodyDir.Clear();
-        }
 
-
-        public CloudClient(IConnectionManager clientManager, int millisecondsTimeout, int maxBufferLength)
+        public CloudClient(IContainer container)
         {
             SyncWaitDic = new ConcurrentDictionary<long, ReturnEventWaitHandle>(10, 10000);
             AsyncCallDiy = new ConcurrentDictionary<long, AsyncCalls>();
@@ -88,11 +79,13 @@ namespace ZYNet.CloudSystem.Client
             AsyncRunDiy = new ConcurrentDictionary<long, AsyncRun>();
             AsyncWaitTimeOut = new List<KeyValuePair<long, DateTime>>();
             FodyDir = new Dictionary<Type, Type>();
-            ClientManager = clientManager;
+
+            ClientManager = container.Resolve<IConnectionManager>();
             ClientManager.BinaryInput += DataOn;
             ClientManager.Disconnect += p => Disconnect?.Invoke(p);
-            MillisecondsTimeout = millisecondsTimeout;
-            MaxBufferLength = maxBufferLength;
+            MillisecondsTimeout = container.Resolve<TimeOutOptions>().MillisecondsTimeout;
+            IsCheckAsyncTimeOut = container.Resolve<TimeOutOptions>().IsCheckAsyncTimeOut;
+
             Sync = new ZYSync()
             {
                 SyncSend = SendData,
@@ -102,18 +95,19 @@ namespace ZYNet.CloudSystem.Client
             ASync = new AsyncRun(this)
             {
                 CallSend = SendData
-            };            
-
-            Module = new ModuleDictionary();
+            };
+            Module = container.Resolve<IModuleDictionary>();
             IsClose = false;
-            Task.Run(new Action(checkAsyncTimeOut));
-            this.LoggerFactory = new LoggerFactory();
-            Log = new DefaultLog(this.LoggerFactory.CreateLogger<CloudClient>());
+
+            LoggerFactory = container.Resolve<ILoggerFactory>();
+            Log = new DefaultLog(LoggerFactory.CreateLogger<CloudClient>());
+
+            Task.Run(new Action(CheckAsyncTimeOut));
         }
 
      
 
-        private async void checkAsyncTimeOut()
+        private async void CheckAsyncTimeOut()
         {
             while (true)
             {
@@ -124,7 +118,7 @@ namespace ZYNet.CloudSystem.Client
 
                 try
                 {
-                    if (!CheckAsyncTimeOut || AsyncWaitTimeOut.Count == 0)
+                    if (!IsCheckAsyncTimeOut || AsyncWaitTimeOut.Count == 0)
                         timeSleep = 1000;
                     else
                     {
@@ -177,12 +171,12 @@ namespace ZYNet.CloudSystem.Client
 
         public bool Init(string host,int port)
         {
-            return  ClientManager.Install(host, port, MaxBufferLength);
+            return  ClientManager.Install(host, port);
         }
 
         public Task<bool> InitAsync(string host, int port)
         {
-            return ClientManager.InstallAsync(host, port, MaxBufferLength);
+            return ClientManager.InstallAsync(host, port);
         }
 
         public CloudClient Install(object packhandler)
@@ -202,7 +196,7 @@ namespace ZYNet.CloudSystem.Client
         {
             AsyncRunDiy.AddOrUpdate(id, asyncalls, (a, b) => asyncalls);
 
-            if (CheckAsyncTimeOut)
+            if (IsCheckAsyncTimeOut)
             {
                 KeyValuePair<long, DateTime> tot = new KeyValuePair<long, DateTime>(id, DateTime.Now.AddMilliseconds(MillisecondsTimeout));
                 AsyncWaitTimeOut.Add(tot);
@@ -540,7 +534,7 @@ namespace ZYNet.CloudSystem.Client
         {
             if (Module.ModuleDiy.ContainsKey(pack.CmdTag))
             {
-                AsyncMethodDef method = Module.ModuleDiy[pack.CmdTag];
+                IAsyncMethodDef method = Module.ModuleDiy[pack.CmdTag];
 
                 if (!method.IsController)
                 {
@@ -664,6 +658,8 @@ namespace ZYNet.CloudSystem.Client
                             AsyncCalls _calls_ = new AsyncCalls(this.LoggerFactory, pack.Id, pack.CmdTag, this, method.Obj, method.MethodInfo, args, false);
                             controller.Async = _calls_;
                             controller.IsAsync = true;
+                            controller.CClient = this;
+                            controller.Container = this.Container;
                             _calls_.CallSend += SendData;
                             _calls_.ExceptionOut = this.ExceptionOut;
                             _calls_.Run();
@@ -675,6 +671,8 @@ namespace ZYNet.CloudSystem.Client
                             AsyncCalls _calls_ = new AsyncCalls(this.LoggerFactory, pack.Id, pack.CmdTag, this, method.Obj, method.MethodInfo, args, true);
                             controller.Async = _calls_;
                             controller.IsAsync = true;
+                            controller.CClient = this;
+                            controller.Container = this.Container;
                             _calls_.CallSend += SendData;
                             _calls_.Complete += RetrunResultData;
                             _calls_.ExceptionOut = this.ExceptionOut;
@@ -690,6 +688,7 @@ namespace ZYNet.CloudSystem.Client
                       
                         controller.CClient = this;
                         controller.IsAsync = false;
+                        controller.Container = this.Container;
 
                         if (!method.IsRet)
                         {
@@ -813,6 +812,25 @@ namespace ZYNet.CloudSystem.Client
             }
 
         }
-        
+
+        public void Close()
+        {
+            IsClose = true;
+            AsyncWaitTimeOut.Clear();
+            ClientManager.Close();
+            Module.ModuleDiy.Clear();
+            AsyncRunDiy.Clear();
+            CallBackDiy.Clear();
+            AsyncCallDiy.Clear();
+            SyncWaitDic.Clear();
+            FodyDir.Clear();
+            Container.Dispose();
+        }
+
+
+        public void Dispose()
+        {
+            this.Close();
+        }
     }
 }

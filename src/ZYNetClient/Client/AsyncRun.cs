@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Autofac;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -16,12 +17,13 @@ namespace ZYNet.CloudSystem.Client
 
         internal Action<byte[]> CallSend;
 
+        public IContainer Container => CCloudClient.Container;
+
         public AsyncRun(CloudClient client)
         {            
             CCloudClient = client;
             this.Id = Id;
         }
-
 
 
         /// <summary>

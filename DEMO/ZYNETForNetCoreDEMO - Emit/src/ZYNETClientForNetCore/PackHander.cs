@@ -6,6 +6,7 @@ using ZYNet.CloudSystem;
 using ZYNet.CloudSystem.Client;
 using ZYNet.CloudSystem.Frame;
 using System.Net.Http;
+using Autofac;
 
 namespace ZYNETClientForNetCore
 {
@@ -18,8 +19,7 @@ namespace ZYNETClientForNetCore
         public CloudClient CClient { get; set; }
         public AsyncCalls Async { get; set; }
         public bool IsAsync { get; set; }
-
-
+        public IContainer Container { get; set; }
 
         [TAG(2001)]
         public async Task<byte[]> DownHtml(string url)

@@ -30,6 +30,7 @@ namespace ZYNet.CloudSystem.SocketClient
         public int Port { get; private set; }
 
         public int MaxBufferLength { get; private set; }
+        public int SendBufferLenght { get; private set; }
 
         public ISessionRW SessionRW { get; set; }
 
@@ -44,8 +45,11 @@ namespace ZYNet.CloudSystem.SocketClient
             }
         }
 
-        public ConnectionManager(ISessionRW sessionRW=null)
+        public ConnectionManager(int maxBufferLength, int sendBufferLenght, ISessionRW sessionRW = null)
         {
+            this.MaxBufferLength = maxBufferLength;
+            this.SendBufferLenght = sendBufferLenght;
+
             if (sessionRW == null)
                 SessionRW = new SessionRWMemory();
             else
@@ -53,22 +57,19 @@ namespace ZYNet.CloudSystem.SocketClient
         }
 
      
-        public bool Install(string host,int port,int maxBufferLength)
+        public bool Install(string host,int port)
         {
             this.Host = host;
-            this.Port = port;
-            this.MaxBufferLength = maxBufferLength;
+            this.Port = port;           
             RingBuffer = new ZYNetRingBufferPool(MaxBufferLength);
             return CheckSockConnect();
         }
 
-        public Task<bool> InstallAsync(string host, int port, int maxBufferLength)
+        public Task<bool> InstallAsync(string host, int port)
         {
             this.Host = host;
-            this.Port = port;
-            this.MaxBufferLength = maxBufferLength;
+            this.Port = port;          
             RingBuffer = new ZYNetRingBufferPool(MaxBufferLength);
-
             return  CheckSockConnectAsync();
         }
 
@@ -94,7 +95,7 @@ namespace ZYNet.CloudSystem.SocketClient
                 if (socketClient == null || socketClient.IsConnect == false)
                 {
                     socketClient?.Close();
-                    socketClient = new SocketClient();
+                    socketClient = new SocketClient(SendBufferLenght);
 
                     if (socketClient.Connect(Host, Port))
                     {

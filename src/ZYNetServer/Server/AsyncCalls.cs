@@ -12,6 +12,7 @@ using ZYNet.CloudSystem.Loggine;
 using ZYSocket.Server;
 using ZYSocket.share;
 using Microsoft.Extensions.Logging;
+using Autofac;
 
 namespace ZYNet.CloudSystem.Server
 {
@@ -78,6 +79,10 @@ namespace ZYNet.CloudSystem.Server
         public SocketAsyncEventArgs Asyn => AsyncUser?.Asyn;
 
         public ISend Sendobj => AsyncUser?.Sendobj;
+
+        public IContainer Container => AsyncUser?.Container;
+
+
 
         public AsyncCalls(ILoggerFactory loggerFactory, ASyncToken token,Fiber fiber)
         {

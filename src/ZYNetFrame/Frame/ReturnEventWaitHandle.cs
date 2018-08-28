@@ -12,7 +12,7 @@ namespace ZYNet.CloudSystem.Frame
     public class ReturnEventWaitHandle:IDisposable
     {
 
-        protected ILoggerFactory loggerFactory { get; set; }
+        protected ILoggerFactory LoggerFactory { get; private set; }
 
         protected ILog Log { get; set; }
 
@@ -26,7 +26,7 @@ namespace ZYNet.CloudSystem.Frame
 
         public ReturnEventWaitHandle(ILoggerFactory loggerFactory,int millisecondsTimeout, bool initialState, EventResetMode mode)
         {
-            this.loggerFactory = loggerFactory;
+            this.LoggerFactory = loggerFactory;
             this.Log = new DefaultLog(loggerFactory.CreateLogger<ReturnEventWaitHandle>());
             this.MillisecondsTimeout = millisecondsTimeout;
            

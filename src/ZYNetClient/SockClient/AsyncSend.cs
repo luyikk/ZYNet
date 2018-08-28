@@ -20,9 +20,10 @@ namespace ZYNet.CloudSystem.SocketClient
 
         private int SendIng;
 
-        public AsyncSend(Socket sock)
+        public AsyncSend(Socket sock,int bufferLength)
         {
             this._sock = sock;
+            this.BufferLenght = bufferLength;
             SendIng = 0;
             BufferQueue = new ConcurrentQueue<byte[]>();
             _send = new SocketAsyncEventArgs();

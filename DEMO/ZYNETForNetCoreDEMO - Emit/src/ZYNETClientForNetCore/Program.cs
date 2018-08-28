@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using ZYNet.CloudSystem;
 using ZYNet.CloudSystem.Client;
-using ZYNet.CloudSystem.Frame;
-using ZYNet.CloudSystem.SocketClient;
-using ZYNet.CloudSystem.Loggine;
+using ZYNet.CloudSystem.Client.Bulider;
 
 namespace ZYNETClientForNetCore
 {
@@ -15,14 +9,13 @@ namespace ZYNETClientForNetCore
         static void Main(string[] args)
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
-          
 
-            CloudClient client = new CloudClient(new ConnectionManager(new SessionRWFile()), 60000, 1024 * 1024); //最大数据包能够接收 1M
+
+            CloudClient client = new ClientBuilder().Bulid();
             PackHander tmp = new PackHander();
             client.Install(tmp);
             client.Disconnect += Client_Disconnect;
-            client.CheckAsyncTimeOut = true;
-
+        
 
             if (client.Init("127.0.0.1", 2285))
             {

@@ -7,7 +7,7 @@ using ZYNet.CloudSystem.Frame;
 using ZYNet.CloudSystem.Loggine;
 using ZYSocket.share;
 using Microsoft.Extensions.Logging;
-
+using Autofac;
 
 namespace ZYNet.CloudSystem.Client
 {
@@ -46,6 +46,7 @@ namespace ZYNet.CloudSystem.Client
 
         public ZYSync Sync => CCloudClient?.Sync;
 
+        public IContainer Container => CCloudClient.Container;
 
         public AsyncCalls(ILoggerFactory loggerFactory, long id,int cmd, CloudClient client,Object obj, MethodInfo method,object[] args,bool ishavereturn)
         {

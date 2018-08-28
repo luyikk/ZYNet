@@ -14,6 +14,7 @@ namespace ZYNet.CloudSystem.Frame
 
         public Func<long, byte[], Result> SyncSendAsWait { get; set; }
 
+
     
         public ZYSync()
         {

@@ -1,7 +1,7 @@
 {
   "runtimeTarget": {
     "name": ".NETStandard,Version=v2.0/",
-    "signature": "be7db88b1a7c49ff0ec8e9b287a8d9d52f41612c"
+    "signature": "04da3c8bfa05be0c443433efff977a48d3748185"
   },
   "compilationOptions": {},
   "targets": {
@@ -9,6 +9,7 @@
     ".NETStandard,Version=v2.0/": {
       "ZYNetServer_Portable/1.0.0": {
         "dependencies": {
+          "Autofac": "4.8.1",
           "Microsoft.CSharp": "4.5.0",
           "NETStandard.Library": "2.0.3",
           "System.Net.NameResolution": "4.3.0",
@@ -16,6 +17,18 @@
         },
         "runtime": {
           "ZYNetServer_Portable.dll": {}
+        }
+      },
+      "Autofac/4.8.1": {
+        "dependencies": {
+          "NETStandard.Library": "2.0.3",
+          "System.ComponentModel": "4.3.0"
+        },
+        "runtime": {
+          "lib/netstandard1.1/Autofac.dll": {
+            "assemblyVersion": "4.8.1.0",
+            "fileVersion": "4.8.1.0"
+          }
         }
       },
       "Microsoft.CSharp/4.5.0": {
@@ -369,6 +382,13 @@
       "type": "project",
       "serviceable": false,
       "sha512": ""
+    },
+    "Autofac/4.8.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-aIT9rupCOdab5RMfxvWTBmOxGU77tLqmvSF4V89SzV6oQcJrtuKw/Xp55xy9EijSktbMka55SbroAPOyT+lziw==",
+      "path": "autofac/4.8.1",
+      "hashPath": "autofac.4.8.1.nupkg.sha512"
     },
     "Microsoft.CSharp/4.5.0": {
       "type": "package",

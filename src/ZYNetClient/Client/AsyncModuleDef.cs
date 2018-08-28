@@ -9,14 +9,14 @@ using ZYNet.CloudSystem.Frame;
 namespace ZYNet.CloudSystem.Client
 {
 
-    public class ModuleDictionary
+    public class ModuleDictionary : IModuleDictionary
     {
-        public Dictionary<int, AsyncMethodDef> ModuleDiy { get; private set; }
+        public Dictionary<int, IAsyncMethodDef> ModuleDiy { get; private set; }
 
 
         public ModuleDictionary()
         {
-            ModuleDiy = new Dictionary<int, AsyncMethodDef>();
+            ModuleDiy = new Dictionary<int, IAsyncMethodDef>();
         }
 
         public void Install(object o)
@@ -120,7 +120,7 @@ namespace ZYNet.CloudSystem.Client
 
     }
 
-    public class AsyncMethodDef
+    public class AsyncMethodDef : IAsyncMethodDef
     {
         static Type tasktype = typeof(Task);
 

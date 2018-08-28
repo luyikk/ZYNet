@@ -49,10 +49,10 @@ namespace ZYNet.CloudSystem.SocketClient
 
         private AsyncSend _SendObj;
         
-        public SocketClient()
+        public SocketClient(int bufferLength)
         {           
             _sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            _SendObj = new AsyncSend(_sock);
+            _SendObj = new AsyncSend(_sock, bufferLength);
         }
 
         private bool IsConn;

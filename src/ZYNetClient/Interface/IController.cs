@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using Autofac;
+
 
 namespace ZYNet.CloudSystem.Client
 {
@@ -15,11 +15,12 @@ namespace ZYNet.CloudSystem.Client
         /// </summary>
         AsyncCalls Async { get; set; }
 
+        IContainer Container { get; set; }
+
         /// <summary>
         /// if is Async Call,this.Async is implementation,or  CClient is implementation
         /// </summary>
         bool IsAsync { get; set; }
-
 
     }
 }

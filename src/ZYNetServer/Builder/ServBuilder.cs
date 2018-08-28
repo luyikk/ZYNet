@@ -14,6 +14,7 @@ namespace ZYNet.CloudSystem.Server.Bulider
         {
             Container = new ContainerBuilder();
 
+            ConfigureDefaults();
             this.InstallCloudServerType();
         }
 
@@ -127,8 +128,7 @@ namespace ZYNet.CloudSystem.Server.Bulider
                         return log;
                     }
                    
-                }
-                 ).AsSelf().SingleInstance();
+                }).SingleInstance();
 
             return this;
         }
