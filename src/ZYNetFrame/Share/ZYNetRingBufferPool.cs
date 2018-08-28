@@ -167,6 +167,8 @@ namespace ZYSocket.share
             // 缓冲区数据的末尾
             savepos = (_current + _length) % MAXSIZE;
 
+
+
             Buffer.BlockCopy(data, offset, Data, savepos, savelen);
 
             Length += savelen;
@@ -180,6 +182,8 @@ namespace ZYSocket.share
             }
 
             return true;
+
+
 
 
         }

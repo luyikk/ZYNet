@@ -52,6 +52,164 @@ namespace ZYNet.CloudSystem.Frame
             {
                 return data;
             }
+            else if (type == typeof(byte))
+            { 
+                if (data.Length > 0)
+                    return data[0];
+                else
+                    return (byte)0;
+            }
+            else if (type == typeof(sbyte))
+            {
+                unchecked
+                {
+                    if (data.Length > 0)
+                        return (sbyte)data[0];
+                    else
+                        return (sbyte)0;
+                }
+            }
+            else if (type == typeof(short))
+            {
+                if(data.Length==0)
+                {
+                    return (short)0;
+                }
+                else if(data.Length==1)
+                {
+                    return (short)data[0];
+                }
+                else
+                {
+                    return BitConverter.ToInt16(data, 0);
+                }
+            }
+            else if (type == typeof(ushort))
+            {
+                if (data.Length == 0)
+                {
+                    return (ushort)0;
+                }
+                else if (data.Length == 1)
+                {
+                    return (ushort)data[0];
+                }
+                else
+                {
+                    return BitConverter.ToUInt16(data, 0);
+                }
+            }
+            else if (type == typeof(int))
+            {
+                if (data.Length == 0)
+                {
+                    return (int)0;
+                }
+                else if (data.Length == 1)
+                {
+                    return (int)data[0];
+                }
+                else if(data.Length==2)
+                {
+                   return (int)BitConverter.ToInt16(data, 0);
+                }
+                else
+                {
+                    return BitConverter.ToInt32(data, 0);
+                }
+            }
+            else if (type == typeof(uint))
+            {
+                if (data.Length == 0)
+                {
+                    return (uint)0;
+                }
+                else if (data.Length == 1)
+                {
+                    return (uint)data[0];
+                }
+                else if (data.Length == 2)
+                {
+                    return (uint)BitConverter.ToUInt16(data, 0);
+                }
+                else
+                {
+                    return BitConverter.ToUInt32(data, 0);
+                }
+            }
+            else if (type == typeof(long))
+            {
+                if (data.Length == 0)
+                {
+                    return (long)0;
+                }
+                else if (data.Length == 1)
+                {
+                    return (long)data[0];
+                }
+                else if (data.Length == 2)
+                {
+                    return (long)BitConverter.ToInt16(data, 0);
+                }
+                else if (data.Length == 4)
+                {
+                    return (long)BitConverter.ToInt32(data, 0);
+                }
+                else
+                {
+                    return BitConverter.ToInt64(data, 0);
+                }
+            }
+            else if (type == typeof(ulong))
+            {
+                if (data.Length == 0)
+                {
+                    return (ulong)0;
+                }
+                else if (data.Length == 1)
+                {
+                    return (ulong)data[0];
+                }
+                else if (data.Length == 2)
+                {
+                    return (ulong)BitConverter.ToUInt16(data, 0);
+                }
+                else if (data.Length == 4)
+                {
+                    return (ulong)BitConverter.ToUInt32(data, 0);
+                }
+                else
+                {
+                    return BitConverter.ToUInt64(data, 0);
+                }
+            }
+            else if (type == typeof(float))
+            {
+               
+                if (data.Length <4)
+                {
+                    throw new InvalidCastException("to float error,byte[] lengt <4");
+                }
+                else
+                {
+                    return BitConverter.ToSingle(data, 0);
+                }
+            }
+            else if (type == typeof(double))
+            {              
+                if (data.Length == 4)
+                {
+                    return Convert.ToDouble(BitConverter.ToSingle(data, 0));
+                }
+                else if(data.Length>=8)
+                {
+                    return BitConverter.ToDouble(data, 0);
+                }
+                else
+                {
+                    throw new InvalidCastException("to double error,byte[] lengt <4");
+                }
+            }
             else if (type.BaseType == typeof(Array))
             {
                 List<byte[]> list = (List<byte[]>)ProtoUnpackSingleObject(typeof(List<byte[]>), data);
@@ -74,6 +232,10 @@ namespace ZYNet.CloudSystem.Frame
 
         }
 
+    
+
+
+
         public static byte[] PackSingleObject(Type type, object obj)
         {
 
@@ -84,6 +246,49 @@ namespace ZYNet.CloudSystem.Frame
             else if (type == typeof(byte[]))
             {
                 return (byte[])obj;
+            }
+            else if (type == typeof(byte))
+            {
+                return new byte[] { (byte)obj };
+            }
+            else if (type == typeof(sbyte))
+            {
+                unchecked
+                {
+                    return new byte[] { (byte)obj };
+                }
+            }
+            else if (type == typeof(short))
+            {
+                return BitConverter.GetBytes((short)obj);
+            }
+            else if (type == typeof(ushort))
+            {
+                return BitConverter.GetBytes((ushort)obj);
+            }
+            else if (type == typeof(int))
+            {
+                return BitConverter.GetBytes((int)obj);
+            }
+            else if (type == typeof(long))
+            {
+                return BitConverter.GetBytes((long)obj);
+            }
+            else if (type == typeof(uint))
+            {
+                return BitConverter.GetBytes((uint)obj);
+            }
+            else if (type == typeof(ulong))
+            {
+                return BitConverter.GetBytes((ulong)obj);
+            }
+            else if (type == typeof(float))
+            {
+                return BitConverter.GetBytes((float)obj);
+            }
+            else if (type == typeof(double))
+            {
+                return BitConverter.GetBytes((double)obj);
             }
             else if (type.BaseType == typeof(Array))
             {
