@@ -1,13 +1,14 @@
 ﻿using Autofac;
 using System.Threading.Tasks;
 using ZYNet.CloudSystem.Frame;
-
+using Microsoft.Extensions.Logging;
 
 namespace ZYNet.CloudSystem.Client
 {
     public interface IASync
     {
         IContainer Container { get; }
+        ILoggerFactory LoggerFactory { get; }
 
         CloudClient Client { get; }
 

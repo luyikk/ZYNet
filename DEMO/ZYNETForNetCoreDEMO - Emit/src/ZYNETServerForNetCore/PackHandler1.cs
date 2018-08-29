@@ -7,6 +7,7 @@ using ZYNet.CloudSystem.Frame;
 using ZYNet.CloudSystem.Interfaces;
 using ZYNet.CloudSystem.Server;
 using Autofac;
+using Microsoft.Extensions.Logging;
 
 namespace ZYNETServerForNetCore
 {
@@ -18,12 +19,13 @@ namespace ZYNETServerForNetCore
 
         public  static List<UserInfo> UserList = new List<UserInfo>();
 
+        public PackHandler1(IContainer container, ILoggerFactory loggerFactory) : base(container, loggerFactory)
+        {
+        }
+
         public string Name { get; set; }
 
-        public PackHandler1(IContainer container ):base(container)
-        {
-
-        }
+     
 
 
         [TAG(1000)]

@@ -8,6 +8,7 @@ using ZYNet.CloudSystem.Frame;
 using ZYNet.CloudSystem.Interfaces;
 using ZYNet.CloudSystem.Server;
 using Autofac;
+using Microsoft.Extensions.Logging;
 
 namespace ZYNETServerForNetCore
 {
@@ -19,10 +20,10 @@ namespace ZYNETServerForNetCore
 
         public static List<UserInfo> UserList = new List<UserInfo>();
 
-        public PackHandler(IContainer  container) : base(container)
+        public PackHandler(IContainer container, ILoggerFactory loggerFactory) : base(container, loggerFactory)
         {
+            
         }
-
 
         [TAG(1000)]
         public bool IsLogOn(IASync async,string username, string password)

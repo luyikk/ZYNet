@@ -6,6 +6,6 @@
 
   <ItemGroup>
     <PackageReference Include="Xamarin.Forms" Version="3.1.0.697729" />
-    <PackageReference Include="ZYNet-Portable" Version="1.0.1.1" />
+    <PackageReference Include="ZYNet-Portable" Version="1.0.1.2" />
   </ItemGroup>
 </Project>

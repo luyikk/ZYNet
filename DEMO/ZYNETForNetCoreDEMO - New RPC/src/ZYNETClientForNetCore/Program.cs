@@ -64,10 +64,19 @@ namespace ZYNETClientForNetCore
                             stop.Stop();
                             Console.WriteLine("Rec:{0} time:{1} MS", rec, stop.ElapsedMilliseconds);
 
+                            long i = 0;
+                            stop.Restart();
+                            while (i < 100000)                           
+                                    i = ServerPack.Adds(i);
+                                                          
+                            
+                            stop.Stop();
+                            Console.WriteLine("ADD:{0} time:{1} MS", i, stop.ElapsedMilliseconds);
+
 
                             TestRun(client);
-                            TestRun(client);
-                            TestRun(client);
+                            //TestRun(client);
+                            //TestRun(client);
 
                         }
                     }
@@ -100,15 +109,17 @@ namespace ZYNETClientForNetCore
 
             Console.WriteLine("Async Rec:{0} time:{1} MS", rec.First.Value<int>(), stop.ElapsedMilliseconds);
 
-            //stop.Restart();
+            stop.Restart();
 
-            //long i = 0;
-            //while (i < 100000)
-            //    i = (await Server.Add(i)).As<long>();
+            long i = 0;
+            while (i < 100000)
+            {
+                i = (await Server.Add(i)).As<long>();
+            }
 
-            //stop.Stop();
+            stop.Stop();
 
-            //Console.WriteLine("Async Add:{0} time:{1} MS",i, stop.ElapsedMilliseconds);
+            Console.WriteLine("Async Add:{0} time:{1} MS", i, stop.ElapsedMilliseconds);
         }
 
 

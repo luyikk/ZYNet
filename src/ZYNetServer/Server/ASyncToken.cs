@@ -582,7 +582,7 @@ namespace ZYNet.CloudSystem.Server
 
                 if (!ControllerDict.TryGetValue(method.ImplementationType, out ControllerBase implement))
                 {
-                    implement = (ControllerBase)Activator.CreateInstance(method.ImplementationType,this.Container);
+                    implement = (ControllerBase)Activator.CreateInstance(method.ImplementationType,this.Container,this.LoggerFactory);
                     ControllerDict[method.ImplementationType] = implement;
                 }                
 

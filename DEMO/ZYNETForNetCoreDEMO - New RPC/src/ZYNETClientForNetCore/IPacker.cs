@@ -64,5 +64,7 @@ namespace ZYNETClientForNetCore
         [TAG(3000)]
         ResultAwatier Add(long p);
 
+        [TAG(3000)]
+        long Adds(long p);
     }
 }

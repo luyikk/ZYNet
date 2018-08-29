@@ -7,14 +7,14 @@ using ZYNet.CloudSystem.Frame;
 using ZYNet.CloudSystem.Server;
 using Autofac;
 using ZYNet.CloudSystem.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace ZYNETServerForNetCore
 {
     public class PackHandler2:ControllerBase
     {
-        public PackHandler2(IContainer container ):base(container)
+        public PackHandler2(IContainer container, ILoggerFactory loggerFactory) : base(container, loggerFactory)
         {
-
         }
 
 

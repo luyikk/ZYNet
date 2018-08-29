@@ -8,12 +8,13 @@ using ZYNet.CloudSystem.Frame;
 using System.Threading.Tasks;
 using ZYNet.CloudSystem.Interfaces;
 using Autofac;
+using Microsoft.Extensions.Logging;
 
 namespace FileServ.Server
 {
     public class ServerPackHandler : ControllerBase
     {
-        public ServerPackHandler(IContainer container) : base(container)
+        public ServerPackHandler(IContainer container, ILoggerFactory loggerFactory) : base(container, loggerFactory)
         {
         }
 

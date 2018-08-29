@@ -15,6 +15,7 @@ namespace ZYNet.CloudSystem.Client
     {
         private readonly ILog Log;
 
+        public ILoggerFactory LoggerFactory { get; private set; }
 
         public Result Result { get; private set; }
 
@@ -63,6 +64,7 @@ namespace ZYNet.CloudSystem.Client
             Cmd = cmd;
             FodyDir = new Dictionary<Type, Type>();
             Log = new DefaultLog(loggerFactory.CreateLogger<AsyncCalls>());
+            this.LoggerFactory = loggerFactory;
         }
 
         ~AsyncCalls()
