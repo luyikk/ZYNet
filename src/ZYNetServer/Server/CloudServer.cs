@@ -102,6 +102,7 @@ namespace ZYNet.CloudSystem.Server
 
         private void BinaryInputOffsetHandler(byte[] data, int offset, int count, SocketAsyncEventArgs socketAsync)
         {
+            
             try
             {
                 if (socketAsync.UserToken is ASyncToken tmp)

@@ -6,10 +6,13 @@ using System.Text;
 using System.Net.Sockets;
 using System.Threading;
 
+
 namespace ZYNet.CloudSystem.SocketClient
 {
     public class AsyncSend : ISend
     {
+        private readonly int bufferlength = 4096;
+
         private SocketAsyncEventArgs _send { get; set; }
 
         private ConcurrentQueue<byte[]> BufferQueue { get; set; }
@@ -20,7 +23,7 @@ namespace ZYNet.CloudSystem.SocketClient
 
         private int SendIng;
 
-        public AsyncSend(Socket sock,int bufferLength)
+        public AsyncSend(Socket sock, int bufferLength)
         {
             this._sock = sock;
             this.BufferLenght = bufferLength;
@@ -52,63 +55,90 @@ namespace ZYNet.CloudSystem.SocketClient
             }
 
 
-            int offset = e.Offset + e.BytesTransferred;
+            Interlocked.Exchange(ref SendIng, 0);
+            if (BufferQueue.Count > 0)
+                SendComputer();
 
-            if (offset < e.Buffer.Length)
-            {
-                if (BufferLenght > 0)
-                {
-                    int length = BufferLenght;
-                    if (offset + length > e.Buffer.Length)
-                        length = e.Buffer.Length - offset;
-                    e.SetBuffer(offset, length);
-                    SendAsync();
-                }
-                else
-                {
-                    e.SetBuffer(offset, e.Count - e.Offset - e.BytesTransferred);
-                    SendAsync();
-                }
-            }
-            else
-            {
-                Interlocked.Exchange(ref SendIng, 0);
-                if (BufferQueue.Count > 0)
-                    SendComputer();
-            }
 
         }
-
+    
         private void Free()
         {
-            _send.SetBuffer(null, 0, 0);
+            _send.BufferList = null;           
             for (int i = 0; i < BufferQueue.Count; i++)
                 BufferQueue.TryDequeue(out byte[] tmp);
         }
 
         private bool InitData()
         {
-            if (BufferQueue.TryDequeue(out byte[] data))
-                if (BufferLenght <= 0)
+            var list = PopBufferList();
+
+            if(list.Count>0)
+            {
+                _send.BufferList = list;
+
+                return true;
+            }
+            else
+                return false;
+
+        }
+
+
+
+        public List<ArraySegment<byte>> PopBufferList()
+        {
+            List<ArraySegment<byte>> buffer = new List<ArraySegment<byte>>(BufferQueue.Count);
+
+            int c = 0;
+            while (true)
+            {
+                if (BufferQueue.TryDequeue(out byte[] data))
                 {
-                    _send.SetBuffer(data, 0, data.Length);
-                    return true;
+                    if (BufferLenght <= 0)
+                    {
+                        ArraySegment<byte> vs = new ArraySegment<byte>(data, 0, data.Length);
+                        buffer.Add(vs);
+                    }
+                    else
+                    {
+                        int length = 0;
+                        int offset = 0;
+                        do
+                        {
+
+
+                            if (BufferLenght > (data.Length - offset))
+                                length = (data.Length - offset);
+                            else
+                                length = BufferLenght;
+
+                            ArraySegment<byte> vs = new ArraySegment<byte>(data, offset, length);
+                            buffer.Add(vs);
+                            offset += length;
+
+                        } while (offset < data.Length);
+
+                    }
+
+                    c += data.Length;
+
+                    if (c > bufferlength)
+                        break;
+                   
                 }
                 else
-                {
-                    int length = BufferLenght;
-                    if (length > data.Length)
-                        length = data.Length;
-                    _send.SetBuffer(data, 0, length);
-                    return true;
-                }
+                    break;
+            }
 
-            return false;
+            return buffer;
         }
+
 
 
         public bool Send(byte[] data)
         {
+
             if (_sock == null)
                 return false;
             if (data == null)
@@ -117,6 +147,7 @@ namespace ZYNet.CloudSystem.SocketClient
             BufferQueue.Enqueue(data);
 
             return SendComputer();
+
         }
 
 
@@ -138,15 +169,19 @@ namespace ZYNet.CloudSystem.SocketClient
         private void SendAsync()
         {
             try
-            {
-                if (!_sock.SendAsync(_send))                
-                    BeginSend(_send);                
+            {                
+
+                if (!_sock.SendAsync(_send))
+                {                   
+                    BeginSend(_send);
+                }
             }
             catch (ObjectDisposedException)
             {
                 Free();
                 _sock = null;
             }
+          
         }
 
     }

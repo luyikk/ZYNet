@@ -1,0 +1,4 @@
+我们继续上一案例
+这次,我们让客户端也打印helloworld,当客户端要求服务器打印helloworld的时候
+我们让服务器要求客户端先打印helloworld
+然后再打印 helloworld

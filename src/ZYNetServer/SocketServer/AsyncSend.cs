@@ -1,27 +1,30 @@
-﻿using System.Collections.Concurrent;
-using ZYSocket.Server;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Net.Sockets;
-using System;
 using System.Threading;
+
 
 namespace ZYSocket.Server
 {
     public class AsyncSend : ISend
     {
+        private readonly int bufferlength = 4096;
+
         private SocketAsyncEventArgs _send { get; set; }
 
         private ConcurrentQueue<byte[]> BufferQueue { get; set; }
 
         private Socket _sock { get; set; }
 
-        public int BufferLenght { get; private set; } = -1;
+        protected int BufferLenght { get; set; } = -1;
 
         private int SendIng;
 
-        public AsyncSend(Socket sock,int bufferLenght)
+        public AsyncSend(Socket sock, int bufferLength)
         {
-            this.BufferLenght = bufferLenght;
             this._sock = sock;
+            this.BufferLenght = bufferLength;
             SendIng = 0;
             BufferQueue = new ConcurrentQueue<byte[]>();
             _send = new SocketAsyncEventArgs();
@@ -50,63 +53,90 @@ namespace ZYSocket.Server
             }
 
 
-            int offset = e.Offset + e.BytesTransferred;
+            Interlocked.Exchange(ref SendIng, 0);
+            if (BufferQueue.Count > 0)
+                SendComputer();
 
-            if (offset < e.Buffer.Length)
-            {
-                if (BufferLenght > 0)
-                {
-                    int length = BufferLenght;
-                    if (offset + length > e.Buffer.Length)
-                        length = e.Buffer.Length - offset;
-                    e.SetBuffer(offset, length);
-                    SendAsync();
-                }
-                else
-                {
-                    e.SetBuffer(offset, e.Count - e.Offset - e.BytesTransferred);
-                    SendAsync();
-                }
-            }
-            else
-            {
-                Interlocked.Exchange(ref SendIng, 0);
-                if (BufferQueue.Count > 0)
-                    SendComputer();
-            }
 
         }
-
+    
         private void Free()
         {
-            _send.SetBuffer(null, 0, 0);
+            _send.BufferList = null;           
             for (int i = 0; i < BufferQueue.Count; i++)
                 BufferQueue.TryDequeue(out byte[] tmp);
         }
 
         private bool InitData()
         {
-            if (BufferQueue.TryDequeue(out byte[] data))
-                if (BufferLenght <= 0)
+            var list = PopBufferList();
+
+            if(list.Count>0)
+            {
+                _send.BufferList = list;
+
+                return true;
+            }
+            else
+                return false;
+
+        }
+
+
+
+        public List<ArraySegment<byte>> PopBufferList()
+        {
+            List<ArraySegment<byte>> buffer = new List<ArraySegment<byte>>(BufferQueue.Count);
+
+            int c = 0;
+            while (true)
+            {
+                if (BufferQueue.TryDequeue(out byte[] data))
                 {
-                    _send.SetBuffer(data, 0, data.Length);
-                    return true;
+                    if (BufferLenght <= 0)
+                    {
+                        ArraySegment<byte> vs = new ArraySegment<byte>(data, 0, data.Length);
+                        buffer.Add(vs);
+                    }
+                    else
+                    {
+                        int length = 0;
+                        int offset = 0;
+                        do
+                        {
+
+
+                            if (BufferLenght > (data.Length - offset))
+                                length = (data.Length - offset);
+                            else
+                                length = BufferLenght;
+
+                            ArraySegment<byte> vs = new ArraySegment<byte>(data, offset, length);
+                            buffer.Add(vs);
+                            offset += length;
+
+                        } while (offset < data.Length);
+
+                    }
+
+                    c += data.Length;
+
+                    if (c > bufferlength)
+                        break;
+                   
                 }
                 else
-                {
-                    int length = BufferLenght;
-                    if (length > data.Length)
-                        length = data.Length;
-                    _send.SetBuffer(data, 0, length);
-                    return true;
-                }
+                    break;
+            }
 
-            return false;
+            return buffer;
         }
+
 
 
         public bool Send(byte[] data)
         {
+
             if (_sock == null)
                 return false;
             if (data == null)
@@ -115,19 +145,20 @@ namespace ZYSocket.Server
             BufferQueue.Enqueue(data);
 
             return SendComputer();
+
         }
 
 
 
         private bool SendComputer()
         {
-            if (Interlocked.CompareExchange(ref SendIng, 1, 0) == 0)
+            if (Interlocked.CompareExchange(ref SendIng, 1, 0) == 0)            
                 if (InitData())
                 {
                     SendAsync();
                     return true;
                 }
-                else
+                else                
                     Interlocked.Exchange(ref SendIng, 0);
 
             return false;
@@ -136,15 +167,19 @@ namespace ZYSocket.Server
         private void SendAsync()
         {
             try
-            {
+            {                
+
                 if (!_sock.SendAsync(_send))
+                {                   
                     BeginSend(_send);
+                }
             }
             catch (ObjectDisposedException)
             {
                 Free();
                 _sock = null;
             }
+          
         }
 
     }

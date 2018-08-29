@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ZYNet" Version="1.0.1.2" />
+    <PackageReference Include="ZYNet" Version="1.0.1.4" />
   </ItemGroup>
 
 </Project>

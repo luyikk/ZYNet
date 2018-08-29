@@ -6,7 +6,7 @@ using ZYNet.CloudSystem.Frame;
 using ZYNet.CloudSystem.Server;
 using ZYSocket.Server;
 
-namespace ZYNet.CloudSystem.Interfaces
+namespace ZYNet.CloudSystem.Server
 {
     public interface IASync
     {

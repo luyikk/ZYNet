@@ -29,7 +29,7 @@ namespace ZYNet.CloudSystem.SocketClient
         /// </summary>
         public Socket _sock { get; private set; }
 
-        public     int ConnectTimeOut { get; set; } = 6000;
+        public  static  int ConnectTimeOut { get; set; } = 6000;
 
         /// <summary>
         /// 连接成功事件
@@ -47,12 +47,13 @@ namespace ZYNet.CloudSystem.SocketClient
 
         private System.Threading.AutoResetEvent wait = new System.Threading.AutoResetEvent(false);
 
-        private AsyncSend _SendObj;
+        private ISend _SendObj;
         
         public SocketClient(int bufferLength)
         {           
             _sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            _SendObj = new AsyncSend(_sock, bufferLength);
+             _SendObj = new AsyncSend(_sock, bufferLength);
+            //_SendObj = new BeginSend(_sock, bufferLength);
         }
 
         private bool IsConn;
@@ -247,7 +248,9 @@ namespace ZYNet.CloudSystem.SocketClient
         {
             try
             {
-                _SendObj.Send(data);
+               
+                    _SendObj.Send(data);
+               
             }
             catch (ObjectDisposedException)
             {

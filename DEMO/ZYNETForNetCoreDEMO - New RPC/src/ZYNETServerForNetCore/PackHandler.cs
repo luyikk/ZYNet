@@ -129,6 +129,52 @@ namespace ZYNETServerForNetCore
 
         }
 
+        int m = 0;
+
+        [TAG(3001)]
+        public void Add(int num)
+        {
+            m += num;
+        }
+
+
+        [TAG(3002)]
+        public void Sub(int num)
+        {
+            m -= num;
+        }
+
+
+        [TAG(3003)]
+        public int GetIt()
+        {
+            var c = m;
+            m = 0;
+            return c;
+        }
+
+
+
+        long num = 0;
+
+        [TAG(3004)]
+        public long AddInt(long n)
+        {
+            num += n;
+            return num;
+        }
+
+
+        [TAG(3005)]
+        public long Getnum()
+        {
+            var c = num;
+            num = 0;
+            return c;
+        }
+
+
+
         /// <summary>
         /// USER DISCONNECT
         /// </summary>

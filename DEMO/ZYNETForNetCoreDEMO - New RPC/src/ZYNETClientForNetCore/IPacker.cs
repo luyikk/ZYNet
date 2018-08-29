@@ -62,9 +62,29 @@ namespace ZYNETClientForNetCore
         int TestRec2(int count);
 
         [TAG(3000)]
-        ResultAwatier Add(long p);
+        ResultAwatier Add(long p);        
+
 
         [TAG(3000)]
         long Adds(long p);
+
+
+        [TAG(3001)]
+        void Add(int a);
+
+        [TAG(3002)]
+        void Sub(int b);
+
+        [TAG(3003)]
+        int GitIt();
+
+
+        [TAG(3004)]
+        long AddRet(long num);
+
+        [TAG(3005)]
+        long Gitnum();
+
+
     }
 }

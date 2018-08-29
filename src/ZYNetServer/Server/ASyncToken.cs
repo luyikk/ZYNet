@@ -69,7 +69,7 @@ namespace ZYNet.CloudSystem.Server
             Stream = stream;
             CurrentServer = server;
             this.DataExtra = server.EcodeingHandler;
-            Sendobj = Container.Resolve<ISend>(new NamedParameter("sock", asynca.AcceptSocket), new NamedParameter("bufferLenght", Container.Resolve<BufferSizeOptions>().SendBufferSize));
+            Sendobj = Container.Resolve<ISend>(new NamedParameter("sock", asynca.AcceptSocket), new NamedParameter("bufferLength", Container.Resolve<BufferSizeOptions>().SendBufferSize));
             AsyncWaitTimeOut = new List<KeyValuePair<long, DateTime>>();
             FodyDir = new Dictionary<Type, Type>();
             SessionKey = sessionKey;
@@ -768,10 +768,11 @@ namespace ZYNet.CloudSystem.Server
 
         public void Dispose()
         {
-            foreach (var item in ControllerDict)
-            {
-                item.Value.Dispose();
-            }
+            if(ControllerDict!=null)
+                foreach (var item in ControllerDict)
+                {
+                    item.Value.Dispose();
+                }
         }
     }
 }

@@ -6,6 +6,7 @@ using ZYNet.CloudSystem.Server;
 using ZYNet.CloudSystem;
 using ZYNet.CloudSystem.Loggine;
 using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace Hello_World_Server
 {
@@ -51,7 +52,41 @@ namespace Hello_World_Server
             Log.Debug($"客户端让我打印 {msg}");
         }
 
+        /// <summary>
+        /// 请注意和MessageShow的区别, 返回 async Task<bool>,那是因为我们需要await 调用客户端,返回类型为bool
+        /// IASync 参数,是因为我们要访问客户端,需要访问客户端,那么第一个参数就必须是IASync,记住第一个,必须放在第一个,其他参数放后面
+        /// </summary>
+        /// <param name="async"></param>
+        /// <param name="msg"></param>
+        /// <returns></returns>
+        [TAG(2)]
+        public async Task<bool> MessageShow2(IASync async, string msg)
+        {
+            var clientserv = async.Get<IClientServ>();
 
+            var p = await clientserv.ShowMsg(msg);
+           
+            
+            //你可以从 p.IsError 来判断是否发生了错误,比如读取超时,或者客户端断线之类的
+            //至于超时读取设置你可以在build的时候设置timeout时间
+            //你可以从 p.ErrorMsg,打印错误内容
+            //你也可以从 p.ErrorId判断错误信息
+            //你还能从  p.IsHaveValue 来判断是否有返回值
+            
+            if (p.As<bool>()) //从Result对象中读取一个bool结果,如果有多个返回值你可以As<bool>(0),As<bool>(1),As<bool>(2)
+            {
+                Console.WriteLine(msg);
+                Log.Debug($"客户端打印了我就打印 {msg}");
 
+                clientserv.Good("表扬一下");//表扬客户端一下
+
+                return true;
+            }
+            else
+            {
+                Log.Debug($"客户端打印失败所以我就不打印了");
+                return false;
+            }
+        }
     }
 }

@@ -1,8 +1,8 @@
 ﻿using System;
 using ZYNet.CloudSystem.Client;
 using ZYNet.CloudSystem.Client.Bulider;
-
-
+using System.Threading.Tasks;
+using System.Threading;
 namespace ZYNETClientForNetCore
 {
     class Program
@@ -41,7 +41,7 @@ namespace ZYNETClientForNetCore
 
                             ServerPack.SetPassWord("123123");
 
-                            string cc= ServerPack.SetMessage("HEIIO", "WORD");
+                            string cc = ServerPack.SetMessage("HEIIO", "WORD");
                             Console.WriteLine(cc);
 
                             ServerPack.SetMessage();
@@ -64,15 +64,58 @@ namespace ZYNETClientForNetCore
                             stop.Stop();
                             Console.WriteLine("Rec:{0} time:{1} MS", rec, stop.ElapsedMilliseconds);
 
-                            long i = 0;
                             stop.Restart();
-                            while (i < 100000)                           
-                                    i = ServerPack.Adds(i);
-                                                          
-                            
+
+                            long cf = 0;
+                            while (cf < 100000)
+                            {
+                                cf = ServerPack.Adds(cf);
+                            }
+
                             stop.Stop();
+                            Console.WriteLine("ADD:{0} time:{1} MS", cf, stop.ElapsedMilliseconds);
+
+                            stop.Restart();
+                            for (int j = 0; j < 100000; j++)
+                            {
+                                ServerPack.Add(10);
+                                ServerPack.Sub(5);
+
+                            }
+
+                            int i = ServerPack.GitIt();
+
+                            stop.Stop();
+
+                          
+
                             Console.WriteLine("ADD:{0} time:{1} MS", i, stop.ElapsedMilliseconds);
 
+
+                            stop.Restart();
+
+                            Parallel.For(0, 100000, (xxxx) =>
+                              {
+                                  ServerPack.Add(10);
+                                  ServerPack.Sub(5);
+
+                              });
+                            stop.Stop();
+
+                            i = ServerPack.GitIt();
+                            Console.WriteLine("ADDASYN:{0} time:{1} MS", i, stop.ElapsedMilliseconds);
+
+                            stop.Restart();
+                            Parallel.For(0, 100000, (num) =>
+                            {
+                                long a= ServerPack.AddRet(num);
+
+                            });
+
+                            stop.Stop();
+
+                            var l = ServerPack.Gitnum();
+                            Console.WriteLine("AddRetASYN:{0} time:{1} MS", l, stop.ElapsedMilliseconds);
 
                             TestRun(client);
                             //TestRun(client);
@@ -120,6 +163,8 @@ namespace ZYNETClientForNetCore
             stop.Stop();
 
             Console.WriteLine("Async Add:{0} time:{1} MS", i, stop.ElapsedMilliseconds);
+
+          
         }
 
 
