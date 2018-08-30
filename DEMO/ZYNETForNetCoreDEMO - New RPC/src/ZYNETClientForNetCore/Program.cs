@@ -87,7 +87,7 @@ namespace ZYNETClientForNetCore
 
                             stop.Stop();
 
-                          
+
 
                             Console.WriteLine("ADD:{0} time:{1} MS", i, stop.ElapsedMilliseconds);
 
@@ -97,18 +97,21 @@ namespace ZYNETClientForNetCore
                             Parallel.For(0, 100000, (xxxx) =>
                               {
                                   ServerPack.Add(10);
-                                  ServerPack.Sub(5);
-
                               });
-                            stop.Stop();
 
                             i = ServerPack.GitIt();
+
+                            stop.Stop();
+
+
+
+
                             Console.WriteLine("ADDASYN:{0} time:{1} MS", i, stop.ElapsedMilliseconds);
 
                             stop.Restart();
                             Parallel.For(0, 100000, (num) =>
                             {
-                                long a= ServerPack.AddRet(num);
+                                long a = ServerPack.AddRet(num);
 
                             });
 
@@ -122,7 +125,7 @@ namespace ZYNETClientForNetCore
                             //TestRun(client);
 
                         }
-                    }
+                }
                 }
                 catch (TimeoutException er)
                 {

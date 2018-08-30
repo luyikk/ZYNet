@@ -63,7 +63,7 @@ namespace Hello_World
 
                 stop.Restart();
                 var serv = client.Get<IService>();
-                Parallel.For(0, 1000, v =>
+                Parallel.For(0, 10000, v =>
                   {
                       serv.Addit(v);
                   });
@@ -72,10 +72,7 @@ namespace Hello_World
 
                 Console.WriteLine($"结果为:{x},耗时:{stop.ElapsedMilliseconds} 毫秒");
 
-                Parallel.For(0, 10000, v =>
-                {
-                    client.ClientManager.SendData(new byte[] { 5, 0, 0, 0, 0 });
-                });
+           
 
             }
             else

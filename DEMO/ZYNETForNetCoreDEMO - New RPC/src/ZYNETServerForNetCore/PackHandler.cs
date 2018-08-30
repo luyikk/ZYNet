@@ -129,6 +129,15 @@ namespace ZYNETServerForNetCore
 
         }
 
+
+        [TAG(3002)]
+        public void Sub(int num)
+        {
+            m -= num;
+        }
+
+
+
         int m = 0;
 
         [TAG(3001)]
@@ -138,16 +147,11 @@ namespace ZYNETServerForNetCore
         }
 
 
-        [TAG(3002)]
-        public void Sub(int num)
-        {
-            m -= num;
-        }
-
-
         [TAG(3003)]
         public int GetIt()
         {
+            Console.WriteLine(ASyncToken.i);
+
             var c = m;
             m = 0;
             return c;
