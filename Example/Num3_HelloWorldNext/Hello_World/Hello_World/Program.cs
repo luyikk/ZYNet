@@ -43,7 +43,7 @@ namespace Hello_World
                 //我们可以在服务器上写个ADD方法传入一个int,让它加1后返回
                 stop.Restart();
                 int i = 0;
-                while (i < 10000)
+                while (i < 100000)
                    i= client.Get<IService>().AddOne(i);
                 stop.Stop();
                 Console.WriteLine($"我ADD到了:{i},耗时:{stop.ElapsedMilliseconds} 毫秒");
@@ -52,7 +52,7 @@ namespace Hello_World
                 //我们可以给服务器定义一个ADDIT 方法,服务器对象中建立一个int 值,每次调用Addit 就给int加上参数;
 
                 stop.Restart();
-                for (int v = 0; v < 10000; v++)                
+                for (int v = 0; v < 100000; v++)                
                     client.Get<IService>().Addit(v);               
                 var x= client.Get<IService>().Getit();
                 stop.Stop();
@@ -63,7 +63,7 @@ namespace Hello_World
 
                 stop.Restart();
                 var serv = client.Get<IService>();
-                Parallel.For(0, 10000, v =>
+                Parallel.For(0, 100000, v =>
                   {
                       serv.Addit(v);
                   });

@@ -149,9 +149,7 @@ namespace ZYNETServerForNetCore
 
         [TAG(3003)]
         public int GetIt()
-        {
-            Console.WriteLine(ASyncToken.i);
-
+        {            
             var c = m;
             m = 0;
             return c;
