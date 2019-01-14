@@ -55,12 +55,12 @@ namespace ZYNet.CloudSystem.Server
             Stream = new ZYNetRingBufferPool(MaxBuffsize);
             CurrentServer = server;
             this.DataExtra = server.EcodeingHandler;
-            Sendobj = Container.Resolve<ISend>(new NamedParameter("sock", asynca.AcceptSocket),new NamedParameter("bufferLenght", Container.Resolve<BufferSizeOptions>().SendBufferSize));
+            Sendobj = Container.Resolve<ISend>(new NamedParameter("sock", asynca.AcceptSocket),new NamedParameter("bufferLength", Container.Resolve<BufferSizeOptions>().SendBufferSize));
             AsyncWaitTimeOut = new List<KeyValuePair<long, DateTime>>();
             FodyDir = new Dictionary<Type, Type>();
             SessionKey = SessionKey;
             this.LoggerFactory = loggerFactory;
-            Log = new DefaultLog(LoggerFactory.CreateLogger<ASyncToken>());
+            Log = new DefaultLog(LoggerFactory?.CreateLogger<ASyncToken>());
         }
 
         public ASyncToken(ILoggerFactory loggerFactory, SocketAsyncEventArgs asynca, CloudServer server,long sessionKey, ZYNetRingBufferPool stream)
@@ -74,7 +74,7 @@ namespace ZYNet.CloudSystem.Server
             FodyDir = new Dictionary<Type, Type>();
             SessionKey = sessionKey;
             this.LoggerFactory = loggerFactory;
-            Log = new DefaultLog(LoggerFactory.CreateLogger<ASyncToken>());
+            Log = new DefaultLog(LoggerFactory?.CreateLogger<ASyncToken>());
         }
 
      
@@ -83,7 +83,7 @@ namespace ZYNet.CloudSystem.Server
         public void SetSocketEventAsync(SocketAsyncEventArgs asynca)
         {
             this.Asyn = asynca;
-            this.Sendobj = Container.Resolve<ISend>(new NamedParameter("sock", asynca.AcceptSocket), new NamedParameter("bufferLenght", Container.Resolve<BufferSizeOptions>().SendBufferSize));
+            Sendobj = Container.Resolve<ISend>(new NamedParameter("sock", asynca.AcceptSocket), new NamedParameter("bufferLength", Container.Resolve<BufferSizeOptions>().SendBufferSize));
             IsDisconnect = false;
         }
 

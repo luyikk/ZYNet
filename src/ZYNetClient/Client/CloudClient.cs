@@ -99,7 +99,7 @@ namespace ZYNet.CloudSystem.Client
             IsClose = false;
 
             LoggerFactory = container.Resolve<ILoggerFactory>();
-            Log = new DefaultLog(LoggerFactory.CreateLogger<CloudClient>());
+            Log = new DefaultLog(LoggerFactory?.CreateLogger<CloudClient>());
 
             Task.Run(new Action(CheckAsyncTimeOut));
         }

@@ -14,7 +14,7 @@ namespace ZYNet.CloudSystem.Server
         {
             servBuilder.ContainerBuilder(p =>
             {
-                p.RegisterType<AsyncSend>().As<ISend>();
+                p.RegisterType<AsyncSend>().As<ISend>().AsSelf();
                 p.RegisterType<CloudServer>().SingleInstance();
                 p.Register<ZYSocketSuper>(x=>new ZYSocketSuper(x.Resolve<HostOptions>().Host,
                     x.Resolve<HostOptions>().Port,

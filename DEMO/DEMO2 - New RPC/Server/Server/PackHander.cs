@@ -8,6 +8,7 @@ using ZYNet.CloudSystem.Server;
 using ZYNet.CloudSystem.Frame;
 using ZYNet.CloudSystem.Interfaces;
 using Autofac;
+using Microsoft.Extensions.Logging;
 
 namespace Server
 {
@@ -17,7 +18,7 @@ namespace Server
         public static List<UserInfo> UserList { get; set; } = new List<UserInfo>();
 
 
-        public PackHandler(IContainer container):base(container)
+        public PackHandler(IContainer container, ILoggerFactory loggerFactory) :base(container, loggerFactory)
         {
 
         }

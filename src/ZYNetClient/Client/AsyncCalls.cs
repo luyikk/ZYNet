@@ -63,7 +63,7 @@ namespace ZYNet.CloudSystem.Client
             Id = id;
             Cmd = cmd;
             FodyDir = new Dictionary<Type, Type>();
-            Log = new DefaultLog(loggerFactory.CreateLogger<AsyncCalls>());
+            Log = new DefaultLog(loggerFactory?.CreateLogger<AsyncCalls>());
             this.LoggerFactory = loggerFactory;
         }
 

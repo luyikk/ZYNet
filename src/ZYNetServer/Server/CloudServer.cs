@@ -49,7 +49,7 @@ namespace ZYNet.CloudSystem.Server
             Server = container.Resolve<ISocketServer>();
 
             LoggerFactory = container.Resolve<ILoggerFactory>();
-            Log = new DefaultLog(LoggerFactory.CreateLogger<CloudServer>());
+            Log = new DefaultLog(LoggerFactory?.CreateLogger<CloudServer>());
             Init();
 
 

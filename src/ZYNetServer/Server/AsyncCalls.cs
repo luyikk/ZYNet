@@ -90,7 +90,7 @@ namespace ZYNet.CloudSystem.Server
             AsyncUser.UserDisconnect = (a, b) => this.UserDisconnect?.Invoke(a, b);           
             this._fiber = fiber;
             FodyDir = new Dictionary<Type, Type>();
-            Log = new DefaultLog(loggerFactory.CreateLogger<AsyncCalls>());
+            Log = new DefaultLog(loggerFactory?.CreateLogger<AsyncCalls>());
         }
 
 

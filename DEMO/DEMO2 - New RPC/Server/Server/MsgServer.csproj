@@ -111,13 +111,13 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
     <Reference Include="ZYNetClient, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\src\packages\ZYNet.1.0.1.1\lib\netstandard2.0\ZYNetClient.dll</HintPath>
+      <HintPath>..\..\packages\ZYNet.1.0.1.5\lib\netstandard2.0\ZYNetClient.dll</HintPath>
     </Reference>
     <Reference Include="ZYNetFrame, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\src\packages\ZYNet.1.0.1.1\lib\netstandard2.0\ZYNetFrame.dll</HintPath>
+      <HintPath>..\..\packages\ZYNet.1.0.1.5\lib\netstandard2.0\ZYNetFrame.dll</HintPath>
     </Reference>
     <Reference Include="ZYNetServer, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\src\packages\ZYNet.1.0.1.1\lib\netstandard2.0\ZYNetServer.dll</HintPath>
+      <HintPath>..\..\packages\ZYNet.1.0.1.5\lib\netstandard2.0\ZYNetServer.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

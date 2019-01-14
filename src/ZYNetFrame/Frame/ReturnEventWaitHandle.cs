@@ -27,7 +27,7 @@ namespace ZYNet.CloudSystem.Frame
         public ReturnEventWaitHandle(ILoggerFactory loggerFactory,int millisecondsTimeout, bool initialState, EventResetMode mode)
         {
             this.LoggerFactory = loggerFactory;
-            this.Log = new DefaultLog(loggerFactory.CreateLogger<ReturnEventWaitHandle>());
+            this.Log = new DefaultLog(loggerFactory?.CreateLogger<ReturnEventWaitHandle>());
             this.MillisecondsTimeout = millisecondsTimeout;
            
             WaitHandle = new EventWaitHandle(initialState, mode);
