@@ -1,7 +1,7 @@
 {
   "runtimeTarget": {
     "name": ".NETStandard,Version=v2.0/",
-    "signature": "7caa18990a169739675f6cb8a849674791c866c5"
+    "signature": "9e23a3324bd45f87bed2a1295a2dc1e77286cb09"
   },
   "compilationOptions": {},
   "targets": {
@@ -9,18 +9,18 @@
     ".NETStandard,Version=v2.0/": {
       "InterfaceFodyAddin.Fody/1.0.0": {
         "dependencies": {
-          "FodyHelpers": "3.1.4",
+          "FodyHelpers": "4.0.2",
           "NETStandard.Library": "2.0.3"
         },
         "runtime": {
           "InterfaceFodyAddin.Fody.dll": {}
         }
       },
-      "FodyHelpers/3.1.4": {
+      "FodyHelpers/4.0.2": {
         "runtime": {
           "lib/netstandard2.0/FodyHelpers.dll": {
-            "assemblyVersion": "3.1.4.0",
-            "fileVersion": "3.1.4.0"
+            "assemblyVersion": "4.0.2.0",
+            "fileVersion": "4.0.2.0"
           },
           "lib/netstandard2.0/Mono.Cecil.Mdb.dll": {
             "assemblyVersion": "0.10.0.0",
@@ -54,17 +54,17 @@
       "serviceable": false,
       "sha512": ""
     },
-    "FodyHelpers/3.1.4": {
+    "FodyHelpers/4.0.2": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-4Bbt8MzBcqlqI8JTHjIAIE63xWfux6/ODvkW9rEiUel+KHU8CVJhD5Wm9ljgWUXo9LeRkPL4NvqcW37wm1ZctA==",
-      "path": "fodyhelpers/3.1.4",
-      "hashPath": "fodyhelpers.3.1.4.nupkg.sha512"
+      "sha512": "sha512-M8bT+J+ZVlBtg2yD9gs1t+w7fzJ1wt6ANXS75SqfjVO5IIsjC4nWIdkKpTEtZyrVggjIxn8i1fnBNpjE7CgKZQ==",
+      "path": "fodyhelpers/4.0.2",
+      "hashPath": "fodyhelpers.4.0.2.nupkg.sha512"
     },
     "Microsoft.NETCore.Platforms/1.1.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-kz0PEW2lhqygehI/d6XsPCQzD7ff7gUJaVGPVETX611eadGsA3A877GdSlU0LRVMCTH/+P3o2iDTak+S08V2+A==",
+      "sha512": "sha512-a/iSwnRZb+LHFk49hQOyThh/ZNC3vsbZsF65XwQIb863qF6msmhdQtxGXFL28Ob2NsCz/drEj28BJd/YPpLRBg==",
       "path": "microsoft.netcore.platforms/1.1.0",
       "hashPath": "microsoft.netcore.platforms.1.1.0.nupkg.sha512"
     },

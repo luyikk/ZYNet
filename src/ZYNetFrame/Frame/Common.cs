@@ -21,8 +21,6 @@ namespace ZYNet.CloudSystem.Frame
             if (type == baseType)
                 return true;
 
-
-
             if (type.BaseType == null)
                 return false;
 
@@ -30,8 +28,6 @@ namespace ZYNet.CloudSystem.Frame
                 return true;
             else
                 return IsTypeOfBaseTypeIs(type.BaseType, baseType);
-
-
         }
 
     }
